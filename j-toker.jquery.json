@@ -1,0 +1,28 @@
+{
+  "name": "j-toker",
+  "title": "j-toker",
+  "description": "Token based authentication for jQuery.",
+  "version": "0.0.1",
+  "homepage": "github.com/lynndylanhurley/j-toker",
+  "author": {
+    "name": "Lynn Dylan Hurley",
+    "url": "https://github.com/lynndylanhurley"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/lynndylanhurley/j-toker"
+  },
+  "bugs": "",
+  "licenses": [
+    {
+      "type": "WTFPL",
+      "url": "http://opensource.org/licenses/WTFPL"
+    }
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3"
+  },
+  "keywords": [
+    "jquery-plugin"
+  ]
+}
