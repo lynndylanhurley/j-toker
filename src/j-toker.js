@@ -8,7 +8,18 @@
 (function ($) {
   // shut up jshint
   var console = window.console;
+
+  // cookie/localStorage value keys
   var SAVED_CONFIG_KEY = 'currentConfigName';
+  var SAVED_CREDS_KEY  = 'authHeaders';
+
+  // broadcast message event name constants (use constants to avoid typos)
+  var VALIDATION_SUCCESS = 'auth.validationSuccess';
+  var VALIDATION_ERROR   = 'auth.validationError';
+  //var EMAIL_CONFIRMATION_SUCCESS = 'auth:email-confirmation-success'
+  //var EMAIL_CONFIRMATION_ERROR = 'auth:email-confirmation-error'
+  //var PASSWORD_RESET_SUCCESS     = 'auth:password-reset-confirm-success'
+  //var PASSWORD_RESET_ERROR     = 'auth:password-reset-confirm-error'
 
   console.log('===== init jToker ======');
 
@@ -22,6 +33,9 @@
     // default config will be first named config or "default"
     this.initialDefaultConfigKey = 'default';
     this.defaultConfigKey        = null;
+
+    // save reference to user
+    this.user = {};
 
     // base config from which other configs are extended
     this.configBase = {
@@ -91,14 +105,31 @@
     this.initialized       = false;
 
     // clean up session
-    this.deleteData('authHeaders');
+    this.deleteData(SAVED_CREDS_KEY);
     this.deleteData(SAVED_CONFIG_KEY);
+  };
+
+
+  Auth.prototype.invalidateTokens = function() {
+    // clear user object, but don't destroy object in case of bindings
+    for (var key in this.user) {
+      delete this.user[key];
+    }
+
+    // clear auth session data
+    this.deleteData(SAVED_CONFIG_KEY);
+    this.deleteData(SAVED_CREDS_KEY);
   };
 
 
   // throw clear errors when dependencies are not met
   Auth.prototype.checkDependencies = function() {
-    var errors = [];
+    var errors = [],
+        warnings = [];
+
+    if (!$) {
+      throw 'jToker: jQuery not found. This module depends on jQuery.';
+    }
 
     if (!window.localStorage && !$.cookie) {
       errors.push(
@@ -111,9 +142,20 @@
       errors.push('Dependency not met: jquery-deparam.');
     }
 
+    if (!$.subscribe) {
+      warnings.push(
+        'jquery.ba-tinypubsub.js not found. No auth events will be broadcast.'
+      );
+    }
+
     if (errors.length) {
-      var message = errors.join(' ');
-      throw 'jToker: Please resolve the following errors: ' + message;
+      var errMessage = errors.join(' ');
+      throw 'jToker: Please resolve the following errors: ' + errMessage;
+    }
+
+    if (warnings.length && window.console && window.console.warn) {
+      var warnMessage = warnings.join(' ');
+      console.warn('jToker: Warning: ' + warnMessage);
     }
   };
 
@@ -189,28 +231,86 @@
   };
 
 
+  // abstract publish method, only use if pubsub exists.
+  // TODO: allow broadcast method to be configured
+  Auth.prototype.broadcastEvent = function(msg, data) {
+    if ($.publish) {
+      $.publish(msg, data);
+    }
+  };
+
+
+  // always resolve after 0 timeout to ensure that ajaxComplete callback
+  // has run before promise is resolved
+  Auth.prototype.resolvePromise = function(evMsg, dfd, data) {
+    var self = this;
+    setTimeout(function() {
+      self.broadcastEvent(evMsg, data);
+      dfd.resolve(data);
+    }, 0);
+  };
+
+
+  // always reject after 0 timeout to ensure that ajaxComplete callback
+  // has run before promise is rejected
+  Auth.prototype.rejectPromise = function(evMsg, dfd, data, reason) {
+    var self = this;
+    setTimeout(function() {
+      self.broadcastEvent(evMsg, data);
+      dfd.reject({
+        reason: reason,
+        data: data
+      });
+    }, 0);
+  };
+
+
   // TODO: document
   Auth.prototype.validateToken = function(configKey) {
     var dfd = $.Deferred();
 
-    if (!this.retrieveData('authHeaders')) {
-      dfd.reject({
-        reason: 'Cannot validate token; no token found.'
-      });
+    // no creds, reject promise without making API call
+    if (!this.retrieveData(SAVED_CREDS_KEY)) {
+      // clear any saved session data
+      this.invalidateTokens();
+
+      // reject promise, broadcast event
+      this.rejectPromise(
+        VALIDATION_ERROR,
+        dfd,
+        {},
+        'Cannot validate token; no token found.'
+      );
     } else {
       var config = this.getConfig(configKey),
           url    = config.apiUrl + config.tokenValidationPath;
 
+      // found saved creds, verify with API
       $.ajax({
-        url: url,
+        url:     url,
+        context: this,
+
+        // good creds, handle validation success
         success: function(resp) {
-          dfd.resolve(resp);
+          // save user data, preserve bindings to original user object
+          $.extend(this.user, resp);
+
+          // fulfill promise, broadcast event
+          this.resolvePromise(VALIDATION_SUCCESS, dfd, resp);
         },
+
+        // bad creds, handle validation failure
         error: function(resp) {
-          dfd.reject({
-            reason: 'Cannot validate token; token rejected by server.',
-            response: resp
-          });
+          // clear any saved session data
+          this.invalidateTokens();
+
+          // reject promise
+          this.rejectPromise(
+            VALIDATION_ERROR,
+            dfd,
+            resp,
+            'Cannot validate token; token rejected by server.'
+          );
         }
       });
     }
@@ -262,13 +362,14 @@
         break;
     }
 
+    // if value is a simple string, the parser will fail. in that case, simply
+    // unescape the quotes and return the string.
     try {
       // return parsed json response
       return JSON.parse(val);
     } catch (err) {
       // unescape quotes
-      unescapeQuotes(val);
-      return ;
+      return unescapeQuotes(val);
     }
   };
 
@@ -277,7 +378,9 @@
   Auth.prototype.deleteData = function(key) {
     switch (this.getConfig().storage) {
       case 'cookies':
-        $.removeCookie(key);
+        $.removeCookie(key, {
+          path: this.getConfig().cookiePath
+        });
         break;
 
       default:
@@ -334,6 +437,11 @@
   };
 
 
+  var isApiRequest = function(url) {
+    return (url.match($.auth.getConfig().apiUrl));
+  };
+
+
   // save global reference to service
   $.auth = new Auth();
 
@@ -346,40 +454,54 @@
   $.auth.recoverSession();
 
 
-  // intercept requests to the API, append auth headers
-  $(document).ajaxSend(function(ev, xhr, req) {
-    var interceptRequest = false;
-
-    // check config apiUrl matches the current request url
-    // also ensure that the request hasn't already been authorized
-    if (req.url.match($.auth.getConfig().apiUrl) && !req.authorized) {
-      interceptRequest = true;
-    }
-
-    if (interceptRequest) {
-      // fetch current auth headers from storage
-      var currentHeaders = $.auth.retrieveData('authHeaders');
-
+  $(document).ajaxComplete(function(ev, xhr, resp) {
+    // check config apiUrl matches the current response url
+    if (isApiRequest(resp.url)) {
       // set header for each key in `tokenFormat` config
-      req.headers = req.headers || {};
+      var newHeaders = resp.headers || {};
+
+      // set flag to ensure that we don't accidentally nuke the headers
+      // if the response tokens aren't sent back from the API
+      var blankHeaders = true;
+
+      // set header key + val for each key in `tokenFormat` config
       for (var key in $.auth.getConfig().tokenFormat) {
-        req.headers[key] = currentHeaders[key];
+        newHeaders[key] = xhr.getResponseHeader(key);
+
+        if (newHeaders[key]) {
+          blankHeaders = false;
+        }
       }
 
-      // flag request so that we don't intercept again
-      req.authorized = true;
-
-      // resend request with modified headers
-      $.ajax(req);
-
-      // block current (unauthed) request
-      return false;
+      // persist headers for next request
+      if (!blankHeaders) {
+        $.auth.persistData(SAVED_CREDS_KEY, newHeaders);
+      }
     }
   });
 
 
-  // validate saved session tokens on page load
+  // intercept requests to the API, append auth headers
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+
+      // check config apiUrl matches the current request url
+      if (isApiRequest(settings.url)) {
+
+        // fetch current auth headers from storage
+        var currentHeaders = $.auth.retrieveData(SAVED_CREDS_KEY);
+
+        // set header for each key in `tokenFormat` config
+        for (var key in $.auth.getConfig().tokenFormat) {
+          xhr.setRequestHeader(key, currentHeaders[key]);
+        }
+      }
+    }
+  });
+
+
   $(function() {
+    // validate saved session tokens on page load
     if ($.auth.getConfig().validateOnPageLoad) {
       $.auth.validateToken();
     }

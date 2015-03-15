@@ -1,48 +1,47 @@
 (function ($) {
-  module('jQuery.auth.configure');
+  QUnit.module('jQuery.auth.configure');
 
   QUnit.testStart(function() {
     $.auth.reset();
   });
 
 
-  QUnit.test('config happens lazily unless done explicitly', function() {
+  QUnit.test('config happens lazily unless done explicitly', function(assert) {
     var expected = window.defaultConfig;
     var actual   = $.auth.getConfig();
 
-    strictEqual(expected.apiUrl,                actual.apiUrl);
-    strictEqual(expected.signOutUrl,            actual.signOutUrl);
-    strictEqual(expected.emailSignInPath,       actual.emailSignInPath);
-    strictEqual(expected.emailRegistrationPath, actual.emailRegistrationPath);
-    strictEqual(expected.accountUpdatePath,     actual.accountUpdatePath);
-    strictEqual(expected.accountDeletePath,     actual.accountDeletePath);
-    strictEqual(expected.passwordResetPath,     actual.passwordResetPath);
-    strictEqual(expected.passwordUpdatePath,    actual.passwordUpdatePath);
-    strictEqual(expected.tokenValidationPath,   actual.tokenValidationPath);
-    strictEqual(expected.proxyUrl,              actual.proxyUrl);
-    //strictEqual(expected.validateOnPageLoad,    actual.validateOnPageLoad);
-    strictEqual(expected.forceHardRedirect,     actual.forceHardRedirect);
-    strictEqual(expected.storage,               actual.storage);
+    assert.strictEqual(expected.apiUrl,                actual.apiUrl);
+    assert.strictEqual(expected.signOutUrl,            actual.signOutUrl);
+    assert.strictEqual(expected.emailSignInPath,       actual.emailSignInPath);
+    assert.strictEqual(expected.emailRegistrationPath, actual.emailRegistrationPath);
+    assert.strictEqual(expected.accountUpdatePath,     actual.accountUpdatePath);
+    assert.strictEqual(expected.accountDeletePath,     actual.accountDeletePath);
+    assert.strictEqual(expected.passwordResetPath,     actual.passwordResetPath);
+    assert.strictEqual(expected.passwordUpdatePath,    actual.passwordUpdatePath);
+    assert.strictEqual(expected.tokenValidationPath,   actual.tokenValidationPath);
+    assert.strictEqual(expected.proxyUrl,              actual.proxyUrl);
+    assert.strictEqual(expected.forceHardRedirect,     actual.forceHardRedirect);
+    assert.strictEqual(expected.storage,               actual.storage);
 
-    strictEqual(expected.proxyIf(), actual.proxyIf());
-    strictEqual(expected.passwordResetSuccessUrl(), actual.passwordResetSuccessUrl());
-    strictEqual(expected.confirmationSuccessUrl(), actual.confirmationSuccessUrl());
+    assert.strictEqual(expected.proxyIf(), actual.proxyIf());
+    assert.strictEqual(expected.passwordResetSuccessUrl(), actual.passwordResetSuccessUrl());
+    assert.strictEqual(expected.confirmationSuccessUrl(), actual.confirmationSuccessUrl());
 
-    deepEqual(expected.tokenFormat, actual.tokenFormat);
-    deepEqual(expected.authProviderPaths, actual.authProviderPaths);
+    assert.deepEqual(expected.tokenFormat, actual.tokenFormat);
+    assert.deepEqual(expected.authProviderPaths, actual.authProviderPaths);
   });
 
 
-  QUnit.test('config params override the defaults', function() {
+  QUnit.test('config params override the defaults', function(assert) {
     var apiUrl = '//api.cyclonopedia.dev';
 
     $.auth.configure({apiUrl: apiUrl});
-    strictEqual(apiUrl, $.auth.getConfig().apiUrl);
-    strictEqual(window.defaultConfig.signOutUrl, $.auth.getConfig().signOutUrl);
+    assert.strictEqual(apiUrl, $.auth.getConfig().apiUrl);
+    assert.strictEqual(window.defaultConfig.signOutUrl, $.auth.getConfig().signOutUrl);
   });
 
 
-  QUnit.test('multiple configs both extend the defaults', function() {
+  QUnit.test('multiple configs both extend the defaults', function(assert) {
     var defaultApiUrl = '//api.cyclonopedia.dev';
     var secondApiUrl  = '//api.contra3.dev';
     var signOutUrl    = window.defaultConfig.signOutUrl;
@@ -61,15 +60,15 @@
     ]);
 
     // both override the defaults
-    strictEqual(defaultApiUrl, $.auth.getConfig('first').apiUrl);
-    strictEqual(secondApiUrl, $.auth.getConfig('second').apiUrl);
+    assert.strictEqual(defaultApiUrl, $.auth.getConfig('first').apiUrl);
+    assert.strictEqual(secondApiUrl, $.auth.getConfig('second').apiUrl);
 
     // 'first' item in array is set to default
-    strictEqual(defaultApiUrl, $.auth.getConfig().apiUrl);
+    assert.strictEqual(defaultApiUrl, $.auth.getConfig().apiUrl);
 
     // both retain the defaults where not overridden
-    strictEqual(signOutUrl, $.auth.getConfig('first').signOutUrl);
-    strictEqual(signOutUrl, $.auth.getConfig('second').signOutUrl);
+    assert.strictEqual(signOutUrl, $.auth.getConfig('first').signOutUrl);
+    assert.strictEqual(signOutUrl, $.auth.getConfig('second').signOutUrl);
   });
 
 }(jQuery));
