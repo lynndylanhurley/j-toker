@@ -6,33 +6,47 @@
  * Licensed under the WTFPL license.
  */
 (function ($) {
+  // ghetto singleton
+  if ($.auth) {
+    return;
+  }
+
   // shut up jshint
   var console = window.console;
+  //var nav     = window.navigator;
 
   // cookie/localStorage value keys
-  var SAVED_CONFIG_KEY = 'currentConfigName';
-  var SAVED_CREDS_KEY  = 'authHeaders';
+  var INITIAL_CONFIG_KEY = 'default';
+  var SAVED_CONFIG_KEY   = 'currentConfigName';
+  var SAVED_CREDS_KEY    = 'authHeaders';
 
   // broadcast message event name constants (use constants to avoid typos)
-  var VALIDATION_SUCCESS = 'auth.validationSuccess';
-  var VALIDATION_ERROR   = 'auth.validationError';
-  //var EMAIL_CONFIRMATION_SUCCESS = 'auth:email-confirmation-success'
-  //var EMAIL_CONFIRMATION_ERROR = 'auth:email-confirmation-error'
-  //var PASSWORD_RESET_SUCCESS     = 'auth:password-reset-confirm-success'
-  //var PASSWORD_RESET_ERROR     = 'auth:password-reset-confirm-error'
+  var VALIDATION_SUCCESS         = 'auth.validationSuccess';
+  var VALIDATION_ERROR           = 'auth.validationError';
+  var EMAIL_REGISTRATION_SUCCESS = 'auth.emailRegistrationSuccess';
+  var EMAIL_REGISTRATION_ERROR   = 'auth.emailRegistrationError';
+  var EMAIL_CONFIRMATION_SUCCESS = 'auth.emailConfirmationSuccess';
+  var EMAIL_CONFIRMATION_ERROR   = 'auth.emailConfirmationError';
+  var PASSWORD_RESET_SUCCESS     = 'auth.passwordResetConfirmSuccess';
+  var PASSWORD_RESET_ERROR       = 'auth.passwordResetConfirmError';
 
   console.log('===== init jToker ======');
 
   var Auth = function () {
-    // set flag so we know if plugin has been configured
-    this.initialized = false;
+    // set flag so we know when plugin has been configured.
+    this.configured = false;
 
     // configs hash allows for multiple configurations
     this.configs = {};
 
     // default config will be first named config or "default"
-    this.initialDefaultConfigKey = 'default';
-    this.defaultConfigKey        = null;
+    this.defaultConfigKey = null;
+
+    // this will be flagged when users return from email confirmation
+    this.firstTimeLogin = false;
+
+    // this will be flagged when users return from password change confirmation
+    this.mustResetPassword = false;
 
     // save reference to user
     this.user = {};
@@ -67,7 +81,7 @@
       tokenFormat: {
         "access-token": "{{ token }}",
         "token-type":   "Bearer",
-        client:         "{{ clientId }}",
+        client:         "{{ client }}",
         expiry:         "{{ expiry }}",
         uid:            "{{ uid }}"
       },
@@ -100,13 +114,18 @@
 
   // mostly for testing. reset all config values
   Auth.prototype.reset = function() {
-    this.configs           = {};
-    this.defaultConfigKey  = null;
-    this.initialized       = false;
+    // clean up session without relying on `getConfig`
+    this.destroySession();
 
-    // clean up session
-    this.deleteData(SAVED_CREDS_KEY);
-    this.deleteData(SAVED_CONFIG_KEY);
+    this.configs          = {};
+    this.defaultConfigKey = null;
+    this.configured       = false;
+
+    // remove event listeners
+    $(document).unbind('ajaxComplete', this.updateAuthCredentials);
+
+    // remove global ajax settings
+    $.ajaxSetup({beforeSend: undefined});
   };
 
 
@@ -157,39 +176,49 @@
       var warnMessage = warnings.join(' ');
       console.warn('jToker: Warning: ' + warnMessage);
     }
+
+  };
+
+  // need a way to destroy the current session without relying on `getConfig`.
+  // otherwise we get into infinite loop territory.
+  Auth.prototype.destroySession = function() {
+    var sessionKeys = [
+      SAVED_CREDS_KEY,
+      SAVED_CONFIG_KEY
+    ];
+
+    for (var key in sessionKeys) {
+      key = sessionKeys[key];
+
+      // kill all local storage keys
+      if (window.localStorage) {
+        window.localStorage.removeItem(key);
+      }
+
+      if ($.cookie) {
+        // each config may have different cookiePath settings
+        for (var config in this.configs) {
+          var cookiePath = this.configs[config].cookiePath;
+
+          $.removeCookie(key, {
+            path: cookiePath
+          });
+        }
+      }
+    }
   };
 
 
-  // check for evidence from past sessions
-  Auth.prototype.recoverSession = function() {
-    var savedConfigKey,
-        key = SAVED_CONFIG_KEY;
-
-    // first check localstorage for saved config name
-    if (window.localStorage) {
-      savedConfigKey = JSON.parse(window.localStorage.getItem(key));
+  Auth.prototype.configure = function(opts, reset) {
+    // destroy all session data. useful for testing
+    if (reset) {
+      this.reset();
     }
 
-    // check cookies if not found in localstorage
-    if (!savedConfigKey && $.cookie) {
-      savedConfigKey = $.cookie(key);
-    }
+    // set flag so configure isn't called again (unless reset)
+    this.configured = true;
 
-    // finally set config key as default if found
-    if (savedConfigKey) {
-      this.defaultConfigKey = unescapeQuotes(savedConfigKey);
-    } else {
-      this.defaultConfigKey = null;
-    }
-  };
-
-
-  Auth.prototype.configure = function(opts) {
-    // re-initialize config hash
-    this.configs = {};
-    this.defaultConfigKey = null;
-
-    // fall back to empty object
+    // normalize opts into object object
     if (!opts) {
       opts = {};
     }
@@ -198,7 +227,7 @@
     if (opts.constructor !== Array) {
       // single config will always be called 'default' unless set
       // by previous session
-      this.defaultConfigKey = this.initialDefaultConfigKey;
+      this.defaultConfigKey = INITIAL_CONFIG_KEY;
 
       // config should look like {default: {...}}
       var defaultConfig = {};
@@ -223,11 +252,71 @@
       );
     }
 
-    // set flag so `getConfig` doesn't re-initialize
-    this.initialized = true;
+    // ensure that setup requirements have been met
+    this.checkDependencies();
 
-    // return default config
-    return this.configs[this.defaultConfigKey];
+    // TODO: add config option for these bindings
+    if (true) {
+      // update auth creds after each request to the API
+      $(document).ajaxComplete($.auth.updateAuthCredentials);
+
+      // intercept requests to the API, append auth headers
+      $.ajaxSetup({beforeSend: $.auth.appendAuthHeaders});
+    }
+
+    // pull creds from search bar if available
+    this.getTokenFromSearch();
+
+    // validate token if set
+    return this.validateToken();
+  };
+
+
+  Auth.prototype.getTokenFromSearch = function() {
+    var searchParams  = this.getQs(),
+        newHeaders    = null,
+        tokenFmt      = this.getConfig().tokenFormat,
+        targetKeyList = [
+          'token',
+          'client',
+          'expiry',
+          'uid',
+          'reset_password',
+          'account_confirmation_success'
+        ];
+
+    // only bother with this if minimum search params are present
+    if (searchParams.token && searchParams.uid) {
+      newHeaders = {};
+
+      // save all headers that match the keys of the tokenFormat config param
+      for (var key in tokenFmt) {
+        newHeaders[key] = tmpl(tokenFmt[key], searchParams);
+      }
+
+      // save all token headers to session
+      this.persistData(SAVED_CREDS_KEY, newHeaders);
+
+      // check if user is returning from password reset link
+      if (searchParams.reset_password) {
+        this.mustResetPassword = true;
+      }
+
+      // check if user is returning from confirmation email
+      if (searchParams.account_confirmation_success) {
+        this.firstTimeLogin = true;
+      }
+
+      // strip all values from search params
+      for (var q in targetKeyList) {
+        delete searchParams[targetKeyList[q]];
+      }
+
+      // set qs without auth keys/values
+      this.setQs(searchParams);
+    }
+
+    return newHeaders;
   };
 
 
@@ -290,21 +379,33 @@
         url:     url,
         context: this,
 
-        // good creds, handle validation success
         success: function(resp) {
           // save user data, preserve bindings to original user object
           $.extend(this.user, resp);
 
-          // fulfill promise, broadcast event
+          if (this.firstTimeLogin) {
+            this.broadcastEvent(EMAIL_CONFIRMATION_SUCCESS, resp);
+          }
+
+          if (this.mustResetPassword) {
+            this.broadcastEvent(PASSWORD_RESET_SUCCESS, resp);
+          }
+
           this.resolvePromise(VALIDATION_SUCCESS, dfd, resp);
         },
 
-        // bad creds, handle validation failure
         error: function(resp) {
           // clear any saved session data
           this.invalidateTokens();
 
-          // reject promise
+          if (this.firstTimeLogin) {
+            this.broadcastEvent(EMAIL_CONFIRMATION_ERROR, resp);
+          }
+
+          if (this.mustResetPassword) {
+            this.broadcastEvent(PASSWORD_RESET_ERROR, resp);
+          }
+
           this.rejectPromise(
             VALIDATION_ERROR,
             dfd,
@@ -319,7 +420,39 @@
   };
 
 
-  //Auth.prototype.signUp             = function(config) {};
+  // TODO: document
+  Auth.prototype.emailSignUp = function(opts) {
+    // normalize opts
+    if (!opts) {
+      opts = {};
+    }
+
+    var config = this.getConfig(opts.config),
+        url    = config.apiUrl + config.emailRegistrationPath,
+        dfd    = $.Deferred();
+
+    $.ajax({
+      url: url,
+      context: this,
+      method: 'POST',
+
+      success: function(resp) {
+        this.resolvePromise(EMAIL_REGISTRATION_SUCCESS, dfd, resp);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          EMAIL_REGISTRATION_ERROR,
+          dfd,
+          resp,
+          'Failed to submit email registration.'
+        );
+      }
+    });
+
+    return dfd.promise();
+  };
+
   //Auth.prototype.emailSignIn        = function(config) {};
   //Auth.prototype.oAuthSignIn        = function(config) {};
   //Auth.prototype.signOut            = function(config) {};
@@ -374,6 +507,25 @@
   };
 
 
+  // this method cannot rely on `retrieveData` because `retrieveData` relies
+  // on `getConfig` and we need to get the config name before `getConfig` can
+  // be called. TL;DR prevent infinite loop by checking all forms of storage
+  // and returning the first config name found
+  Auth.prototype.getCurrentConfigName = function() {
+    var configName = null;
+
+    if ($.cookie) {
+      configName = $.cookie(SAVED_CONFIG_KEY);
+    }
+
+    if (window.localStorage && !configName) {
+      configName = window.localStorage.getItem(SAVED_CONFIG_KEY);
+    }
+
+    return configName || this.defaultConfigKey || INITIAL_CONFIG_KEY;
+  };
+
+
   // abstract deletion of session data
   Auth.prototype.deleteData = function(key) {
     switch (this.getConfig().storage) {
@@ -395,32 +547,82 @@
   // 2. first available configuration
   // 2. default config
   Auth.prototype.getConfig = function(key) {
-    // configure if not initialized
-    if (!this.initialized) {
-      this.configure();
+    // configure if not configured
+    if (!this.configured) {
+      throw 'jToker: `configure` must be run before using this plugin.';
     }
 
     // fall back to default unless config key is passed
-    key = key || this.defaultConfigKey;
+    key = key || this.getCurrentConfigName();
 
     return this.configs[key];
   };
 
 
-  Auth.prototype.setHref = function(href) {
-    window.location.href = href;
-    return window.location.href;
+  // send auth credentials with all requests to the API
+  Auth.prototype.appendAuthHeaders = function(xhr, settings) {
+    // fetch current auth headers from storage
+    var currentHeaders = $.auth.retrieveData(SAVED_CREDS_KEY);
+
+    // check config apiUrl matches the current request url
+    if (isApiRequest(settings.url) && currentHeaders) {
+
+      // set header for each key in `tokenFormat` config
+      for (var key in $.auth.getConfig().tokenFormat) {
+        xhr.setRequestHeader(key, currentHeaders[key]);
+      }
+    }
   };
 
 
-  Auth.prototype.setQS = function(params) {
-    window.location.search = $.param(params);
+  // update auth credentials after request is made to the API
+  Auth.prototype.updateAuthCredentials = function(ev, xhr, settings) {
+    // check config apiUrl matches the current response url
+    if (isApiRequest(settings.url)) {
+      // set header for each key in `tokenFormat` config
+      var newHeaders = {};
+
+      // set flag to ensure that we don't accidentally nuke the headers
+      // if the response tokens aren't sent back from the API
+      var blankHeaders = true;
+
+      // set header key + val for each key in `tokenFormat` config
+      for (var key in $.auth.getConfig().tokenFormat) {
+        newHeaders[key] = xhr.getResponseHeader(key);
+
+        if (newHeaders[key]) {
+          blankHeaders = false;
+        }
+      }
+
+      // persist headers for next request
+      if (!blankHeaders) {
+        $.auth.persistData(SAVED_CREDS_KEY, newHeaders);
+      }
+    }
+  };
+
+
+  // stub for mock overrides
+  Auth.prototype.getRawSearch = function() {
     return window.location.search;
   };
 
 
-  Auth.prototype.getQS = function() {
-    return window.deparam(window.location.search);
+  // stub for mock overrides
+  Auth.prototype.setRawSearch = function(s) {
+    window.location.search = s;
+  };
+
+
+  Auth.prototype.setQs = function(params) {
+    this.setRawSearch($.param(params));
+    return this.getQs();
+  };
+
+
+  Auth.prototype.getQs = function() {
+    return window.deparam(this.getRawSearch());
   };
 
 
@@ -442,69 +644,48 @@
   };
 
 
+  // simple string templating. stolen from:
+  // http://stackoverflow.com/questions/14879866/javascript-templating-function-replace-string-and-dont-take-care-of-whitespace
+  var tmpl = function(str, obj) {
+    var replacer = function(wholeMatch, key) {
+          return obj[key] === undefined ? wholeMatch : obj[key];
+        },
+        regexp = new RegExp('{{\\s*([a-z0-9-_]+)\\s*}}',"ig");
+
+    for(var beforeReplace = ""; beforeReplace !== str; str = (beforeReplace = str).replace(regexp, replacer)){
+
+    }
+    return str;
+  };
+
+
+  // check if using IE
+  //var isIE = function() {
+    //var ua = nav.userAgent.toLowerCase();
+    //return (
+      //ua && ua.indexOf('msie') !== -1) ||
+      //!!ua.match(/Trident.*rv\:11\./
+    //);
+  //};
+
+
+  // check if IE < 10
+  //var isOldIE = function() {
+    //var oldIE = false,
+        //ua    = nav.userAgent.toLowerCase();
+
+    //if (ua && ua.indexOf('msie') !== -1) {
+      //var version = parseInt(ua.split('msie')[1]);
+      //if (version < 10) {
+        //oldIE = true;
+      //}
+    //}
+
+    //return oldIE;
+  //};
+
+
   // save global reference to service
   $.auth = new Auth();
-
-
-  // ensure that setup requirements have been met
-  $.auth.checkDependencies();
-
-
-  // check if user is returning from past session
-  $.auth.recoverSession();
-
-
-  $(document).ajaxComplete(function(ev, xhr, resp) {
-    // check config apiUrl matches the current response url
-    if (isApiRequest(resp.url)) {
-      // set header for each key in `tokenFormat` config
-      var newHeaders = resp.headers || {};
-
-      // set flag to ensure that we don't accidentally nuke the headers
-      // if the response tokens aren't sent back from the API
-      var blankHeaders = true;
-
-      // set header key + val for each key in `tokenFormat` config
-      for (var key in $.auth.getConfig().tokenFormat) {
-        newHeaders[key] = xhr.getResponseHeader(key);
-
-        if (newHeaders[key]) {
-          blankHeaders = false;
-        }
-      }
-
-      // persist headers for next request
-      if (!blankHeaders) {
-        $.auth.persistData(SAVED_CREDS_KEY, newHeaders);
-      }
-    }
-  });
-
-
-  // intercept requests to the API, append auth headers
-  $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-
-      // check config apiUrl matches the current request url
-      if (isApiRequest(settings.url)) {
-
-        // fetch current auth headers from storage
-        var currentHeaders = $.auth.retrieveData(SAVED_CREDS_KEY);
-
-        // set header for each key in `tokenFormat` config
-        for (var key in $.auth.getConfig().tokenFormat) {
-          xhr.setRequestHeader(key, currentHeaders[key]);
-        }
-      }
-    }
-  });
-
-
-  $(function() {
-    // validate saved session tokens on page load
-    if ($.auth.getConfig().validateOnPageLoad) {
-      $.auth.validateToken();
-    }
-  });
 
 }(jQuery));

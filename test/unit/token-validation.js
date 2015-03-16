@@ -5,23 +5,14 @@
     beforeEach: function() {
       this.server = sinon.fakeServer.create();
       sinon.spy($.auth, 'broadcastEvent');
-      $.auth.reset();
+      $.auth.configure({}, true);
     },
 
     afterEach: function() {
       this.server = sinon.fakeServer.restore();
       $.auth.broadcastEvent.restore();
+      $.auth.reset();
     }
-  });
-
-
-  QUnit.test('saved config values are recovered after page reload (cookies)', function(assert) {
-    var configName = 'cobra';
-
-    $.auth.persistData('currentConfigName', configName);
-    $.auth.recoverSession();
-
-    assert.strictEqual(configName, $.auth.defaultConfigKey);
   });
 
 
@@ -29,10 +20,10 @@
     '`validateToken` makes request to the API using default params',
     function(assert) {
       var currentToken = {'access-token': 'xxx'},
-          newToken   = 'yyy',
-          done       = assert.async(),
-          validEmail = 'test@test.com',
-          validUid   = validEmail;
+          newToken     = 'yyy',
+          done         = assert.async(),
+          validEmail   = 'test@test.com',
+          validUid     = validEmail;
 
       // mock success response
       this.server.respondWith('GET', '/api/auth/validate_token', [
