@@ -1,10 +1,8 @@
 (function ($) {
   var sinon           = window.sinon,
-      validEmail      = 'test@test.com',
-      password        = 'secret123',
-      passwordConfirm = password;
+      validEmail      = 'test@test.com';
 
-  QUnit.module('jQuery.auth.emailSignUp', {
+  QUnit.module('jQuery.auth.passwordResetRequest', {
     beforeEach: function() {
       this.server = sinon.fakeServer.create();
       sinon.spy($.auth, 'broadcastEvent');
@@ -20,7 +18,7 @@
 
 
   QUnit.test(
-    '`emailSignUp` makes API request, broadcasts event upon success',
+    '`passwordResetRequest` makes API request, broadcasts event upon success',
     function(assert) {
       var done   = assert.async(),
           server = this.server;
@@ -33,15 +31,11 @@
           success: true
         })]);
 
-      $.auth.emailSignUp({
-        email:                 validEmail,
-        password:              password,
-        password_confirmation: passwordConfirm
-      })
+      $.auth.requestPasswordReset({email: validEmail})
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.emailRegistrationSuccess'),
-            '`auth.emailRegistrationSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.passwordResetRequestSuccess'),
+            '`auth.passwordResetRequestSuccess` event was broadcast'
           );
 
           assert.strictEqual(
@@ -63,7 +57,7 @@
 
 
   QUnit.test(
-    '`emailSignUp` broadcasts event upon failure',
+    '`passwordResetRequest` broadcasts event upon failure',
     function(assert) {
       var done   = assert.async(),
           server = this.server;
@@ -76,18 +70,16 @@
           success: false
         })]);
 
-      $.auth.emailSignUp({
-        email:                 validEmail,
-        password:              password,
-        password_confirmation: passwordConfirm
+      $.auth.requestPasswordReset({
+        email: validEmail,
       })
         .then(function() {
           throw "Email sign in succeeded during failure test";
         })
         .fail(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.emailRegistrationError'),
-            '`auth.emailRegistrationError` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.passwordResetRequestError'),
+            '`auth.passwordResetRequestError` event was broadcast'
           );
 
           assert.strictEqual(
@@ -104,3 +96,4 @@
   );
 
 }(jQuery));
+

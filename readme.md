@@ -22,6 +22,10 @@ In your web page:
 </script>
 ```
 
+## Credits
+
+* [this yeoman generator](https://github.com/yeoman/generator-jquery)
+* [this SO post on string templating](http://stackoverflow.com/questions/14879866/javascript-templating-function-replace-string-and-dont-take-care-of-whitespace)
 
 ## License
 

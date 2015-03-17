@@ -17,7 +17,7 @@
   };
 
 
-  QUnit.module('jQuery.auth.emailSignUp Confirmation', {
+  QUnit.module('jQuery.auth.requestPasswordReset Confirmation', {
     beforeEach: function() {
       this.server = sinon.fakeServer.create();
       sinon.spy($.auth,  'broadcastEvent');
@@ -38,7 +38,7 @@
 
 
   QUnit.test(
-    'email confirmation tokens are read from the URL and validated '+
+    'password confirmation tokens are read from the URL and validated '+
     'against the API',
     function(assert) {
       var initialCreds = {
@@ -63,7 +63,7 @@
         client:    clientId,
         expiry:    expiry,
         randomKey: randomKey,
-        account_confirmation_success: true
+        reset_password: true
       });
 
       // mock success response
@@ -95,10 +95,9 @@
         '`validateToken` was only called once and only once'
       );
 
-      assert.strictEqual(
-        'auth.emailConfirmationSuccess',
-        $.auth.broadcastEvent.getCall(0).args[0],
-        '`auth.emailConfirmationSuccess` event was broadcast'
+      assert.ok(
+        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirmSuccess'),
+        '`auth.passwordResetConfirmSuccess` event was broadcast'
       );
 
       assert.deepEqual(
@@ -117,7 +116,7 @@
 
 
   QUnit.test(
-    'email confirmaiton failure is handled',
+    'password confirmaiton failure is handled',
     function(assert) {
       var qsCreds = {
             'access-token': token,
@@ -134,7 +133,7 @@
         client:    clientId,
         expiry:    expiry,
         randomKey: randomKey,
-        account_confirmation_success: true
+        reset_password: true
       });
 
       // mock success response
@@ -160,10 +159,9 @@
         '`validateToken` was only called once and only once'
       );
 
-      assert.strictEqual(
-        'auth.emailConfirmationError',
-        $.auth.broadcastEvent.getCall(0).args[0],
-        '`auth.emailConfirmationError` event was broadcast'
+      assert.ok(
+        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirmError'),
+        '`auth.passwordResetConfirmError` event was broadcast'
       );
 
       assert.strictEqual(
@@ -181,3 +179,4 @@
   );
 
 }(jQuery));
+

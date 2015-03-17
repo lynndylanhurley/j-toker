@@ -26,7 +26,7 @@ window.defaultConfig = {
   tokenFormat: {
     "access-token": "{{ token }}",
     "token-type":   "Bearer",
-    client:         "{{ clientId }}",
+    client:         "{{ client }}",
     expiry:         "{{ expiry }}",
     uid:            "{{ uid }}"
   },

@@ -21,14 +21,16 @@
   var SAVED_CREDS_KEY    = 'authHeaders';
 
   // broadcast message event name constants (use constants to avoid typos)
-  var VALIDATION_SUCCESS         = 'auth.validationSuccess';
-  var VALIDATION_ERROR           = 'auth.validationError';
-  var EMAIL_REGISTRATION_SUCCESS = 'auth.emailRegistrationSuccess';
-  var EMAIL_REGISTRATION_ERROR   = 'auth.emailRegistrationError';
-  var EMAIL_CONFIRMATION_SUCCESS = 'auth.emailConfirmationSuccess';
-  var EMAIL_CONFIRMATION_ERROR   = 'auth.emailConfirmationError';
-  var PASSWORD_RESET_SUCCESS     = 'auth.passwordResetConfirmSuccess';
-  var PASSWORD_RESET_ERROR       = 'auth.passwordResetConfirmError';
+  var VALIDATION_SUCCESS             = 'auth.validationSuccess';
+  var VALIDATION_ERROR               = 'auth.validationError';
+  var EMAIL_REGISTRATION_SUCCESS     = 'auth.emailRegistrationSuccess';
+  var EMAIL_REGISTRATION_ERROR       = 'auth.emailRegistrationError';
+  var PASSWORD_RESET_REQUEST_SUCCESS = 'auth.passwordResetRequestSuccess';
+  var PASSWORD_RESET_REQUEST_ERROR   = 'auth.passwordResetRequestError';
+  var EMAIL_CONFIRMATION_SUCCESS     = 'auth.emailConfirmationSuccess';
+  var EMAIL_CONFIRMATION_ERROR       = 'auth.emailConfirmationError';
+  var PASSWORD_RESET_CONFIRM_SUCCESS = 'auth.passwordResetConfirmSuccess';
+  var PASSWORD_RESET_CONFIRM_ERROR   = 'auth.passwordResetConfirmError';
 
   console.log('===== init jToker ======');
 
@@ -117,9 +119,11 @@
     // clean up session without relying on `getConfig`
     this.destroySession();
 
-    this.configs          = {};
-    this.defaultConfigKey = null;
-    this.configured       = false;
+    this.configs           = {};
+    this.defaultConfigKey  = null;
+    this.configured        = false;
+    this.mustResetPassword = false;
+    this.firstTimeLogin    = false;
 
     // remove event listeners
     $(document).unbind('ajaxComplete', this.updateAuthCredentials);
@@ -388,7 +392,7 @@
           }
 
           if (this.mustResetPassword) {
-            this.broadcastEvent(PASSWORD_RESET_SUCCESS, resp);
+            this.broadcastEvent(PASSWORD_RESET_CONFIRM_SUCCESS, resp);
           }
 
           this.resolvePromise(VALIDATION_SUCCESS, dfd, resp);
@@ -403,7 +407,7 @@
           }
 
           if (this.mustResetPassword) {
-            this.broadcastEvent(PASSWORD_RESET_ERROR, resp);
+            this.broadcastEvent(PASSWORD_RESET_CONFIRM_ERROR, resp);
           }
 
           this.rejectPromise(
@@ -456,10 +460,46 @@
   //Auth.prototype.emailSignIn        = function(config) {};
   //Auth.prototype.oAuthSignIn        = function(config) {};
   //Auth.prototype.signOut            = function(config) {};
-  //Auth.prototype.resetPassword      = function(email) {};
   //Auth.prototype.resendConfirmation = function(email) {};
   //Auth.prototype.updateAccount      = function(config) {};
   //Auth.prototype.destroyAccount     = function() {};
+
+  Auth.prototype.requestPasswordReset = function(opts) {
+    console.log('requesting password reset');
+    // normalize opts
+    if (!opts) {
+      opts = {};
+    }
+
+    if (opts.email === undefined) {
+      throw "jToker: email param undefined for `requestPasswordReset` method.";
+    }
+
+    var config = this.getConfig(opts.config),
+        url    = config.apiUrl + config.emailRegistrationPath,
+        dfd    = $.Deferred();
+
+    $.ajax({
+      url: url,
+      context: this,
+      method: 'POST',
+
+      success: function(resp) {
+        this.resolvePromise(PASSWORD_RESET_REQUEST_SUCCESS, dfd, resp);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          PASSWORD_RESET_REQUEST_ERROR,
+          dfd,
+          resp,
+          'Failed to submit email registration.'
+        );
+      }
+    });
+
+    return dfd.promise();
+  };
 
 
   // abstract storing of session data

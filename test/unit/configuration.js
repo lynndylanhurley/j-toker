@@ -122,12 +122,12 @@
     var defaultApiUrl = '//api.cyclonopedia.dev',
         secondApiUrl  = '//api.contra3.dev';
 
-    $.cookie('currentConfigName', 'second', {path: '/'});
-
     $.auth.configure([
       {first:  {apiUrl: defaultApiUrl}},
       {second: {apiUrl: secondApiUrl}}
-    ]);
+    ], true);
+
+    $.cookie('currentConfigName', 'second', {path: '/'});
 
     assert.ok(
       $.auth.configure.calledOnce,
@@ -147,7 +147,7 @@
 
     $.cookie('currentConfigName', 'default', {path: '/'});
 
-    $.auth.configure({apiUrl: defaultApiUrl});
+    $.auth.configure({apiUrl: defaultApiUrl}, true);
 
     assert.ok(
       $.auth.configure.calledOnce,

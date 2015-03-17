@@ -4,8 +4,8 @@
   QUnit.module('jQuery.auth.validateToken', {
     beforeEach: function() {
       this.server = sinon.fakeServer.create();
+      $.auth.configure(null, true);
       sinon.spy($.auth, 'broadcastEvent');
-      $.auth.configure({}, true);
     },
 
     afterEach: function() {
@@ -21,9 +21,13 @@
     function(assert) {
       var currentToken = {'access-token': 'xxx'},
           newToken     = 'yyy',
-          done         = assert.async(),
           validEmail   = 'test@test.com',
-          validUid     = validEmail;
+          validUid     = validEmail,
+          done         = assert.async(),
+          userObj      = {
+            email:    validEmail,
+            uid:      validUid
+          };
 
       // mock success response
       this.server.respondWith('GET', '/api/auth/validate_token', [
@@ -39,15 +43,8 @@
 
       $.auth.validateToken()
         .then(function() {
-          assert.strictEqual(
-            newToken,
-            $.auth.retrieveData('authHeaders')['access-token'],
-            "new token was saved for next request"
-          );
-
-          assert.strictEqual(
-            'auth.validationSuccess',
-            $.auth.broadcastEvent.getCall(0).args[0],
+          assert.ok(
+            $.auth.broadcastEvent.calledWith('auth.validationSuccess'),
             '`auth.validationSuccess` event was broadcast'
           );
 
@@ -61,7 +58,20 @@
         this.server.requests.length,
         "only one request was made"
       );
+
+      assert.strictEqual(
+        newToken,
+        $.auth.retrieveData('authHeaders')['access-token'],
+        "new token was saved for next request"
+      );
+
+      assert.deepEqual(
+        userObj,
+        $.auth.user,
+        "user attributes were loaded into $.auth.user"
+      );
     }
+
   );
 
 
@@ -79,9 +89,8 @@
             "no API requests were made"
           );
 
-          assert.strictEqual(
-            'auth.validationError',
-            $.auth.broadcastEvent.getCall(0).args[0],
+          assert.ok(
+            $.auth.broadcastEvent.calledWith('auth.validationError'),
             '`auth.validationError` event was broadcast'
           );
 
