@@ -13,7 +13,7 @@
 
   // shut up jshint
   var console = window.console;
-  //var nav     = window.navigator;
+  var nav     = window.navigator;
 
   // cookie/localStorage value keys
   var INITIAL_CONFIG_KEY = 'default';
@@ -31,6 +31,12 @@
   var EMAIL_CONFIRMATION_ERROR       = 'auth.emailConfirmationError';
   var PASSWORD_RESET_CONFIRM_SUCCESS = 'auth.passwordResetConfirmSuccess';
   var PASSWORD_RESET_CONFIRM_ERROR   = 'auth.passwordResetConfirmError';
+  var EMAIL_SIGN_IN_SUCCESS          = 'auth.emailSignInSuccess';
+  var EMAIL_SIGN_IN_ERROR            = 'auth.emailSignInError';
+  var OAUTH_SIGN_IN_SUCCESS          = 'auth.oAuthSignInSuccess';
+  var OAUTH_SIGN_IN_ERROR            = 'auth.oAuthSignInError';
+  var SIGN_IN_SUCCESS                = 'auth.signInSuccess';
+  var SIGN_IN_ERROR                  = 'auth.signInError';
 
   console.log('===== init jToker ======');
 
@@ -44,14 +50,20 @@
     // default config will be first named config or "default"
     this.defaultConfigKey = null;
 
-    // this will be flagged when users return from email confirmation
+    // flagged when users return from email confirmation
     this.firstTimeLogin = false;
 
-    // this will be flagged when users return from password change confirmation
+    // flagged when users return from password change confirmation
     this.mustResetPassword = false;
 
     // save reference to user
     this.user = {};
+
+    // oAuth promise is kept while visiting provider
+    this.oAuthDfd = null;
+
+    // timer is used to poll external auth window while authenticating via OAuth
+    this.oAuthTimer = null;
 
     // base config from which other configs are extended
     this.configBase = {
@@ -124,12 +136,20 @@
     this.configured        = false;
     this.mustResetPassword = false;
     this.firstTimeLogin    = false;
+    this.oAuthDfd = null;
+
+    if (this.oAuthTimer) {
+      clearTimeout(this.oAuthTimer);
+      this.oAuthTimer = null;
+    }
 
     // remove event listeners
     $(document).unbind('ajaxComplete', this.updateAuthCredentials);
+    window.removeEventListener('message', this.handlePostMessage);
 
-    // remove global ajax settings
+    // remove global ajax "interceptors"
     $.ajaxSetup({beforeSend: undefined});
+
   };
 
 
@@ -268,6 +288,11 @@
       $.ajaxSetup({beforeSend: $.auth.appendAuthHeaders});
     }
 
+    // IE8 won't have this feature
+    if (window.addEventListener) {
+      window.addEventListener("message", this.handlePostMessage, false);
+    }
+
     // pull creds from search bar if available
     this.getTokenFromSearch();
 
@@ -276,10 +301,74 @@
   };
 
 
+  // interpolate values of tokenFormat hash with ctx, return new hash
+  Auth.prototype.buildAuthHeaders = function(ctx) {
+    var headers = {},
+        fmt = this.getConfig().tokenFormat;
+
+    for (var key in fmt) {
+      headers[key] = tmpl(fmt[key], ctx);
+    }
+
+    return headers;
+  };
+
+
+  Auth.prototype.setCurrentUser = function(user) {
+    // clear user object of any existing attributes
+    for (var key in this.user) {
+      delete this.user[key];
+    }
+
+    // save user data, preserve bindings to original user object
+    $.extend(this.user, user);
+
+    this.user.signedIn = true;
+    this.user.configName = this.getCurrentConfigName();
+
+    return this.user;
+  };
+
+
+  Auth.prototype.handlePostMessage = function(ev) {
+    var stopListening = false;
+
+    if (ev.data.message === 'deliverCredentials') {
+      delete ev.data.message;
+      var user        = $.auth.setCurrentUser(ev.data),
+          authHeaders = $.auth.buildAuthHeaders(user);
+
+      $.auth.persistData(SAVED_CREDS_KEY, authHeaders);
+      $.auth.resolvePromise(OAUTH_SIGN_IN_SUCCESS, $.auth.oAuthDfd, ev.data);
+      $.auth.broadcastEvent(SIGN_IN_SUCCESS, user);
+      $.auth.broadcastEvent(VALIDATION_SUCCESS, user);
+
+      stopListening = true;
+    }
+
+    if (ev.data.message === 'authFailure') {
+      $.auth.rejectPromise(
+        OAUTH_SIGN_IN_ERROR,
+        $.auth.oAuthDfd,
+        ev.data,
+        'OAuth authentication failed.'
+      );
+
+      $.auth.broadcastEvent(SIGN_IN_ERROR, ev.data);
+
+      stopListening = true;
+    }
+
+    if (stopListening) {
+      clearTimeout($.auth.oAuthTimer);
+      $.auth.oAuthTimer = null;
+    }
+  };
+
+
   Auth.prototype.getTokenFromSearch = function() {
     var searchParams  = this.getQs(),
         newHeaders    = null,
-        tokenFmt      = this.getConfig().tokenFormat,
         targetKeyList = [
           'token',
           'client',
@@ -291,12 +380,7 @@
 
     // only bother with this if minimum search params are present
     if (searchParams.token && searchParams.uid) {
-      newHeaders = {};
-
-      // save all headers that match the keys of the tokenFormat config param
-      for (var key in tokenFmt) {
-        newHeaders[key] = tmpl(tokenFmt[key], searchParams);
-      }
+      newHeaders = this.buildAuthHeaders(searchParams);
 
       // save all token headers to session
       this.persistData(SAVED_CREDS_KEY, newHeaders);
@@ -310,6 +394,9 @@
       if (searchParams.account_confirmation_success) {
         this.firstTimeLogin = true;
       }
+
+      // TODO: set uri flag on devise_token_auth for OAuth confirmation
+      // when using hard page redirects.
 
       // strip all values from search params
       for (var q in targetKeyList) {
@@ -395,7 +482,7 @@
             this.broadcastEvent(PASSWORD_RESET_CONFIRM_SUCCESS, resp);
           }
 
-          this.resolvePromise(VALIDATION_SUCCESS, dfd, resp);
+          this.resolvePromise(VALIDATION_SUCCESS, dfd, this.user);
         },
 
         error: function(resp) {
@@ -457,15 +544,149 @@
     return dfd.promise();
   };
 
-  //Auth.prototype.emailSignIn        = function(config) {};
-  //Auth.prototype.oAuthSignIn        = function(config) {};
+
+  Auth.prototype.emailSignIn = function(opts) {
+    // normalize opts
+    if (!opts) {
+      opts = {};
+    }
+
+    var config = this.getConfig(opts.config),
+        url    = config.apiUrl + config.emailSignInPath,
+        dfd    = $.Deferred();
+
+    // don't send config name to API
+    delete opts.config;
+
+    $.ajax({
+      url: url,
+      context: this,
+      method: 'POST',
+      data: opts,
+
+      success: function(resp) {
+        // return user attrs as directed by config
+        var user = config.handleLoginResponse(resp);
+
+        // clear user object of any existing attributes
+        for (var key in this.user) {
+          delete this.user[key];
+        }
+
+        // save user data, preserve bindings to original user object
+        $.extend(this.user, user);
+
+        this.resolvePromise(EMAIL_SIGN_IN_SUCCESS, dfd, resp);
+        this.broadcastEvent(SIGN_IN_SUCCESS, user);
+        this.broadcastEvent(VALIDATION_SUCCESS, user);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          EMAIL_SIGN_IN_ERROR,
+          dfd,
+          resp,
+          'Invalid credentials.'
+        );
+
+        this.broadcastEvent(SIGN_IN_ERROR, resp);
+      }
+    });
+
+    return dfd.promise();
+  };
+
+
+  // ping auth window to see if user has completed authentication.
+  // this method will be recursively called until:
+  // 1. user completes authentication
+  // 2. user fails authentication
+  // 3. auth window is closed
+  Auth.prototype.listenForCredentials = function(popup) {
+    if (popup.closed) {
+      this.rejectPromise(
+        OAUTH_SIGN_IN_ERROR,
+        this.oAuthDfd,
+        null,
+        'OAuth window was closed bofore registration was completed.'
+      );
+    } else {
+      var self = this;
+      popup.postMessage('requestCredentials', '*');
+      this.oAuthTimer = setTimeout(function() {
+        self.listenForCredentials(popup);
+      }, 500);
+    }
+  };
+
+
+  Auth.prototype.openAuthWindow = function(url) {
+    if (this.getConfig().forceHardRedirect || isIE()) {
+      // redirect to external auth provider. credentials should be
+      // provided in location search hash upon return
+      this.setLocation(url);
+    } else {
+      // open popup to external auth provider
+      var popup = this.createPopup(url);
+
+      // listen for postMessage response
+      this.listenForCredentials(popup);
+    }
+  };
+
+
+  Auth.prototype.buildOAuthUrl = function(params) {
+    var config = this.getConfig(),
+        oAuthUrl = config.apiUrl + config.authProviderPaths['github'] +
+          '?auth_origin_url='+encodeURIComponent(window.location.href);
+
+    if (params) {
+      for(var key in params) {
+        oAuthUrl += '&';
+        oAuthUrl += encodeURIComponent(key);
+        oAuthUrl += '=';
+        oAuthUrl += encodeURIComponent(params[key]);
+      }
+    }
+
+    return oAuthUrl;
+  };
+
+
+  Auth.prototype.oAuthSignIn = function(opts) {
+    // normalize opts
+    if (!opts) {
+      opts = {};
+    }
+
+    if (!opts.provider) {
+      throw 'jToker: provider param undefined for `oAuthSignIn` method.';
+    }
+
+    var config       = this.getConfig(opts.config),
+        providerPath = config.authProviderPaths[opts.provider],
+        oAuthUrl     = this.buildOAuthUrl(opts.params);
+
+    if (!providerPath) {
+      throw 'jToker: providerPath not found for provider: '+opts.provider;
+    }
+
+    // save oAuth promise until response is received
+    this.oAuthDfd = $.Deferred();
+
+    // open link to provider auth screen
+    this.openAuthWindow(oAuthUrl);
+
+    return this.oAuthDfd.promise();
+  };
+
+
   //Auth.prototype.signOut            = function(config) {};
   //Auth.prototype.resendConfirmation = function(email) {};
   //Auth.prototype.updateAccount      = function(config) {};
   //Auth.prototype.destroyAccount     = function() {};
 
   Auth.prototype.requestPasswordReset = function(opts) {
-    console.log('requesting password reset');
     // normalize opts
     if (!opts) {
       opts = {};
@@ -655,14 +876,29 @@
   };
 
 
+  // stub for mock overrides
   Auth.prototype.setQs = function(params) {
     this.setRawSearch($.param(params));
     return this.getQs();
   };
 
 
+  // stub for mock overrides
+  Auth.prototype.setLocation = function(url) {
+    window.location.replace(url);
+  };
+
+
+  // stub for mock overrides
+  Auth.prototype.createPopup = function(url) {
+    return window.open(url);
+  };
+
+
+  // stub for mock overrides
   Auth.prototype.getQs = function() {
-    return window.deparam(this.getRawSearch());
+    var qs = this.getRawSearch();
+    return (qs) ? window.deparam(qs) : {};
   };
 
 
@@ -700,13 +936,13 @@
 
 
   // check if using IE
-  //var isIE = function() {
-    //var ua = nav.userAgent.toLowerCase();
-    //return (
-      //ua && ua.indexOf('msie') !== -1) ||
-      //!!ua.match(/Trident.*rv\:11\./
-    //);
-  //};
+  var isIE = function() {
+    var ua = nav.userAgent.toLowerCase();
+    return (
+      ua && ua.indexOf('msie') !== -1) ||
+      !!ua.match(/Trident.*rv\:11\./
+    );
+  };
 
 
   // check if IE < 10

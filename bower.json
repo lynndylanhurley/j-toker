@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "dependencies": {
     "jquery-deparam": "~0.2.0",
-    "jquery-cookie": "~1.4.1"
+    "jquery-cookie": "~1.4.1",
+    "jquery-tiny-pubsub": "https://github.com/cowboy/jquery-tiny-pubsub/raw/master/dist/ba-tiny-pubsub.js"
   },
   "devDependencies": {
     "qunit": "1.17.1",
