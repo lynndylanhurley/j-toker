@@ -5,7 +5,18 @@
  * Copyright (c) 2015 Lynn Dylan Hurley
  * Licensed under the WTFPL license.
  */
-(function ($) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
   // ghetto singleton
   if ($.auth) {
     return;
@@ -1076,4 +1087,4 @@
   // save global reference to service
   $.auth = new Auth();
 
-}(jQuery));
+}));
