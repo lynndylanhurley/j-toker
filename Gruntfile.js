@@ -16,8 +16,9 @@ module.exports = function (grunt) {
       ' Licensed WTFPL */\n',
     // Task configuration.
     clean: {
-      files: ['dist']
+      files: ['dist', 'demo/dist']
     },
+
     concat: {
       options: {
         banner: '<%= banner %>',
@@ -28,6 +29,7 @@ module.exports = function (grunt) {
         dest: 'dist/jquery.<%= pkg.name %>.js'
       }
     },
+
     uglify: {
       options: {
         banner: '<%= banner %>'
@@ -37,6 +39,7 @@ module.exports = function (grunt) {
         dest: 'dist/jquery.<%= pkg.name %>.min.js'
       }
     },
+
     qunit: {
       all: {
         options: {
@@ -44,6 +47,38 @@ module.exports = function (grunt) {
         }
       }
     },
+
+    browserify: {
+      options: {
+        debug: true,
+        transform: ['reactify'],
+        extensions: ['.jsx']
+      },
+      //vendor: {
+        //src: [],
+        //dest: 'demo/dist/scripts/vendor.js',
+        //options: {
+          //require: ['jquery']
+        //}
+      //},
+      app: {
+        src: ['demo/src/scripts/**/*.jsx'],
+        dest: 'demo/dist/scripts/main.js',
+        options: {
+          watch: true
+        }
+      }
+    },
+
+    copy: {
+      demo: {
+        expand: true,
+        src: '**/*.{html,css}',
+        dest: 'demo/dist/',
+        cwd: 'demo/src/'
+      }
+    },
+
     jshint: {
       options: {
         reporter: require('jshint-stylish')
@@ -67,6 +102,7 @@ module.exports = function (grunt) {
         src: ['test/**/*.js']
       }
     },
+
     watch: {
       gruntfile: {
         files: '<%= jshint.gruntfile.src %>',
@@ -79,8 +115,13 @@ module.exports = function (grunt) {
       test: {
         files: '<%= jshint.test.src %>',
         tasks: ['jshint:test', 'qunit']
+      },
+      copyDemo: {
+        files: '<%= copy.demo.src %>',
+        tasks: ['copy:demo']
       }
     },
+
     connect: {
       server: {
         options: {
@@ -97,6 +138,6 @@ module.exports = function (grunt) {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
     grunt.task.run(['serve']);
   });
-  grunt.registerTask('serve', ['connect', 'watch']);
+  grunt.registerTask('serve', ['clean', 'connect', 'copy:demo', 'browserify:app', 'watch']);
   grunt.registerTask('test', ['jshint', 'connect', 'qunit']);
 };

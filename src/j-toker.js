@@ -37,6 +37,12 @@
   var OAUTH_SIGN_IN_ERROR            = 'auth.oAuthSignInError';
   var SIGN_IN_SUCCESS                = 'auth.signInSuccess';
   var SIGN_IN_ERROR                  = 'auth.signInError';
+  var SIGN_OUT_SUCCESS               = 'auth.signOutSuccess';
+  var SIGN_OUT_ERROR                 = 'auth.signOutError';
+  var ACCOUNT_UPDATE_SUCCESS         = 'auth.accountUpdateSuccess';
+  var ACCOUNT_UPDATE_ERROR           = 'auth.accountUpdateError';
+  var DESTROY_ACCOUNT_SUCCESS        = 'auth.destroyAccountSuccess';
+  var DESTROY_ACCOUNT_ERROR          = 'auth.destroyAccountError';
 
   console.log('===== init jToker ======');
 
@@ -68,7 +74,7 @@
     // base config from which other configs are extended
     this.configBase = {
       apiUrl:                '/api',
-      signOutUrl:            '/auth/sign_out',
+      signOutPath:           '/auth/sign_out',
       emailSignInPath:       '/auth/sign_in',
       emailRegistrationPath: '/auth',
       accountUpdatePath:     '/auth',
@@ -141,6 +147,11 @@
     if (this.oAuthTimer) {
       clearTimeout(this.oAuthTimer);
       this.oAuthTimer = null;
+    }
+
+    // clear user object
+    for (var key in this.user) {
+      delete this.user[key];
     }
 
     // remove event listeners
@@ -621,7 +632,7 @@
 
 
   Auth.prototype.openAuthWindow = function(url) {
-    if (this.getConfig().forceHardRedirect || isIE()) {
+    if (this.getConfig().forceHardRedirect || window.isIE()) {
       // redirect to external auth provider. credentials should be
       // provided in location search hash upon return
       this.setLocation(url);
@@ -681,10 +692,111 @@
   };
 
 
-  //Auth.prototype.signOut            = function(config) {};
+  Auth.prototype.signOut = function(opts) {
+    if (!opts) {
+      opts = {};
+    }
+
+    var config     = this.getConfig(opts.config),
+        signOutUrl = config.apiUrl + config.signOutPath,
+        dfd        = $.Deferred();
+
+    $.ajax({
+      url: signOutUrl,
+      context: this,
+      method: 'GET',
+
+      success: function(resp) {
+        this.resolvePromise(SIGN_OUT_SUCCESS, dfd, resp);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          SIGN_OUT_ERROR,
+          dfd,
+          resp,
+          'Failed to sign out.'
+        );
+      },
+
+      complete: function() {
+        this.invalidateTokens();
+      }
+    });
+
+    return dfd.promise();
+  };
+
+
+  Auth.prototype.updateAccount = function(opts) {
+    if (!opts) {
+      opts = {};
+    }
+
+    var config = this.getConfig(opts.config),
+        url    = config.apiUrl + config.accountUpdatePath,
+        dfd    = $.Deferred();
+
+    $.ajax({
+      url: url,
+      context: this,
+      method: 'PUT',
+
+      success: function(resp) {
+        var user = config.handleAccountUpdateResponse(resp);
+        $.extend(this.user, user);
+        this.resolvePromise(ACCOUNT_UPDATE_SUCCESS, dfd, resp);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          ACCOUNT_UPDATE_ERROR,
+          dfd,
+          resp,
+          'Failed to update user account'
+        );
+      }
+    });
+
+    return dfd.promise();
+  };
+
+
+  Auth.prototype.destroyAccount = function(opts) {
+    if (!opts) {
+      opts = {};
+    }
+
+    var config = this.getConfig(opts.config),
+        url    = config.apiUrl + config.accountDeletePath,
+        dfd    = $.Deferred();
+
+    $.ajax({
+      url: url,
+      context: this,
+      method: 'DELETE',
+
+      success: function(resp) {
+        this.invalidateTokens();
+        this.resolvePromise(DESTROY_ACCOUNT_SUCCESS, dfd, resp);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          DESTROY_ACCOUNT_ERROR,
+          dfd,
+          resp,
+          'Failed to destroy user account'
+        );
+      }
+    });
+
+    return dfd.promise();
+  };
+
+
+  // TODO: implement re-confirmable on devise_token_auth
   //Auth.prototype.resendConfirmation = function(email) {};
-  //Auth.prototype.updateAccount      = function(config) {};
-  //Auth.prototype.destroyAccount     = function() {};
 
   Auth.prototype.requestPasswordReset = function(opts) {
     // normalize opts
@@ -936,7 +1048,7 @@
 
 
   // check if using IE
-  var isIE = function() {
+  window.isIE = function() {
     var ua = nav.userAgent.toLowerCase();
     return (
       ua && ua.indexOf('msie') !== -1) ||
@@ -946,19 +1058,19 @@
 
 
   // check if IE < 10
-  //var isOldIE = function() {
-    //var oldIE = false,
-        //ua    = nav.userAgent.toLowerCase();
+  window.isOldIE = function() {
+    var oldIE = false,
+        ua    = nav.userAgent.toLowerCase();
 
-    //if (ua && ua.indexOf('msie') !== -1) {
-      //var version = parseInt(ua.split('msie')[1]);
-      //if (version < 10) {
-        //oldIE = true;
-      //}
-    //}
+    if (ua && ua.indexOf('msie') !== -1) {
+      var version = parseInt(ua.split('msie')[1]);
+      if (version < 10) {
+        oldIE = true;
+      }
+    }
 
-    //return oldIE;
-  //};
+    return oldIE;
+  };
 
 
   // save global reference to service

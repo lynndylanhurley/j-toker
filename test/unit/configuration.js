@@ -1,5 +1,61 @@
 (function ($) {
-  var sinon = window.sinon;
+  var sinon = window.sinon,
+      defaultConfig = {
+        apiUrl:                '/api',
+        signOutPath:           '/auth/sign_out',
+        emailSignInPath:       '/auth/sign_in',
+        emailRegistrationPath: '/auth',
+        accountUpdatePath:     '/auth',
+        accountDeletePath:     '/auth',
+        passwordResetPath:     '/auth/password',
+        passwordUpdatePath:    '/auth/password',
+        tokenValidationPath:   '/auth/validate_token',
+        proxyIf:               function() { return false; },
+        proxyUrl:              '/proxy',
+        validateOnPageLoad:    true,
+        forceHardRedirect:     false,
+        storage:               'cookies',
+
+        passwordResetSuccessUrl: function() {
+          return window.location.href;
+        },
+
+        confirmationSuccessUrl:  function() {
+          return window.location.href;
+        },
+
+        tokenFormat: {
+          "access-token": "{{ token }}",
+          "token-type":   "Bearer",
+          client:         "{{ client }}",
+          expiry:         "{{ expiry }}",
+          uid:            "{{ uid }}"
+        },
+
+        parseExpiry: function(headers){
+          // convert from ruby time (seconds) to js time (millis)
+          return (parseInt(headers['expiry'], 10) * 1000) || null;
+        },
+
+        handleLoginResponse: function(resp) {
+          return resp.data;
+        },
+
+        handleAccountUpdateResponse: function(resp) {
+          return resp.data;
+        },
+
+        handleTokenValidationResponse: function(resp) {
+          return resp.data;
+        },
+
+        authProviderPaths: {
+          github:    '/auth/github',
+          facebook:  '/auth/facebook',
+          google:    '/auth/google_oauth2'
+        }
+      };
+
 
   QUnit.module('jQuery.auth.configure', {
     beforeEach: function() {
@@ -17,11 +73,11 @@
     // reset to zero config
     $.auth.configure(null, true);
 
-    var expected = window.defaultConfig;
+    var expected = defaultConfig;
     var actual   = $.auth.getConfig();
 
     assert.strictEqual(expected.apiUrl,                actual.apiUrl);
-    assert.strictEqual(expected.signOutUrl,            actual.signOutUrl);
+    assert.strictEqual(expected.signOutPath,           actual.signOutPath);
     assert.strictEqual(expected.emailSignInPath,       actual.emailSignInPath);
     assert.strictEqual(expected.emailRegistrationPath, actual.emailRegistrationPath);
     assert.strictEqual(expected.accountUpdatePath,     actual.accountUpdatePath);
@@ -59,8 +115,8 @@
     );
 
     assert.strictEqual(
-      window.defaultConfig.signOutUrl,
-      $.auth.getConfig().signOutUrl,
+      defaultConfig.signOutPath,
+      $.auth.getConfig().signOutPath,
       'config retains defalt where not overridden'
     );
 
@@ -74,7 +130,7 @@
   QUnit.test('scenario 2b: no session, using multiple configs', function(assert) {
     var defaultApiUrl = '//api.cyclonopedia.dev',
         secondApiUrl  = '//api.contra3.dev',
-        signOutUrl    = window.defaultConfig.signOutUrl;
+        signOutPath   = defaultConfig.signOutPath;
 
     $.auth.configure([
       {first:  {apiUrl: defaultApiUrl}},
@@ -105,14 +161,14 @@
     );
 
     assert.strictEqual(
-      signOutUrl,
-      $.auth.getConfig('first').signOutUrl,
+      signOutPath,
+      $.auth.getConfig('first').signOutPath,
       'first config retains defaults where not overriden'
     );
 
     assert.strictEqual(
-      signOutUrl,
-      $.auth.getConfig('second').signOutUrl,
+      signOutPath,
+      $.auth.getConfig('second').signOutPath,
       'second config retains defaults where not overriden'
     );
   });
