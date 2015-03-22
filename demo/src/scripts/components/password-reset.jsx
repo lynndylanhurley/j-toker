@@ -76,6 +76,13 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var configParam = <span></span>;
+
+    if (this.props.config !== 'default') {
+      configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
+    }
+
+
     return (
       <Panel header='Request Password Reset' bsStyle='info'>
         <form>
@@ -96,6 +103,7 @@ module.exports = React.createClass({
         <label>Example</label>
         <Highlight className='javascript'>
           $.auth.requestPasswordReset({'{'}<br />
+            {configParam}
             &nbsp;&nbsp;email: 'xxx'<br />
           {'}'});
         </Highlight>

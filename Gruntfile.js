@@ -71,6 +71,11 @@ module.exports = function (grunt) {
         expand: false,
         src: 'demo/src/index.html',
         dest: 'demo/dist/index.html'
+      },
+      reactLogo: {
+        expand: false,
+        src: 'demo/src/images/react-logo.svg',
+        dest: 'demo/dist/images/react-logo.svg'
       }
     },
 
@@ -130,7 +135,7 @@ module.exports = function (grunt) {
       },
       copyDemo: {
         files: '<%= copy.demo.src %>',
-        tasks: ['copy:demo']
+        tasks: ['copy']
       },
       sass: {
         files: 'demo/src/styles/**/*.scss',
@@ -154,6 +159,6 @@ module.exports = function (grunt) {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
     grunt.task.run(['serve']);
   });
-  grunt.registerTask('serve', ['clean', 'sass:dist', 'connect', 'copy:demo', 'browserify:app', 'watch']);
+  grunt.registerTask('serve', ['clean', 'sass:dist', 'connect', 'copy', 'browserify:app', 'watch']);
   grunt.registerTask('test', ['jshint', 'connect', 'qunit']);
 };

@@ -84,6 +84,12 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var configParam = <span></span>;
+
+    if (this.props.config !== 'default') {
+      configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
+    }
+
     return (
       <Panel header='Register by Email' bsStyle='info'>
         <form>
@@ -125,8 +131,9 @@ module.exports = React.createClass({
         <label>Example</label>
         <Highlight className='javascript'>
           $.auth.emailSignUp({'{'}<br />
-            &nbsp;&nbsp;email:                 'xxx',<br />
-            &nbsp;&nbsp;password:              'yyy',<br />
+            {configParam}
+            &nbsp;&nbsp;email: 'xxx',<br />
+            &nbsp;&nbsp;password: 'yyy',<br />
             &nbsp;&nbsp;password_confirmation: 'yyy'<br />
           {'}'});
         </Highlight>

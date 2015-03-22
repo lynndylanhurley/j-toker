@@ -112,7 +112,7 @@ module.exports = React.createClass({
         <label>Example</label>
         <Highlight className='javascript'>
           $.auth.updatePassword({'{'}<br />
-            &nbsp;&nbsp;password:              'xxx',<br />
+            &nbsp;&nbsp;password: 'xxx',<br />
             &nbsp;&nbsp;password_confirmation: 'xxx'<br />
           {'}'});
         </Highlight>

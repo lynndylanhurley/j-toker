@@ -79,6 +79,12 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var configParam = <span></span>;
+
+    if (this.props.config !== 'default') {
+      configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
+    }
+
     return(
       <Panel header='OAuth Sign In' bsStyle='info'>
         <Input type='text'
@@ -119,6 +125,7 @@ module.exports = React.createClass({
         <label>Example</label>
         <Highlight className='javascript'>
           $.auth.oAuthSignIn({'{'}<br />
+          {configParam}
           &nbsp;&nbsp;provider: 'github',<br />
           &nbsp;&nbsp;params: {'{'}<br />
           &nbsp;&nbsp;&nbsp;&nbsp;favorite_color: 'purple'<br />

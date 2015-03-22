@@ -105,7 +105,7 @@ module.exports = React.createClass({
         <label>Example</label>
         <Highlight className='javascript'>
           $.auth.updateAccount({'{'}<br />
-            &nbsp;&nbsp;nickname:       'xxx',<br />
+            &nbsp;&nbsp;nickname: 'xxx',<br />
             &nbsp;&nbsp;favorite_color: 'yyy'<br />
           {'}'});
         </Highlight>

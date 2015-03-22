@@ -27,14 +27,13 @@
     factory(jQuery, window.deparam, window.PubSub);
   }
 }(function ($, deparam, PubSub) {
-  // singleton
+  // singleton baby
   if ($.auth) {
     return $.auth;
   }
 
-  // shut up jshint
-  var console = window.console;
-  var nav     = window.navigator;
+  // use for IE detection
+  var nav = window.navigator;
 
   // cookie/localStorage value keys
   var INITIAL_CONFIG_KEY = 'default';
@@ -42,30 +41,30 @@
   var SAVED_CREDS_KEY    = 'authHeaders';
 
   // broadcast message event name constants (use constants to avoid typos)
-  var VALIDATION_SUCCESS             = 'auth.validationSuccess';
-  var VALIDATION_ERROR               = 'auth.validationError';
-  var EMAIL_REGISTRATION_SUCCESS     = 'auth.emailRegistrationSuccess';
-  var EMAIL_REGISTRATION_ERROR       = 'auth.emailRegistrationError';
-  var PASSWORD_RESET_REQUEST_SUCCESS = 'auth.passwordResetRequestSuccess';
-  var PASSWORD_RESET_REQUEST_ERROR   = 'auth.passwordResetRequestError';
-  var EMAIL_CONFIRMATION_SUCCESS     = 'auth.emailConfirmationSuccess';
-  var EMAIL_CONFIRMATION_ERROR       = 'auth.emailConfirmationError';
-  var PASSWORD_RESET_CONFIRM_SUCCESS = 'auth.passwordResetConfirmSuccess';
-  var PASSWORD_RESET_CONFIRM_ERROR   = 'auth.passwordResetConfirmError';
-  var EMAIL_SIGN_IN_SUCCESS          = 'auth.emailSignInSuccess';
-  var EMAIL_SIGN_IN_ERROR            = 'auth.emailSignInError';
-  var OAUTH_SIGN_IN_SUCCESS          = 'auth.oAuthSignInSuccess';
-  var OAUTH_SIGN_IN_ERROR            = 'auth.oAuthSignInError';
-  var SIGN_IN_SUCCESS                = 'auth.signInSuccess';
-  var SIGN_IN_ERROR                  = 'auth.signInError';
-  var SIGN_OUT_SUCCESS               = 'auth.signOutSuccess';
-  var SIGN_OUT_ERROR                 = 'auth.signOutError';
-  var ACCOUNT_UPDATE_SUCCESS         = 'auth.accountUpdateSuccess';
-  var ACCOUNT_UPDATE_ERROR           = 'auth.accountUpdateError';
-  var DESTROY_ACCOUNT_SUCCESS        = 'auth.destroyAccountSuccess';
-  var DESTROY_ACCOUNT_ERROR          = 'auth.destroyAccountError';
-  var PASSWORD_UPDATE_SUCCESS        = 'auth.passwordUpdateSuccess';
-  var PASSWORD_UPDATE_ERROR          = 'auth.passwordUpdateError';
+  var VALIDATION_SUCCESS             = 'auth.validationSuccess',
+      VALIDATION_ERROR               = 'auth.validationError',
+      EMAIL_REGISTRATION_SUCCESS     = 'auth.emailRegistrationSuccess',
+      EMAIL_REGISTRATION_ERROR       = 'auth.emailRegistrationError',
+      PASSWORD_RESET_REQUEST_SUCCESS = 'auth.passwordResetRequestSuccess',
+      PASSWORD_RESET_REQUEST_ERROR   = 'auth.passwordResetRequestError',
+      EMAIL_CONFIRMATION_SUCCESS     = 'auth.emailConfirmationSuccess',
+      EMAIL_CONFIRMATION_ERROR       = 'auth.emailConfirmationError',
+      PASSWORD_RESET_CONFIRM_SUCCESS = 'auth.passwordResetConfirmSuccess',
+      PASSWORD_RESET_CONFIRM_ERROR   = 'auth.passwordResetConfirmError',
+      EMAIL_SIGN_IN_SUCCESS          = 'auth.emailSignInSuccess',
+      EMAIL_SIGN_IN_ERROR            = 'auth.emailSignInError',
+      OAUTH_SIGN_IN_SUCCESS          = 'auth.oAuthSignInSuccess',
+      OAUTH_SIGN_IN_ERROR            = 'auth.oAuthSignInError',
+      SIGN_IN_SUCCESS                = 'auth.signInSuccess',
+      SIGN_IN_ERROR                  = 'auth.signInError',
+      SIGN_OUT_SUCCESS               = 'auth.signOutSuccess',
+      SIGN_OUT_ERROR                 = 'auth.signOutError',
+      ACCOUNT_UPDATE_SUCCESS         = 'auth.accountUpdateSuccess',
+      ACCOUNT_UPDATE_ERROR           = 'auth.accountUpdateError',
+      DESTROY_ACCOUNT_SUCCESS        = 'auth.destroyAccountSuccess',
+      DESTROY_ACCOUNT_ERROR          = 'auth.destroyAccountError',
+      PASSWORD_UPDATE_SUCCESS        = 'auth.passwordUpdateSuccess',
+      PASSWORD_UPDATE_ERROR          = 'auth.passwordUpdateError';
 
   console.log('===== init jToker ======');
 
@@ -230,7 +229,7 @@
       throw 'jToker: Please resolve the following errors: ' + errMessage;
     }
 
-    if (warnings.length && window.console && window.console.warn) {
+    if (warnings.length && console && console.warn) {
       var warnMessage = warnings.join(' ');
       console.warn('jToker: Warning: ' + warnMessage);
     }
@@ -420,7 +419,6 @@
     }
 
     if (params.config) {
-      console.log('found config key', params.config);
       this.persistData(
         SAVED_CONFIG_KEY,
         params.config,
