@@ -14,18 +14,20 @@ module.exports = $.extend(BS.OverlayMixin, {
       return <span />;
     }
 
-    var modalBody, modalTitle;
+    var modalBody, modalTitle, modalStyle;
 
     if (this.state.errors) {
       modalBody = this.renderErrorMessage();
       modalTitle = this.errorModalTitle;
+      modalStyle = 'danger';
     } else {
       modalBody = this.renderSuccessMessage();
       modalTitle = this.successModalTitle;
+      modalStyle = 'primary';
     }
 
     return (
-      <Modal bsStyle='primary'
+      <Modal bsStyle={modalStyle}
              title={modalTitle}
              onRequestHide={this.toggleModal}>
 

@@ -118,6 +118,13 @@ module.exports = React.createClass({
                 onClick={this.handleMultiRequestClick}>
           Batch Request
         </Button>
+
+        <br />
+        <br />
+        <label>Example</label>
+        <Highlight className='javascript'>
+          $.getJSON('/api/members-only');
+        </Highlight>
       </Panel>
     );
   }
