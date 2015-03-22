@@ -28,6 +28,7 @@ This project comes bundled with a test app. You can run the demo locally by foll
 * [Installation](#installation)
 * [Configuration](#configuration)
 * [API](#api)
+  * [$.auth.user](#authuser)
   * [$.auth.oAuthSignIn](#authoauthsignin)
   * [$.auth.emailSignUp](#authemailsignup)
   * [$.auth.emailSignIn](#authemailsignin)
@@ -287,7 +288,7 @@ A function used to identify and return the current user's info (`id`, `username`
 
 # Usage
 
-jToker can be used as a jQuery plugin, or as a [CommonJS][common-js] module.
+jToker can be used as a [jQuery][jquery] plugin, or as a [CommonJS][common-js] module.
 
 ##### jQuery plugin usage:
 
@@ -321,6 +322,12 @@ $.auth
     alert('Authentication failure: ' + resp.errors.join(' '));
   });
 ~~~
+
+### $.auth.user
+An object representing the current user. In addition to the attributes of your user model, the following additional attributes are available:
+
+* **`signedIn`**: (boolean) will return true if there is a current user.
+* **`configName`**: (string) the name of the configuration used to authenticate the current user. When using a single API configuration (most cases), this will be `default`.
 
 ### $.auth.oAuthSignIn
 Initiate an OAuth2 authentication.
