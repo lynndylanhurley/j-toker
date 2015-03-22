@@ -14,13 +14,15 @@ module.exports = React.createClass({
 
   propTypes: function() {
     return {
-      signedIn: React.PropTypes.bool
+      signedIn: React.PropTypes.bool,
+      config: React.PropTypes.string
     }
   },
 
-  getInitialProps: function() {
+  getDefaultProps: function() {
     return {
-      signedIn: false
+      signedIn: false,
+      config: 'default'
     }
   },
 
@@ -43,7 +45,8 @@ module.exports = React.createClass({
     console.log('submitting email login', this.state);
     Auth.emailSignIn({
       email:    this.state.email,
-      password: this.state.password
+      password: this.state.password,
+      config:   this.props.config
     })
 
       .then(function(resp) {

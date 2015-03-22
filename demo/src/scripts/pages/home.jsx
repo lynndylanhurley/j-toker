@@ -22,8 +22,10 @@ module.exports = React.createClass({
     user: React.PropTypes.object
   },
 
-  getInitialProps: {
-    user: {}
+  getDefaultProps: function() {
+    return {
+      user: {}
+    };
   },
 
   render: function() {

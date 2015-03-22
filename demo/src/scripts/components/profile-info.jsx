@@ -13,17 +13,19 @@ module.exports = React.createClass({
     nickname: React.PropTypes.string,
     favorite_color: React.PropTypes.string,
     image: React.PropTypes.string,
-    signedIn: React.PropTypes.bool
+    signedIn: React.PropTypes.bool,
+    configName: React.PropTypes.string
   },
 
-  getInitialProps: function() {
+  getDefaultProps: function() {
     return {
       email:          '',
       name:           '',
       nickname:       '',
       favorite_color: '',
       image:          '',
-      signedIn:       false
+      signedIn:       false,
+      configName:     ''
     }
   },
 
@@ -58,7 +60,11 @@ module.exports = React.createClass({
 
             <label>favorite color:</label>
             <p>{this.props.favorite_color || 'n/a'}</p>
+
+            <label>using configuration:</label>
+            <p>{this.props.configName || 'n/a'}</p>
           </Col>
+
           <Col xs={3}>
             {this.renderImage()}
           </Col>

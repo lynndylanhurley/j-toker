@@ -14,6 +14,18 @@ module.exports = React.createClass({
     FormStateMixin
   ],
 
+  propTypes: function() {
+    return {
+      config: React.PropTypes.string
+    }
+  },
+
+  getDefaultProps: function() {
+    return {
+      config: 'default'
+    }
+  },
+
   getInitialState: function() {
     return {
       email: '',
@@ -25,7 +37,8 @@ module.exports = React.createClass({
 
   handlePasswordResetClick: function() {
     Auth.requestPasswordReset({
-      email: this.state.email
+      email: this.state.email,
+      config: this.props.config
     })
       .then(function()  {
         this.setState({

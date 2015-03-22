@@ -331,7 +331,7 @@
     this.processSearchParams();
 
     // validate token if set
-    return this.validateToken();
+    return this.validateToken({config: this.getCurrentConfigName()});
   };
 
 
@@ -419,10 +419,16 @@
       delete params.client_id;
     }
 
-    // remove config as was defined in qs (should have already been utilizied)
     if (params.config) {
+      console.log('found config key', params.config);
+      this.persistData(
+        SAVED_CONFIG_KEY,
+        params.config,
+        params.config
+      );
       delete params.config;
     }
+
 
     return params;
   };
@@ -559,7 +565,11 @@
 
 
   // TODO: document
-  Auth.prototype.validateToken = function(configKey) {
+  Auth.prototype.validateToken = function(opts) {
+    if (!opts) {
+      opts = {};
+    }
+
     var dfd = $.Deferred();
 
     // no creds, reject promise without making API call
@@ -575,7 +585,7 @@
         'Cannot validate token; no token found.'
       );
     } else {
-      var config = this.getConfig(configKey),
+      var config = this.getConfig(opts.config),
           url    = config.apiUrl + config.tokenValidationPath;
 
       // found saved creds, verify with API
@@ -636,6 +646,7 @@
         url    = config.apiUrl + config.emailRegistrationPath,
         dfd    = $.Deferred();
 
+    opts.config_name = opts.config;
     delete opts.config;
 
     opts.confirm_success_url = config.confirmationSuccessUrl();
@@ -749,10 +760,11 @@
   };
 
 
-  Auth.prototype.buildOAuthUrl = function(params) {
-    var config = this.getConfig(),
+  Auth.prototype.buildOAuthUrl = function(configName, params) {
+    var config = this.getConfig(configName),
         oAuthUrl = config.apiUrl + config.authProviderPaths['github'] +
-          '?auth_origin_url='+encodeURIComponent(window.location.href);
+          '?auth_origin_url='+encodeURIComponent(window.location.href) +
+          '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
     if (params) {
       for(var key in params) {
@@ -779,7 +791,7 @@
 
     var config       = this.getConfig(opts.config),
         providerPath = config.authProviderPaths[opts.provider],
-        oAuthUrl     = this.buildOAuthUrl(opts.params);
+        oAuthUrl     = this.buildOAuthUrl(opts.config, opts.params);
 
     if (!providerPath) {
       throw 'jToker: providerPath not found for provider: '+opts.provider;
@@ -918,6 +930,7 @@
         url    = config.apiUrl + config.passwordResetPath,
         dfd    = $.Deferred();
 
+    opts.config_name = opts.config;
     delete opts.config;
 
     opts.redirect_url = config.passwordResetSuccessUrl();
@@ -982,14 +995,14 @@
 
 
   // abstract storing of session data
-  Auth.prototype.persistData = function(key, val) {
+  Auth.prototype.persistData = function(key, val, config) {
     val = JSON.stringify(val);
 
-    switch (this.getConfig().storage) {
+    switch (this.getConfig(config).storage) {
       case 'cookies':
         $.cookie(key, val, {
-          expires: this.getConfig().cookieExpiry,
-          path:    this.getConfig().cookiePath
+          expires: this.getConfig(config).cookieExpiry,
+          path:    this.getConfig(config).cookiePath
         });
         break;
 
@@ -1045,7 +1058,9 @@
       configName = window.localStorage.getItem(SAVED_CONFIG_KEY);
     }
 
-    return configName || this.defaultConfigKey || INITIAL_CONFIG_KEY;
+    configName = configName || this.defaultConfigKey || INITIAL_CONFIG_KEY;
+
+    return unescapeQuotes(configName);
   };
 
 

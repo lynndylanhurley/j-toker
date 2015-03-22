@@ -16,10 +16,32 @@ var Auth         = require('../../../src/j-toker.js'),
 
 
 // configure jToker
-Auth.configure({
-  apiUrl: '//devise-token-auth.dev'
-});
-
+Auth.configure([
+  {
+    default: {
+      apiUrl: '//devise-token-auth.dev',
+      proxyIf: function() { return window.oldIE();}
+    }
+  }, {
+    evilUser: {
+      apiUrl: '//devise-token-auth.dev',
+      proxyIf:               function() { return window.isOldIE(); },
+      signOutUrl:              '/mangs/sign_out',
+      emailSignInPath:         '/mangs/sign_in',
+      emailRegistrationPath:   '/mangs',
+      accountUpdatePath:       '/mangs',
+      accountDeletePath:       '/mangs',
+      passwordResetPath:       '/mangs/password',
+      passwordUpdatePath:      '/mangs/password',
+      tokenValidationPath:     '/mangs/validate_token',
+      authProviderPaths: {
+        github:    '/mangs/github',
+        facebook:  '/mangs/facebook',
+        google:    '/mangs/google_oauth2'
+      }
+    }
+  }
+]);
 
 // define base layout
 var App = React.createClass({
@@ -29,6 +51,7 @@ var App = React.createClass({
     };
   },
 
+  // update the user state on all auth-related events
   componentWillMount: function() {
     PubSub.subscribe('auth', function() {
       this.setState({user: Auth.user});

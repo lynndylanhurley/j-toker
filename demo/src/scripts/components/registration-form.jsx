@@ -14,6 +14,18 @@ module.exports = React.createClass({
     FormStateMixin
   ],
 
+  propTypes: function() {
+    return {
+      config: React.PropTypes.string
+    }
+  },
+
+  getDefaultProps: function() {
+    return {
+      config: 'default'
+    }
+  },
+
   getInitialState: function() {
     return {
       email: '',
@@ -31,7 +43,8 @@ module.exports = React.createClass({
       email: this.state.email,
       password: this.state.password,
       password_confirmation: this.state.password_confirmation,
-      favorite_color: this.state.favorite_color
+      favorite_color: this.state.favorite_color,
+      config: this.props.config
     })
       .then(function()  {
         this.setState({

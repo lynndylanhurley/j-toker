@@ -13,13 +13,15 @@ module.exports = React.createClass({
 
   propTypes: function() {
     return {
-      signedIn: React.PropTypes.bool
+      signedIn: React.PropTypes.bool,
+      config: React.PropTypes.string
     }
   },
 
-  getInitialProps: function() {
+  getDefaultProps: function() {
     return {
-      signedIn: false
+      signedIn: false,
+      config: 'default'
     }
   },
 
@@ -31,7 +33,8 @@ module.exports = React.createClass({
   },
 
   handleSingleRequestClick: function(ev) {
-    var url = Auth.getConfig().apiUrl + '/demo/members_only';
+    //var url = Auth.getConfig().apiUrl + '/demo/members_only';
+    var url = Auth.getConfig().apiUrl + $(ev.target).data('url');
 
     $.getJSON(url)
       .then(function(resp) {
@@ -48,8 +51,8 @@ module.exports = React.createClass({
       }.bind(this));
   },
 
-  handleMultiRequestClick: function() {
-    var url = Auth.getConfig().apiUrl + '/demo/members_only';
+  handleMultiRequestClick: function(ev) {
+    var url = Auth.getConfig().apiUrl + $(ev.target).data('url');
 
     $.when(
       $.getJSON(url),
@@ -90,40 +93,103 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var btnClass, header, msg;
+    var groupBtnClass,
+        groupHeader,
+        groupMsg,
+        userBtnClass,
+        userHeader,
+        userMsg,
+        evilUserBtnClass,
+        evilUserHeader,
+        evilUserMsg;
+
 
     if (this.props.signedIn) {
-      btnClass = 'success';
-      header   = 'You are signed in.';
-      msg      = 'These requests should be successful.';
+      groupBtnClass = 'success';
+      groupHeader   = 'You are signed in using the '+this.props.configName+' configuration.';
+      groupMsg      = 'These requests should be successful.';
+
+      if (this.props.configName === 'default') {
+        userBtnClass     = 'success';
+        userMsg          = 'These requests should be successful.';
+        evilUserBtnClass = 'danger';
+        evilUserMsg      = 'These requests should fail.';
+      } else {
+        userBtnClass     = 'danger';
+        userMsg          = 'These requests should fail.';
+        evilUserBtnClass = 'success';
+        evilUserMsg      = 'These requests should be successful.';
+      }
+
     } else {
-      btnClass = 'danger';
-      header   = 'You are not signed in.';
-      msg      = 'These requests should fail.';
+      groupBtnClass    = 'danger';
+      groupHeader      = 'You are not signed in.';
+      groupMsg         = 'These requests should fail.';
+      userBtnClass     = 'danger';
+      userMsg          = 'These requests should fail.';
+      evilUserBtnClass = 'danger';
+      evilUserMsg      = 'These requests should fail.';
     }
 
     return (
-      <Panel header='Access Control' bsStyle={btnClass}>
-        <h4>{header}</h4>
-        <p>{msg}</p>
+      <Panel header='Access Control' bsStyle={groupBtnClass}>
+        <h4>{groupHeader}</h4>
+        <Panel>
+          <p>{groupMsg}</p>
+          <Button bsStyle={groupBtnClass}
+                  data-url='/demo/members_only_group'
+                  onClick={this.handleSingleRequestClick}>
+            Single Request for All Users
+          </Button>
 
-        <Button bsStyle={btnClass}
-                onClick={this.handleSingleRequestClick}>
-          Single Request
-        </Button>
+          &nbsp;
 
-        &nbsp;
+          <Button bsStyle={groupBtnClass}
+                  data-url='/demo/members_only_group'
+                  onClick={this.handleMultiRequestClick}>
+            Batch Request for All Users
+          </Button>
+        </Panel>
 
-        <Button bsStyle={btnClass}
-                onClick={this.handleMultiRequestClick}>
-          Batch Request
-        </Button>
+        <Panel>
+          <p>{userMsg}</p>
 
-        <br />
-        <br />
+          <Button bsStyle={userBtnClass}
+                  data-url='/demo/members_only'
+                  onClick={this.handleSingleRequestClick}>
+            Single Request To User Route
+          </Button>
+
+          &nbsp;
+
+          <Button bsStyle={userBtnClass}
+                  data-url='/demo/members_only'
+                  onClick={this.handleMultiRequestClick}>
+            Batch Request To User Route
+          </Button>
+        </Panel>
+
+        <Panel>
+          <p>{evilUserMsg}</p>
+
+          <Button bsStyle={evilUserBtnClass}
+                  data-url='/demo/members_only_mang'
+                  onClick={this.handleSingleRequestClick}>
+            Single Request To Evil User Route
+          </Button>
+
+          &nbsp;
+
+          <Button bsStyle={evilUserBtnClass}
+                  data-url='/demo/members_only_mang'
+                  onClick={this.handleMultiRequestClick}>
+            Batch Request To Evil User Route
+          </Button>
+        </Panel>
+
         <label>Example</label>
         <Highlight className='javascript'>
-          $.getJSON('/api/members-only');
+          $.getJSON('/api/secret-data');
         </Highlight>
       </Panel>
     );

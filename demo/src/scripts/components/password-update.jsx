@@ -21,7 +21,7 @@ module.exports = React.createClass({
     };
   },
 
-  getInitialProps: function() {
+  getDefaultProps: function() {
     return {
       signedIn: false,
       provider: ''

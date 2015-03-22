@@ -18,13 +18,15 @@ module.exports = React.createClass({
 
   propType: function() {
     return {
-      signedIn: React.PropTypes.bool
+      signedIn: React.PropTypes.bool,
+      config: React.PropTypes.string
     }
   },
 
   getDefaultProps: function() {
     return {
-      signedIn: false
+      signedIn: false,
+      config: 'default'
     }
   },
 
@@ -40,6 +42,7 @@ module.exports = React.createClass({
     var provider = $(ev.target).data('provider');
     Auth.oAuthSignIn({
       provider: provider,
+      config: this.props.config,
       params: {
         favorite_color: this.state.favorite_color
       }
