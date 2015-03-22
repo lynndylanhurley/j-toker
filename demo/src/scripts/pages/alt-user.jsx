@@ -1,4 +1,5 @@
 var React          = require('react'),
+    $              = require('jquery'),
     BS             = require('react-bootstrap'),
     Panel          = BS.Panel,
     Grid           = BS.Grid,
@@ -21,6 +22,10 @@ module.exports = React.createClass({
     user: React.PropTypes.object
   },
 
+  componentWillMount: function() {
+    $('body').toggleClass('evil', true);
+  },
+
   getDefaultProps: function() {
     return {
       user: {}
@@ -33,8 +38,11 @@ module.exports = React.createClass({
         <Row>
           <Col xs={12}>
             <Well>
-              <h1>jToker</h1>
-              <h2>Simple, secure authentication for single-page apps</h2>
+              <h1>Using an alternate user class</h1>
+              <p>
+                Use the panels on this page to authenticate using a different
+                user class than is used on the landing page.
+              </p>
             </Well>
           </Col>
         </Row>

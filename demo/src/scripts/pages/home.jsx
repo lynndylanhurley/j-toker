@@ -1,4 +1,5 @@
 var React          = require('react'),
+    $              = require('jquery'),
     BS             = require('react-bootstrap'),
     Panel          = BS.Panel,
     Grid           = BS.Grid,
@@ -18,6 +19,11 @@ var React          = require('react'),
 
 
 module.exports = React.createClass({
+
+  componentWillMount: function() {
+    $('body').toggleClass('evil', false);
+  },
+
   propTypes: {
     user: React.PropTypes.object
   },
@@ -35,7 +41,7 @@ module.exports = React.createClass({
           <Col xs={12}>
             <Well>
               <h1>jToker</h1>
-              <h2>Simple, secure authentication for single-page apps</h2>
+              <p>Simple, secure authentication for single-page apps</p>
             </Well>
           </Col>
         </Row>

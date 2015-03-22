@@ -1,7 +1,6 @@
 var Auth         = require('../../../src/j-toker.js'),
     React        = require('react'),
     Router       = require('react-router'),
-    Link         = Router.Link,
     Route        = Router.Route,
     DefaultRoute = Router.DefaultRoute,
     RouteHandler = Router.RouteHandler,
@@ -12,6 +11,8 @@ var Auth         = require('../../../src/j-toker.js'),
     Navbar       = BS.Navbar,
     Nav          = BS.Nav,
     NavItem      = BS.NavItem,
+    RRBS         = require('react-router-bootstrap'),
+    NavItemLink  = RRBS.NavItemLink,
     PubSub       = require('pubsub-js');
 
 
@@ -64,12 +65,8 @@ var App = React.createClass({
         <header>
           <Navbar brand='jToker'>
             <Nav>
-              <li>
-                <Link to='home'>Home</Link>
-              </li>
-              <li>
-                <Link to='alt-user'>Alternate User Class</Link>
-              </li>
+              <NavItemLink to='home'>Home</NavItemLink>
+              <NavItemLink to='alt-user'>Alternate User Class</NavItemLink>
             </Nav>
           </Navbar>
         </header>

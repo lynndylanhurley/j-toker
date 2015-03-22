@@ -68,10 +68,9 @@ module.exports = function (grunt) {
 
     copy: {
       demo: {
-        expand: true,
-        src: '**/*.{html,css}',
-        dest: 'demo/dist/',
-        cwd: 'demo/src/'
+        expand: false,
+        src: 'demo/src/index.html',
+        dest: 'demo/dist/index.html'
       }
     },
 
@@ -99,6 +98,23 @@ module.exports = function (grunt) {
       }
     },
 
+    sass: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: 'demo/src/styles',
+          src: ['*.scss'],
+          dest: 'demo/dist/styles',
+          ext: '.css'
+        }],
+
+        options: {
+          compass: true,
+          includePaths: ['node_modules/bootstrap-sass/assets/stylesheets']
+        }
+      }
+    },
+
     watch: {
       gruntfile: {
         files: '<%= jshint.gruntfile.src %>',
@@ -115,6 +131,10 @@ module.exports = function (grunt) {
       copyDemo: {
         files: '<%= copy.demo.src %>',
         tasks: ['copy:demo']
+      },
+      sass: {
+        files: 'demo/src/styles/**/*.scss',
+        tasks: ['sass']
       }
     },
 
@@ -134,6 +154,6 @@ module.exports = function (grunt) {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
     grunt.task.run(['serve']);
   });
-  grunt.registerTask('serve', ['clean', 'connect', 'copy:demo', 'browserify:app', 'watch']);
+  grunt.registerTask('serve', ['clean', 'sass:dist', 'connect', 'copy:demo', 'browserify:app', 'watch']);
   grunt.registerTask('test', ['jshint', 'connect', 'qunit']);
 };
