@@ -59,8 +59,8 @@
       $.auth.updateAccount(secondUserObj)
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.accountUpdateSuccess'),
-            '`auth.accountUpdateSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.accountUpdate.success'),
+            '`auth.accountUpdate.success` event was called'
           );
 
           assert.strictEqual(
@@ -103,8 +103,8 @@
         })
           .fail(function() {
             assert.ok(
-              $.auth.broadcastEvent.calledWith('auth.accountUpdateError'),
-              '`auth.accountUpdateError` event was called'
+              $.auth.broadcastEvent.calledWith('auth.accountUpdate.error'),
+              '`auth.accountUpdate.error` event was called'
             );
 
             assert.deepEqual(

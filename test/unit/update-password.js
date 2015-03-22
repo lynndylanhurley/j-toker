@@ -55,8 +55,8 @@
       })
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.passwordUpdateSuccess'),
-            '`auth.passwordUpdateSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.passwordUpdate.success'),
+            '`auth.passwordUpdate.success` event was called'
           );
 
           assert.strictEqual(
@@ -91,8 +91,8 @@
         })
           .fail(function() {
             assert.ok(
-              $.auth.broadcastEvent.calledWith('auth.passwordUpdateError'),
-              '`auth.passwordUpdateError` event was called'
+              $.auth.broadcastEvent.calledWith('auth.passwordUpdate.error'),
+              '`auth.passwordUpdate.error` event was called'
             );
 
             done();

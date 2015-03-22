@@ -34,8 +34,8 @@
       $.auth.signOut()
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.signOutSuccess'),
-            '`auth.signOutSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.signOut.success'),
+            '`auth.signOut.success` event was broadcast'
           );
 
           assert.strictEqual(
@@ -78,8 +78,8 @@
       $.auth.signOut()
         .fail(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.signOutError'),
-            '`auth.signOutError` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.signOut.error'),
+            '`auth.signOut.error` event was broadcast'
           );
 
           assert.strictEqual(

@@ -34,8 +34,8 @@
       $.auth.requestPasswordReset({email: validEmail})
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.passwordResetRequestSuccess'),
-            '`auth.passwordResetRequestSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.passwordResetRequest.success'),
+            '`auth.passwordResetRequest.success` event was broadcast'
           );
 
           assert.strictEqual(
@@ -78,8 +78,8 @@
         })
         .fail(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.passwordResetRequestError'),
-            '`auth.passwordResetRequestError` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.passwordResetRequest.error'),
+            '`auth.passwordResetRequest.error` event was broadcast'
           );
 
           assert.strictEqual(

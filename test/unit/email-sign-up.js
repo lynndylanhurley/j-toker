@@ -40,8 +40,8 @@
       })
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.emailRegistrationSuccess'),
-            '`auth.emailRegistrationSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.emailRegistration.success'),
+            '`auth.emailRegistration.success` event was broadcast'
           );
 
           assert.strictEqual(
@@ -87,8 +87,8 @@
         })
         .fail(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.emailRegistrationError'),
-            '`auth.emailRegistrationError` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.emailRegistration.error'),
+            '`auth.emailRegistration.error` event was broadcast'
           );
 
           assert.strictEqual(

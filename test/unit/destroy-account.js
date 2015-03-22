@@ -47,8 +47,8 @@
       $.auth.destroyAccount()
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.destroyAccountSuccess'),
-            '`auth.destroyAccountSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.destroyAccount.success'),
+            '`auth.destroyAccount.success` event was called'
           );
 
           assert.strictEqual(
@@ -90,8 +90,8 @@
       $.auth.destroyAccount()
         .fail(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.destroyAccountError'),
-            '`auth.destroyAccountError` event was called'
+            $.auth.broadcastEvent.calledWith('auth.destroyAccount.error'),
+            '`auth.destroyAccount.error` event was called'
           );
 
           assert.deepEqual(

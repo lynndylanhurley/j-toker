@@ -47,18 +47,18 @@
       })
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.emailSignInSuccess'),
-            '`auth.emailSignInSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.emailSignIn.success'),
+            '`auth.emailSignIn.success` event was broadcast'
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.validationSuccess'),
-            '`auth.validationSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.validation.success'),
+            '`auth.validation.success` event was broadcast'
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.signInSuccess'),
-            '`auth.signInSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.signIn.success'),
+            '`auth.signIn.success` event was broadcast'
           );
 
           done();
@@ -126,8 +126,8 @@
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.emailSignInError'),
-            '`auth.emailSignInError` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.emailSignIn.error'),
+            '`auth.emailSignIn.error` event was broadcast'
           );
 
           done();

@@ -36,35 +36,35 @@
   var nav = window.navigator;
 
   // cookie/localStorage value keys
-  var INITIAL_CONFIG_KEY = 'default';
-  var SAVED_CONFIG_KEY   = 'currentConfigName';
-  var SAVED_CREDS_KEY    = 'authHeaders';
+  var INITIAL_CONFIG_KEY = 'default',
+      SAVED_CONFIG_KEY   = 'currentConfigName',
+      SAVED_CREDS_KEY    = 'authHeaders';
 
   // broadcast message event name constants (use constants to avoid typos)
-  var VALIDATION_SUCCESS             = 'auth.validationSuccess',
-      VALIDATION_ERROR               = 'auth.validationError',
-      EMAIL_REGISTRATION_SUCCESS     = 'auth.emailRegistrationSuccess',
-      EMAIL_REGISTRATION_ERROR       = 'auth.emailRegistrationError',
-      PASSWORD_RESET_REQUEST_SUCCESS = 'auth.passwordResetRequestSuccess',
-      PASSWORD_RESET_REQUEST_ERROR   = 'auth.passwordResetRequestError',
-      EMAIL_CONFIRMATION_SUCCESS     = 'auth.emailConfirmationSuccess',
-      EMAIL_CONFIRMATION_ERROR       = 'auth.emailConfirmationError',
-      PASSWORD_RESET_CONFIRM_SUCCESS = 'auth.passwordResetConfirmSuccess',
-      PASSWORD_RESET_CONFIRM_ERROR   = 'auth.passwordResetConfirmError',
-      EMAIL_SIGN_IN_SUCCESS          = 'auth.emailSignInSuccess',
-      EMAIL_SIGN_IN_ERROR            = 'auth.emailSignInError',
-      OAUTH_SIGN_IN_SUCCESS          = 'auth.oAuthSignInSuccess',
-      OAUTH_SIGN_IN_ERROR            = 'auth.oAuthSignInError',
-      SIGN_IN_SUCCESS                = 'auth.signInSuccess',
-      SIGN_IN_ERROR                  = 'auth.signInError',
-      SIGN_OUT_SUCCESS               = 'auth.signOutSuccess',
-      SIGN_OUT_ERROR                 = 'auth.signOutError',
-      ACCOUNT_UPDATE_SUCCESS         = 'auth.accountUpdateSuccess',
-      ACCOUNT_UPDATE_ERROR           = 'auth.accountUpdateError',
-      DESTROY_ACCOUNT_SUCCESS        = 'auth.destroyAccountSuccess',
-      DESTROY_ACCOUNT_ERROR          = 'auth.destroyAccountError',
-      PASSWORD_UPDATE_SUCCESS        = 'auth.passwordUpdateSuccess',
-      PASSWORD_UPDATE_ERROR          = 'auth.passwordUpdateError';
+  var VALIDATION_SUCCESS             = 'auth.validation.success',
+      VALIDATION_ERROR               = 'auth.validation.error',
+      EMAIL_REGISTRATION_SUCCESS     = 'auth.emailRegistration.success',
+      EMAIL_REGISTRATION_ERROR       = 'auth.emailRegistration.error',
+      PASSWORD_RESET_REQUEST_SUCCESS = 'auth.passwordResetRequest.success',
+      PASSWORD_RESET_REQUEST_ERROR   = 'auth.passwordResetRequest.error',
+      EMAIL_CONFIRMATION_SUCCESS     = 'auth.emailConfirmation.success',
+      EMAIL_CONFIRMATION_ERROR       = 'auth.emailConfirmation.error',
+      PASSWORD_RESET_CONFIRM_SUCCESS = 'auth.passwordResetConfirm.success',
+      PASSWORD_RESET_CONFIRM_ERROR   = 'auth.passwordResetConfirm.error',
+      EMAIL_SIGN_IN_SUCCESS          = 'auth.emailSignIn.success',
+      EMAIL_SIGN_IN_ERROR            = 'auth.emailSignIn.error',
+      OAUTH_SIGN_IN_SUCCESS          = 'auth.oAuthSignIn.success',
+      OAUTH_SIGN_IN_ERROR            = 'auth.oAuthSignIn.error',
+      SIGN_IN_SUCCESS                = 'auth.signIn.success',
+      SIGN_IN_ERROR                  = 'auth.signIn.error',
+      SIGN_OUT_SUCCESS               = 'auth.signOut.success',
+      SIGN_OUT_ERROR                 = 'auth.signOut.error',
+      ACCOUNT_UPDATE_SUCCESS         = 'auth.accountUpdate.success',
+      ACCOUNT_UPDATE_ERROR           = 'auth.accountUpdate.error',
+      DESTROY_ACCOUNT_SUCCESS        = 'auth.destroyAccount.success',
+      DESTROY_ACCOUNT_ERROR          = 'auth.destroyAccount.error',
+      PASSWORD_UPDATE_SUCCESS        = 'auth.passwordUpdate.success',
+      PASSWORD_UPDATE_ERROR          = 'auth.passwordUpdate.error';
 
   console.log('===== init jToker ======');
 

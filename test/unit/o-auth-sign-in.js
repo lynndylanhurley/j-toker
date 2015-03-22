@@ -101,18 +101,18 @@
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.oAuthSignInSuccess'),
-            '`auth.oAuthSignInSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.oAuthSignIn.success'),
+            '`auth.oAuthSignIn.success` event was called'
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.signInSuccess'),
-            '`auth.signInSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.signIn.success'),
+            '`auth.signIn.success` event was called'
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.validationSuccess'),
-            '`auth.validationSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.validation.success'),
+            '`auth.validation.success` event was called'
           );
 
           done();
@@ -176,13 +176,13 @@
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.oAuthSignInError'),
-            '`auth.oAuthSignInError` event was called'
+            $.auth.broadcastEvent.calledWith('auth.oAuthSignIn.error'),
+            '`auth.oAuthSignIn.error` event was called'
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.signInError'),
-            '`auth.signInError` event was called'
+            $.auth.broadcastEvent.calledWith('auth.signIn.error'),
+            '`auth.signIn.error` event was called'
           );
 
           done();

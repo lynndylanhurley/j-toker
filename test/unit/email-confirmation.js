@@ -108,9 +108,9 @@
       );
 
       assert.strictEqual(
-        'auth.emailConfirmationSuccess',
+        'auth.emailConfirmation.success',
         $.auth.broadcastEvent.getCall(0).args[0],
-        '`auth.emailConfirmationSuccess` event was broadcast'
+        '`auth.emailConfirmation.success` event was broadcast'
       );
 
       assert.deepEqual(
@@ -178,9 +178,9 @@
       );
 
       assert.strictEqual(
-        'auth.emailConfirmationError',
+        'auth.emailConfirmation.error',
         $.auth.broadcastEvent.getCall(0).args[0],
-        '`auth.emailConfirmationError` event was broadcast'
+        '`auth.emailConfirmation.error` event was broadcast'
       );
 
       assert.strictEqual(

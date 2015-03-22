@@ -46,8 +46,8 @@
       $.auth.validateToken()
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.validationSuccess'),
-            '`auth.validationSuccess` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.validation.success'),
+            '`auth.validation.success` event was broadcast'
           );
 
           done();
@@ -95,8 +95,8 @@
           );
 
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.validationError'),
-            '`auth.validationError` event was broadcast'
+            $.auth.broadcastEvent.calledWith('auth.validation.error'),
+            '`auth.validation.error` event was broadcast'
           );
 
           done();
@@ -141,9 +141,9 @@
           );
 
           assert.strictEqual(
-            'auth.validationError',
+            'auth.validation.error',
             $.auth.broadcastEvent.getCall(0).args[0],
-            '`auth.validationError` event was broadcast'
+            '`auth.validation.error` event was broadcast'
           );
 
           done();

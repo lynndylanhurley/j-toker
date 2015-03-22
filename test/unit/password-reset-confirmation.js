@@ -108,8 +108,8 @@
       );
 
       assert.ok(
-        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirmSuccess'),
-        '`auth.passwordResetConfirmSuccess` event was broadcast'
+        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirm.success'),
+        '`auth.passwordResetConfirm.success` event was broadcast'
       );
 
       assert.deepEqual(
@@ -177,8 +177,8 @@
       );
 
       assert.ok(
-        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirmError'),
-        '`auth.passwordResetConfirmError` event was broadcast'
+        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirm.error'),
+        '`auth.passwordResetConfirm.error` event was broadcast'
       );
 
       assert.strictEqual(
