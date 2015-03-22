@@ -2,3 +2,4 @@
 /bower_components/
 dist
 demo/dist
+npm-debug.log
