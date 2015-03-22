@@ -54,15 +54,11 @@ module.exports = function (grunt) {
         transform: ['reactify'],
         extensions: ['.jsx']
       },
-      //vendor: {
-        //src: [],
-        //dest: 'demo/dist/scripts/vendor.js',
-        //options: {
-          //require: ['jquery']
-        //}
-      //},
       app: {
-        src: ['demo/src/scripts/**/*.jsx'],
+        src: [
+          'src/j-toker.js',
+          'demo/src/scripts/**/*.jsx'
+        ],
         dest: 'demo/dist/scripts/main.js',
         options: {
           watch: true

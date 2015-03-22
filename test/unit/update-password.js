@@ -1,24 +1,18 @@
 (function ($) {
-  var sinon = window.sinon,
+  var sinon    = window.sinon,
       email       = 'test@test.com',
       uid         = '123',
-      firstName   = 'Trurl',
-      secondName  = 'Klapaucius',
+      firstName   = 'dhalgren',
+      clientId    = 'zyx',
       firstToken  = 'xxx',
       secondToken = 'yyy',
-      clientId    = 'zyx',
       firstUserObj = {
         email: email,
         uid:   uid,
         name:  firstName
-      },
-      secondUserObj = {
-        email: email,
-        uid:   uid,
-        name:  secondName
       };
 
-  QUnit.module('jQuery.auth.updateAccount', {
+  QUnit.module('jQuery.auth.updatePassword', {
     beforeEach: function() {
       this.server = sinon.fakeServer.create();
       $.auth.configure(null, true);
@@ -47,35 +41,28 @@
       $.extend($.auth.user, firstUserObj);
 
       // mock success response to sign in
-      this.server.respondWith('PUT', '/api/auth', [
+      this.server.respondWith('PUT', '/api/auth/password', [
         200, {
           'access-token': secondToken,
           'uid':          uid,
           'client':       clientId,
           'Content-Type': 'application/json'
-        }, JSON.stringify({data: secondUserObj})]);
+        }, JSON.stringify({success: true})]);
 
-
-      $.auth.updateAccount(secondUserObj)
+      $.auth.updatePassword({
+        password: 'secret123',
+        password_confirmation: 'secret123'
+      })
         .then(function() {
           assert.ok(
-            $.auth.broadcastEvent.calledWith('auth.accountUpdateSuccess'),
-            '`auth.accountUpdateSuccess` event was called'
+            $.auth.broadcastEvent.calledWith('auth.passwordUpdateSuccess'),
+            '`auth.passwordUpdateSuccess` event was called'
           );
 
           assert.strictEqual(
             secondToken,
             $.auth.retrieveData('authHeaders')['access-token'],
             'auth token has been updated to latest'
-          );
-
-          assert.deepEqual(
-            $.extend(secondUserObj, {
-              signedIn: true,
-              configName: 'default'
-            }),
-            $.auth.user,
-            'user object was updated'
           );
 
           done();
@@ -93,24 +80,19 @@
       $.extend($.auth.user, firstUserObj);
 
       // mock success response to sign in
-      this.server.respondWith('PUT', '/api/auth', [
+      this.server.respondWith('PUT', '/api/auth/password', [
         500, {
           'Content-Type': 'application/json'
         }, JSON.stringify({success: false})]);
 
-        $.auth.updateAccount({
-          test: 'bang'
+        $.auth.updatePassword({
+          password: 'secret123',
+          password_confirmation: 'secret321'
         })
           .fail(function() {
             assert.ok(
-              $.auth.broadcastEvent.calledWith('auth.accountUpdateError'),
-              '`auth.accountUpdateError` event was called'
-            );
-
-            assert.deepEqual(
-              firstUserObj,
-              $.auth.user,
-              'user object was not modified'
+              $.auth.broadcastEvent.calledWith('auth.passwordUpdateError'),
+              '`auth.passwordUpdateError` event was called'
             );
 
             done();
@@ -121,4 +103,3 @@
   );
 
 }(jQuery));
-

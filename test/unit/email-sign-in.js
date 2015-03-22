@@ -79,7 +79,10 @@
       );
 
       assert.deepEqual(
-        userObj,
+        $.extend(userObj, {
+          configName: 'default',
+          signedIn: true
+        }),
         $.auth.user,
         "user attributes were loaded into $.auth.user"
       );

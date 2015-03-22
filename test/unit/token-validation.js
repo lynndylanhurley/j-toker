@@ -35,8 +35,10 @@
           'access-token': newToken,
           'Content-Type': 'application/json'
         }, JSON.stringify({
-          email: validEmail,
-          uid:   validUid
+          data: {
+            email: validEmail,
+            uid:   validUid
+          }
         })]);
 
       $.auth.persistData('authHeaders', currentToken);
@@ -66,7 +68,10 @@
       );
 
       assert.deepEqual(
-        userObj,
+        $.extend(userObj, {
+          signedIn: true,
+          configName: 'default'
+        }),
         $.auth.user,
         "user attributes were loaded into $.auth.user"
       );

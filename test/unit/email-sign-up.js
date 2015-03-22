@@ -56,6 +56,7 @@
           throw "email sign up request failed.";
         });
 
+      //TODO: test that confirm success url was sent
 
       server.respond();
     }

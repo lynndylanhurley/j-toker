@@ -10,14 +10,14 @@
       clientId     = 'zyx321',
       expiry       = "" + new Date().getTime() * 1000 + 5000,
       expectedUser = {
-        id:         id,
-        uid:        uid,
-        email:      email,
-        auth_token: authToken,
-        expiry:     expiry,
-        client_id:  clientId,
-        signedIn:   true,
-        configName: "default"
+        id:           id,
+        uid:          uid,
+        email:        email,
+        'auth-token': authToken,
+        expiry:       expiry,
+        client:       clientId,
+        signedIn:     true,
+        configName:   "default"
       };
 
   var fakePopup = function(url) {
@@ -31,14 +31,6 @@
 
   var fakeSetLocation = function(url) {
     mockLocation = url;
-  };
-
-  var fakeGetSearch = function() {
-    return mockSearch;
-  };
-
-  var fakeSetSearch = function(s) {
-    mockSearch = s;
   };
 
   var fakeSuccessPostMessage = function() {
@@ -60,8 +52,6 @@
       sinon.spy($.auth, 'setCurrentUser');
       sinon.stub($.auth, 'createPopup', fakePopup);
       sinon.stub($.auth, 'setLocation', fakeSetLocation);
-      sinon.stub($.auth, 'getRawSearch', fakeGetSearch);
-      sinon.stub($.auth, 'setRawSearch', fakeSetSearch);
     },
 
     afterEach: function() {
@@ -71,8 +61,6 @@
       $.auth.setCurrentUser.restore();
       $.auth.createPopup.restore();
       $.auth.setLocation.restore();
-      $.auth.getRawSearch.restore();
-      $.auth.setRawSearch.restore();
       mockLocation = null;
       mockSearch   = null;
       popupUrl     = null;

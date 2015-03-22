@@ -25,7 +25,7 @@
         },
 
         tokenFormat: {
-          "access-token": "{{ token }}",
+          "access-token": "{{ access-token }}",
           "token-type":   "Bearer",
           client:         "{{ client }}",
           expiry:         "{{ expiry }}",

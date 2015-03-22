@@ -24,7 +24,7 @@
           server = this.server;
 
       // mock success response
-      server.respondWith('POST', '/api/auth', [
+      server.respondWith('POST', '/api/auth/password', [
         200, {
           'Content-Type': 'application/json'
         }, JSON.stringify({
@@ -63,7 +63,7 @@
           server = this.server;
 
       // mock success response
-      server.respondWith('POST', '/api/auth', [
+      server.respondWith('POST', '/api/auth/password', [
         403, {
           'Content-Type': 'application/json'
         }, JSON.stringify({

@@ -1,12 +1,13 @@
 (function ($) {
-  var sinon      = window.sinon,
-      uid        = 'xyz123',
-      token      = '321zyx',
-      newToken   = '432yxw',
-      clientId   = 'zyx987',
-      email      = 'test@test.com',
-      expiry     = "" + new Date().getTime() * 1000 + 5000,
-      mockSearch = null;
+  var sinon        = window.sinon,
+      uid          = 'xyz123',
+      token        = '321zyx',
+      newToken     = '432yxw',
+      clientId     = 'zyx987',
+      email        = 'test@test.com',
+      expiry       = "" + new Date().getTime() * 1000 + 5000,
+      mockSearch   = null,
+      mockLocation = null;
 
   var fakeGetSearch = function() {
     return mockSearch;
@@ -14,6 +15,10 @@
 
   var fakeSetSearch = function(s) {
     mockSearch = s;
+  };
+
+  var fakeSetLocation = function(l) {
+    mockLocation = l;
   };
 
 
@@ -24,6 +29,7 @@
       sinon.spy($.auth,  'validateToken');
       sinon.stub($.auth, 'getRawSearch', fakeGetSearch);
       sinon.stub($.auth, 'setRawSearch', fakeSetSearch);
+      sinon.stub($.auth, 'setLocation', fakeSetLocation);
     },
 
     afterEach: function() {
@@ -32,6 +38,7 @@
       $.auth.validateToken.restore();
       $.auth.getRawSearch.restore();
       $.auth.setRawSearch.restore();
+      $.auth.setLocation.restore();
       $.auth.reset();
     }
   });
@@ -55,14 +62,19 @@
             uid:            uid,
             expiry:         expiry
           },
-          randomKey = '(.)(.)';
+          randomKey = '(.)(.)',
+          expectedLocation = window.location.protocol +
+                             '//' +
+                             window.location.host +
+                             window.location.pathname +
+                            '?randomKey='+encodeURIComponent(randomKey);
 
-      $.auth.setQs({
-        token:     token,
-        uid:       uid,
-        client:    clientId,
-        expiry:    expiry,
-        randomKey: randomKey,
+      $.auth.setSearchQs({
+        'access-token': token,
+        uid:            uid,
+        client:         clientId,
+        expiry:         expiry,
+        randomKey:      randomKey,
         account_confirmation_success: true
       });
 
@@ -107,9 +119,9 @@
         'creds were updated after on validateToken was called'
       );
 
-      assert.deepEqual(
-        {randomKey: randomKey},
-        $.auth.getQs(),
+      assert.strictEqual(
+        expectedLocation,
+        mockLocation,
         'location was stripped of auth creds, non-related keys remain'
       );
     }
@@ -126,9 +138,14 @@
             uid:            uid,
             expiry:         expiry
           },
-          randomKey = '(x)(x)';
+          randomKey = '(x)(x)',
+          expectedLocation = window.location.protocol +
+                             '//' +
+                             window.location.host +
+                             window.location.pathname +
+                            '?randomKey='+encodeURIComponent(randomKey);
 
-      $.auth.setQs({
+      $.auth.setSearchQs({
         token:     token,
         uid:       uid,
         client:    clientId,
@@ -173,8 +190,8 @@
       );
 
       assert.deepEqual(
-        {randomKey: randomKey},
-        $.auth.getQs(),
+        expectedLocation,
+        mockLocation,
         'location was stripped of auth creds, non-related keys remain'
       );
     }

@@ -1,8 +1,83 @@
-var $         = require('jquery'),
-    React     = require('react'),
-    LoginForm = require('./components/login-form.jsx');
+var Auth         = require('../../../src/j-toker.js'),
+    React        = require('react'),
+    Router       = require('react-router'),
+    Link         = Router.Link,
+    Route        = Router.Route,
+    DefaultRoute = Router.DefaultRoute,
+    RouteHandler = Router.RouteHandler,
+    Banner       = require('./components/github-banner.jsx'),
+    HomePage     = require('./pages/home.jsx'),
+    AltUserPage  = require('./pages/alt-user.jsx'),
+    BS           = require('react-bootstrap'),
+    Navbar       = BS.Navbar,
+    Nav          = BS.Nav,
+    NavItem      = BS.NavItem,
+    PubSub       = require('pubsub-js');
 
-React.render(
-  <LoginForm />,
-  document.getElementById('content')
+
+// configure jToker
+Auth.configure({
+  apiUrl: '//devise-token-auth.dev'
+});
+
+
+// define base layout
+var App = React.createClass({
+  getInitialState: function() {
+    return {
+      user: Auth.user
+    };
+  },
+
+  componentWillMount: function() {
+    PubSub.subscribe('auth', function() {
+      this.setState({user: Auth.user});
+    }.bind(this));
+  },
+
+  render: function() {
+    return (
+      <div>
+        <header>
+          <Navbar brand='jToker'>
+            <Nav>
+              <li>
+                <Link to='home'>Home</Link>
+              </li>
+              <li>
+                <Link to='alt-user'>Alternate User Class</Link>
+              </li>
+            </Nav>
+          </Navbar>
+        </header>
+
+        {/* placeholder for page content*/}
+        <RouteHandler {...this.state} />
+
+        <Banner />
+      </div>
+    );
+  }
+});
+
+
+// define routes
+var routes = (
+  <Route handler={App} path='/'>
+    <DefaultRoute name='home' handler={HomePage} />
+    <Route name='alt-user' path='alt-user' handler={AltUserPage} />
+  </Route>
 );
+
+
+// bind app to routes
+Router.run(routes, function(Handler) {
+  var params = {
+    user: Auth.user
+  };
+
+  React.render(
+    <Handler />,
+    document.getElementById('content')
+  );
+})

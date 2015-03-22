@@ -8,18 +8,28 @@
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['jquery'], factory);
+    define([
+      'jquery',
+      'jquery-deparam',
+      'pubsub-js',
+      'jquery.cookie'
+    ], factory);
   } else if (typeof exports === 'object') {
     // Node/CommonJS
-    module.exports = factory(require('jquery'));
+    module.exports = factory(
+      require('jquery'),
+      require('jquery-deparam'),
+      require('pubsub-js'),
+      require('jquery.cookie')
+    );
   } else {
     // Browser globals
-    factory(jQuery);
+    factory(jQuery, window.deparam, window.PubSub);
   }
-}(function ($) {
-  // ghetto singleton
+}(function ($, deparam, PubSub) {
+  // singleton
   if ($.auth) {
-    return;
+    return $.auth;
   }
 
   // shut up jshint
@@ -54,6 +64,8 @@
   var ACCOUNT_UPDATE_ERROR           = 'auth.accountUpdateError';
   var DESTROY_ACCOUNT_SUCCESS        = 'auth.destroyAccountSuccess';
   var DESTROY_ACCOUNT_ERROR          = 'auth.destroyAccountError';
+  var PASSWORD_UPDATE_SUCCESS        = 'auth.passwordUpdateSuccess';
+  var PASSWORD_UPDATE_ERROR          = 'auth.passwordUpdateError';
 
   console.log('===== init jToker ======');
 
@@ -110,7 +122,7 @@
       },
 
       tokenFormat: {
-        "access-token": "{{ token }}",
+        "access-token": "{{ access-token }}",
         "token-type":   "Bearer",
         client:         "{{ client }}",
         expiry:         "{{ expiry }}",
@@ -203,11 +215,11 @@
       );
     }
 
-    if (!window.deparam) {
+    if (!deparam) {
       errors.push('Dependency not met: jquery-deparam.');
     }
 
-    if (!$.subscribe) {
+    if (!PubSub) {
       warnings.push(
         'jquery.ba-tinypubsub.js not found. No auth events will be broadcast.'
       );
@@ -316,7 +328,7 @@
     }
 
     // pull creds from search bar if available
-    this.getTokenFromSearch();
+    this.processSearchParams();
 
     // validate token if set
     return this.validateToken();
@@ -357,11 +369,13 @@
 
     if (ev.data.message === 'deliverCredentials') {
       delete ev.data.message;
-      var user        = $.auth.setCurrentUser(ev.data),
-          authHeaders = $.auth.buildAuthHeaders(user);
+
+      var initialHeaders = $.auth.normalizeTokenKeys(ev.data),
+          authHeaders    = $.auth.buildAuthHeaders(initialHeaders),
+          user           = $.auth.setCurrentUser(ev.data);
 
       $.auth.persistData(SAVED_CREDS_KEY, authHeaders);
-      $.auth.resolvePromise(OAUTH_SIGN_IN_SUCCESS, $.auth.oAuthDfd, ev.data);
+      $.auth.resolvePromise(OAUTH_SIGN_IN_SUCCESS, $.auth.oAuthDfd, user);
       $.auth.broadcastEvent(SIGN_IN_SUCCESS, user);
       $.auth.broadcastEvent(VALIDATION_SUCCESS, user);
 
@@ -388,20 +402,40 @@
   };
 
 
-  Auth.prototype.getTokenFromSearch = function() {
+  // compensate for poor naming decisions made early on
+  // TODO: fix API so this isn't necessary
+  Auth.prototype.normalizeTokenKeys = function(params) {
+    // normalize keys
+    if (params.token) {
+      params['access-token'] = params.token;
+      delete params.token;
+    }
+    if (params.auth_token) {
+      params['access-token'] = params.auth_token;
+      delete params.auth_token;
+    }
+    if (params.client_id) {
+      params.client = params.client_id;
+      delete params.client_id;
+    }
+
+    // remove config as was defined in qs (should have already been utilizied)
+    if (params.config) {
+      delete params.config;
+    }
+
+    return params;
+  };
+
+
+  Auth.prototype.processSearchParams = function() {
     var searchParams  = this.getQs(),
-        newHeaders    = null,
-        targetKeyList = [
-          'token',
-          'client',
-          'expiry',
-          'uid',
-          'reset_password',
-          'account_confirmation_success'
-        ];
+        newHeaders    = null;
+
+    searchParams = this.normalizeTokenKeys(searchParams);
 
     // only bother with this if minimum search params are present
-    if (searchParams.token && searchParams.uid) {
+    if (searchParams['access-token'] && searchParams.uid) {
       newHeaders = this.buildAuthHeaders(searchParams);
 
       // save all token headers to session
@@ -420,24 +454,77 @@
       // TODO: set uri flag on devise_token_auth for OAuth confirmation
       // when using hard page redirects.
 
-      // strip all values from search params
-      for (var q in targetKeyList) {
-        delete searchParams[targetKeyList[q]];
-      }
-
       // set qs without auth keys/values
-      this.setQs(searchParams);
+      var newLocation = this.getLocationWithoutParams([
+        'access-token',
+        'token',
+        'auth_token',
+        'config',
+        'client',
+        'client_id',
+        'expiry',
+        'uid',
+        'reset_password',
+        'account_confirmation_success'
+      ]);
+
+      this.setLocation(newLocation);
     }
 
     return newHeaders;
   };
 
 
+  // this method is tricky. we want to reconstruct the current URL with the
+  // following conditions:
+  // 1. search contains none of the supplied keys
+  // 2. anchor search (i.e. `#/?key=val`) contains none of the supplied keys
+  // 3. all of the keys NOT supplied are presevered in their original form
+  // 4. url protocol, host, and path are preserved
+  Auth.prototype.getLocationWithoutParams = function(keys) {
+    // strip all values from both actual and anchor search params
+    var newSearch   = $.param(this.stripKeys(this.getSearchQs(), keys)),
+        newAnchorQs = $.param(this.stripKeys(this.getAnchorQs(), keys)),
+        newAnchor   = window.location.hash.split('?')[0];
+
+    if (newSearch) {
+      newSearch = "?" + newSearch;
+    }
+
+    if (newAnchorQs) {
+      newAnchor += "?" + newAnchorQs;
+    }
+
+    if (newAnchor && !newAnchor.match(/^#/)) {
+      newAnchor = "#/" + newAnchor;
+    }
+
+    // reconstruct location with stripped auth keys
+    var newLocation = window.location.protocol +
+                      '//'+
+                      window.location.host+
+                      window.location.pathname+
+                      newSearch+
+                      newAnchor;
+
+    return newLocation;
+  };
+
+
+  Auth.prototype.stripKeys = function(obj, keys) {
+    for (var q in keys) {
+      delete obj[keys[q]];
+    }
+
+    return obj;
+  };
+
+
   // abstract publish method, only use if pubsub exists.
   // TODO: allow broadcast method to be configured
   Auth.prototype.broadcastEvent = function(msg, data) {
-    if ($.publish) {
-      $.publish(msg, data);
+    if (PubSub.publish) {
+      PubSub.publish(msg, data);
     }
   };
 
@@ -457,6 +544,10 @@
   // has run before promise is rejected
   Auth.prototype.rejectPromise = function(evMsg, dfd, data, reason) {
     var self = this;
+
+    // jQuery has a strange way of returning error responses...
+    data = $.parseJSON(data.responseText || '{}');
+
     setTimeout(function() {
       self.broadcastEvent(evMsg, data);
       dfd.reject({
@@ -493,8 +584,9 @@
         context: this,
 
         success: function(resp) {
-          // save user data, preserve bindings to original user object
-          $.extend(this.user, resp);
+          var user = config.handleTokenValidationResponse(resp);
+
+          this.setCurrentUser(user);
 
           if (this.firstTimeLogin) {
             this.broadcastEvent(EMAIL_CONFIRMATION_SUCCESS, resp);
@@ -544,10 +636,15 @@
         url    = config.apiUrl + config.emailRegistrationPath,
         dfd    = $.Deferred();
 
+    delete opts.config;
+
+    opts.confirm_success_url = config.confirmationSuccessUrl();
+
     $.ajax({
       url: url,
       context: this,
       method: 'POST',
+      data: opts,
 
       success: function(resp) {
         this.resolvePromise(EMAIL_REGISTRATION_SUCCESS, dfd, resp);
@@ -590,17 +687,12 @@
         // return user attrs as directed by config
         var user = config.handleLoginResponse(resp);
 
-        // clear user object of any existing attributes
-        for (var key in this.user) {
-          delete this.user[key];
-        }
-
         // save user data, preserve bindings to original user object
-        $.extend(this.user, user);
+        this.setCurrentUser(user);
 
         this.resolvePromise(EMAIL_SIGN_IN_SUCCESS, dfd, resp);
         this.broadcastEvent(SIGN_IN_SUCCESS, user);
-        this.broadcastEvent(VALIDATION_SUCCESS, user);
+        this.broadcastEvent(VALIDATION_SUCCESS, this.user);
       },
 
       error: function(resp) {
@@ -748,14 +840,17 @@
         url    = config.apiUrl + config.accountUpdatePath,
         dfd    = $.Deferred();
 
+    delete opts.config;
+
     $.ajax({
       url: url,
       context: this,
       method: 'PUT',
+      data: opts,
 
       success: function(resp) {
         var user = config.handleAccountUpdateResponse(resp);
-        $.extend(this.user, user);
+        this.setCurrentUser(user);
         this.resolvePromise(ACCOUNT_UPDATE_SUCCESS, dfd, resp);
       },
 
@@ -820,13 +915,18 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.emailRegistrationPath,
+        url    = config.apiUrl + config.passwordResetPath,
         dfd    = $.Deferred();
+
+    delete opts.config;
+
+    opts.redirect_url = config.passwordResetSuccessUrl();
 
     $.ajax({
       url: url,
       context: this,
       method: 'POST',
+      data: opts,
 
       success: function(resp) {
         this.resolvePromise(PASSWORD_RESET_REQUEST_SUCCESS, dfd, resp);
@@ -838,6 +938,41 @@
           dfd,
           resp,
           'Failed to submit email registration.'
+        );
+      }
+    });
+
+    return dfd.promise();
+  };
+
+
+  Auth.prototype.updatePassword = function(opts) {
+    if (!opts) {
+      opts = {};
+    }
+
+    var config = this.getConfig(opts.config),
+        url    = config.apiUrl + config.passwordUpdatePath,
+        dfd    = $.Deferred();
+
+    delete opts.config;
+
+    $.ajax({
+      url: url,
+      context: this,
+      method: 'PUT',
+      data: opts,
+
+      success: function(resp) {
+        this.resolvePromise(PASSWORD_UPDATE_SUCCESS, dfd, resp);
+      },
+
+      error: function(resp) {
+        this.rejectPromise(
+          PASSWORD_UPDATE_ERROR,
+          dfd,
+          resp,
+          'Failed to update password.'
         );
       }
     });
@@ -898,7 +1033,11 @@
   Auth.prototype.getCurrentConfigName = function() {
     var configName = null;
 
-    if ($.cookie) {
+    if (this.getQs().config) {
+      configName = this.getQs().config;
+    }
+
+    if ($.cookie && !configName) {
       configName = $.cookie(SAVED_CONFIG_KEY);
     }
 
@@ -994,15 +1133,38 @@
 
 
   // stub for mock overrides
+  Auth.prototype.getRawAnchor = function() {
+    return window.location.hash;
+  };
+
+
+  Auth.prototype.setRawAnchor = function(a) {
+    window.location.hash = a;
+  };
+
+
+  Auth.prototype.getAnchorSearch = function() {
+    var arr = this.getRawAnchor().split('?');
+    return (arr.length > 1) ? arr[1] : null;
+  };
+
+
+  // stub for mock overrides
   Auth.prototype.setRawSearch = function(s) {
     window.location.search = s;
   };
 
 
   // stub for mock overrides
-  Auth.prototype.setQs = function(params) {
+  Auth.prototype.setSearchQs = function(params) {
     this.setRawSearch($.param(params));
-    return this.getQs();
+    return this.getSearchQs();
+  };
+
+
+  Auth.prototype.setAnchorQs = function(params) {
+    this.setAnchorSearch($.param(params));
+    return this.getAnchorQs();
   };
 
 
@@ -1018,10 +1180,25 @@
   };
 
 
+  Auth.prototype.getSearchQs = function() {
+    var qs          = this.getRawSearch().replace('?', ''),
+        qsObj       = (qs) ? deparam(qs) : {};
+
+    return qsObj;
+  };
+
+
+  Auth.prototype.getAnchorQs = function() {
+    var anchorQs    = this.getAnchorSearch(),
+        anchorQsObj = (anchorQs) ? deparam(anchorQs) : {};
+
+    return anchorQsObj;
+  };
+
+
   // stub for mock overrides
   Auth.prototype.getQs = function() {
-    var qs = this.getRawSearch();
-    return (qs) ? window.deparam(qs) : {};
+    return $.extend(this.getSearchQs(), this.getAnchorQs());
   };
 
 
@@ -1084,7 +1261,9 @@
   };
 
 
-  // save global reference to service
+  // export service
   $.auth = new Auth();
+
+  return $.auth;
 
 }));
