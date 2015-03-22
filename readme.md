@@ -13,7 +13,7 @@ This module provides the following features:
   * Account deletion
 * Seamless integration with the [devise token auth][dta] Rails gem.
 * Extensive event notifications
-* Allows for extensive configuration to work with any API
+* Allows for total configuration to work with any API
 * Session support using cookies or localStorage
 * Tested with Chrome, Safari, Firefox and IE8+
 
@@ -26,18 +26,18 @@ This project comes bundled with a test app. You can run the demo locally by foll
 
 * [About this module](#about-this-module)
 * [Installation](#installation)
-* Configuration
-* API
-  * $.auth.oAuthSignIn
-  * $.auth.emailSignUp
-  * $.auth.emailSignIn
-  * $.auth.validateToken
-  * $.auth.updateAccount
-  * $.auth.requestPasswordReset
-  * $.auth.updatePassword
-  * $.auth.signOut
-  * $.auth.destroyAccount
-* Events
+* [Configuration](#configuration)
+* [API](#api)
+  * [$.auth.oAuthSignIn](#authoauthsignin)
+  * [$.auth.emailSignUp](#authemailsignup)
+  * [$.auth.emailSignIn](#authemailsignin)
+  * [$.auth.validateToken](#authvalidatetoken)
+  * [$.auth.updateAccount](#authupdateaccount)
+  * [$.auth.requestPasswordReset](#authrequestpasswordreset)
+  * [$.auth.updatePassword](#authupdatepassword)
+  * [$.auth.signOut](#authsignout)
+  * [$.auth.destroyAccount](#authdestroyaccount)
+* [Events](#events)
 * Using alternate response formats
 * Using multiple user types
 * Conceptual diagrams
@@ -62,6 +62,8 @@ This module relies on [token based authentication][token-auth-wiki]. This requir
 
 This module was designed to work out of the box with the legendary [devise token auth][dta] gem, but it's flexible enough to be used in just about any environment.
 
+Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] instead.
+
 **About security**: [read here][so-post] for more information on securing your token auth system. The [devise token auth][dta] gem has adequate security measures in place, and this module was built to work seamlessly with that gem.
 
 # Installation
@@ -79,7 +81,7 @@ This module was designed to work out of the box with the legendary [devise token
    * [jquery][jquery]: AJAX requests
    * [jquery-cookie][jquery-cookie]: Persist data through browser sessions
    * [jquery-deparam][jquery-deparam]: Querystring param deconstruction.
-   * [PubSubJs][pubsub-js]: (optional) Event publish / subscribe.
+   * [PubSubJS][pubsub-js]: (optional) Event publish / subscribe.
 
    These dependencies were pulled down automatically if you used [bower] or [npm] to install jToker.
 3. Include j-toker in your project. 
@@ -325,7 +327,7 @@ Initiate an OAuth2 authentication.
 
 ##### arguments:
 
-* **`provider`**: a string that is also the name of the target provider service.
+* **`provider`**: the name of the target provider service as represented in the `authProviderPaths` config hash.
    
    ~~~javascript
    $.auth.authenticate({provider: 'github'});
@@ -422,9 +424,7 @@ This method is called automatically after `configure` to check if returning user
 
 The promise returned by this method can be used to redirect users to the login screen when they try to visit restricted areas.
 
-##### Redirection example use with react and react-router
-
-**TODO**: fix example to use router context
+##### Redirection example with react and react-router
 
 ~~~javascript
 // this assumes that there is an available route named 'login'
@@ -508,9 +508,100 @@ Destroy the current user's account.
 $.auth.destroyAccount();
 ~~~
 
+# Events
+
+If the [PubSubJS][pubsub-js] library is included, the following events will be broadcast.
+
+A nice feature of [PubSubJS][pubsub-js] is event namespacing (see "topics" in the docs). So you can use a single subscription to listen for any changes to the `$.auth.user` object, and then propgate the changes to any related UI components.
+
+##### event example using React and PubSubJS:
+
+~~~javascript
+var React = require('react'),
+    PubSub = require('pubsub-js'),
+    Auth = require('j-toker');
+
+var App = React.createClass({
+
+  getInitialState: function() {
+    return {
+      user: Auth.user
+    };
+  },
+  
+  // update the user object on all auth-related events
+  componentWillMount: function() {
+    PubSub.subscribe('auth', function() {
+      this.setState({user: Auth.user});
+    }.bind(this));
+  },
+  
+  // ...
+ 
+});
+~~~
+
+### auth.validation.success
+Broadcast after successful user authentication. Event message contains the user object. 
+
+##### Broadcast after:
+* `$.auth.emailSignIn`
+* `$.auth.oAuthSignIn`
+* `$.auth.validateToken`
+
+##### Example:
+
+~~~javascript
+PubSub.subscribe('auth.validation.success', function(msg, user) {
+  alert('Welcome' + user.name + '!');
+});
+~~~
+
+### auth.validation.error
+Broadcast after failed user authentication. Event message contains errors related to the failure.
+
+##### Broadcast after:
+* `$.auth.emailSignIn`
+* `$.auth.oAuthSignIn`
+* `$.auth.validateToken`
+
+##### Example:
+
+~~~javascript
+PubSub.subscribe('auth.validation.success', function(msg, err) {
+  alert('Validation failure.');
+});
+~~~
+
+### auth.emailRegistration.success
+
+
+### auth.emailRegistration.error
+### auth.passwordResetRequest.success
+### auth.passwordResetRequest.error
+### auth.emailConfirmation.success
+### auth.emailConfirmation.error
+### auth.passwordResetConfirm.success
+### auth.passwordResetConfirm.error
+### auth.emailSignIn.success
+### auth.emailSignIn.error
+### auth.oAuthSignIn.success
+### auth.oAuthSignIn.error
+### auth.signIn.success
+### auth.signIn.error
+### auth.signOut.success
+### auth.signOut.error
+### auth.accountUpdate.success
+### auth.accountUpdate.error
+### auth.destroyAccount.success
+### auth.destroyAccount.error
+### auth.passwordUpdate.success
+### auth.passwordUpdate.error
+
+
 ## Credits
 
-I've cribbed code and/or ideas from the following sources:
+Code and ideas were stolen from the following sources:
 
 * [this SO post on token-auth security][so-post]
 * [this SO post on string templating](http://stackoverflow.com/questions/14879866/javascript-templating-function-replace-string-and-dont-take-care-of-whitespace)
@@ -533,3 +624,4 @@ WTFPL © Lynn Dylan Hurley
 [cors]: http://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 [common-js]: http://en.wikipedia.org/wiki/CommonJS
 [dfd]: https://api.jquery.com/jQuery.Deferred/
+[angular]: https://angularjs.org/
