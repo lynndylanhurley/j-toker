@@ -180,14 +180,14 @@ module.exports = function (grunt) {
       server: {
         options: {
           hostname: '*',
-          port: 7777
+          port: process.env.PORT || 7777
         }
       }
     },
 
     express: {
       options: {
-        port: 7777,
+        port: process.env.PORT || 7777,
         script: 'demo/app.js'
       },
       dev: {},

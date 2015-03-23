@@ -4,22 +4,22 @@
     <meta charset="utf-8">
     <title>j-toker Test Suite</title>
 
-    <!-- Load local deps. -->
+    <!-- Load plugin deps. -->
     <script src="../node_modules/jquery/dist/jquery.js"></script>
     <script src="../node_modules/jquery-deparam/jquery-deparam.js"></script>
     <script src="../node_modules/jquery.cookie/jquery.cookie.js"></script>
     <script src="../node_modules/pubsub-js/src/pubsub.js"></script>
 
     <!-- Load local test deps. -->
-    <link rel="stylesheet" href="../bower_components/qunit/qunit/qunit.css" media="screen">
-    <script src="../bower_components/qunit/qunit/qunit.js"></script>
+    <link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css" media="screen">
+    <script src="../node_modules/qunitjs/qunit/qunit.js"></script>
+    <script src='../node_modules/sinon/pkg/sinon.js'></script>
+    <script src="../node_modules/console-polyfill/index.js"></script>
 
-    <!-- Load sinon. -->
-    <script src='../bower_components/sinon/index.js'></script>
-    <script src="../bower_components/console-polyfill/index.js"></script>
-
-    <!-- Load local lib and tests. -->
+    <!-- Load plugin. -->
     <script src="../src/j-toker.js"></script>
+
+    <!-- Load unit tests. -->
     <script src="unit/configuration.js"></script>
     <script src="unit/token-validation.js"></script>
     <script src="unit/email-sign-up.js"></script>

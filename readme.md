@@ -20,9 +20,9 @@
 
 ---
 
-# Live Demo
+# [Live Demo][j-toker-demo]
 
-This project comes bundled with a test app. You can run the demo locally by following these instructions, or you can use it here in production.
+This project comes bundled with a test app. You can run the demo locally by following these instructions, or you can use it [here][j-toker-demo] in production.
 
 The demo uses [React][react], and the source can be found [here](https://github.com/lynndylanhurley/j-toker/tree/master/demo/src).
 
@@ -1019,7 +1019,7 @@ $.auth.configure({
 
 # Multiple user types
 
-## View live multi-user demo
+## [View live multi-user demo][multi-user-demo]
 
 This module allows for the use of multiple user authentication configurations. The following example assumes that the API supports two user classes, `User` and `EvilUser`. The following examples assume that `User` authentication routes are mounted at `/auth,` and the `EvilUser` authentication routes are mounted at `evil_user_auth`.
 
@@ -1335,6 +1335,8 @@ WTFPL © Lynn Dylan Hurley
 [dfd]: https://api.jquery.com/jQuery.Deferred/
 [angular]: https://angularjs.org/
 [react]: http://facebook.github.io/react/
+[j-toker-demo]: http://j-toker-demo.herokuapp.com/#/
+[multi-user-demo]: http://j-toker-demo.herokuapp.com/#/alt-user
 
 [o-auth-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/omniauth-flow.jpg
 [token-validation-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/validation-flow.jpg

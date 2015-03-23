@@ -29,6 +29,7 @@
     "bootstrap-sass": "^3.3.4",
     "config": "^1.12.0",
     "connect-livereload": "^0.5.3",
+    "console-polyfill": "^0.2.1",
     "express": "^4.12.3",
     "express-handlebars": "^2.0.0",
     "grunt": "0.4.5",
@@ -52,6 +53,7 @@
     "jshint-stylish": "1.0.0",
     "load-grunt-tasks": "2.0.0",
     "lodash": "^3.5.0",
+    "qunitjs": "^1.17.1",
     "react": "0.12.2",
     "react-bootstrap": "0.17.0",
     "react-highlight": "^0.4.1",
@@ -59,6 +61,8 @@
     "react-router-bootstrap": "^0.10.0",
     "reactify": "1.1.0",
     "request": "^2.53.0",
+    "sinon": "^1.14.1",
+    "sinon-qunit": "~2.0.0",
     "time-grunt": "1.0.0"
   }
 }
