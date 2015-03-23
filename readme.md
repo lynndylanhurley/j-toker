@@ -1,6 +1,6 @@
-# Simple, secure user authentication for jQuery.
-
 ![j-toker][logo]
+
+> Simple, secure user authentication for jQuery.
 
 This module provides the following features:
 
