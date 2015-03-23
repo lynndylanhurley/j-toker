@@ -16,6 +16,7 @@ cache:
   - node_modules
 
 before_install:
+- gem install sass
 - npm install
 
 #after_success:
