@@ -42,22 +42,21 @@ The demo uses [React][react], and the source can be found [here](https://github.
   * [$.auth.destroyAccount](#authdestroyaccount)
 * [Events](#events)
 * [Using alternate response formats](#alternate-response-formats)
-* Using multiple user types
-* Conceptual diagrams
-  * OAuth2 Authentication
-  * Token Validation
-  * Email Registration
-  * Email Sign In
-  * Password Reset Requests
-* Notes on Token Management
-* Notes on Batch Requests
-* Token Formatting
-* Internet Explorer Caveats
-* FAQ
-* Development
-* Contribution Guidelines
-* See also
-* Callouts
+* [Using multiple user types](#multiple-user-types)
+* [Conceptual diagrams](#conceptual)
+  * [OAuth2 Authentication](#oauth2-signin)
+  * [Token Validation](#token-validation)
+  * [Email Registration](#email-registration)
+  * [Email Sign In](#email-sign-in)
+  * [Password Reset Requests](#password-reset)
+* [Notes on Token Management](#token-management)
+* [Notes on Batch Requests](#batch-requests)
+* [Token Formatting](#identifying-users-on-the-server)
+* [Internet Explorer Caveats](#internet-explorer)
+* [Development](#development)
+* [Callouts](#credits)
+
+---
 
 # About this module
 
@@ -68,6 +67,8 @@ This module was designed to work out of the box with the legendary [devise token
 Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] instead.
 
 **About security**: [read here][so-post] for more information on securing your token auth system. The [devise token auth][dta] gem has adequate security measures in place, and this module was built to work seamlessly with that gem.
+
+---
 
 # Installation
 
@@ -114,6 +115,8 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
 
 
 **Note**: For the rest of this README, I will assume jToker is available at `$.auth`, where `$` stands for `jQuery`. But when using `require`, jToker will be available as whatever you name the required module (`Auth` in the example above).
+
+---
 
 # Configuration
 
@@ -326,7 +329,7 @@ A function used to identify and return the current user's info (`id`, `username`
 ###### function
 A function used to identify and return the current user's info (`id`, `username`, etc.) from the response of a successful token validation request.
 
---
+---
 
 # Usage
 
@@ -347,6 +350,8 @@ Auth.configure({apiUrl: '/api'});
 ~~~
 
 The two use-cases are equivalent, but the `$.auth` format will be used in the following examples for simplicity.
+
+--
 
 ## API
 
@@ -950,7 +955,8 @@ PubSub.subscribe('auth.passwordUpdate.error', function(ev, msg) {
   alert('There was an error while trying to change your password.');
 });
 ~~~
---
+
+---
 
 # Alternate response formats
 
@@ -1005,7 +1011,9 @@ $.auth.configure({
 });
 ~~~
 
-# Multiple Types
+---
+
+# Multiple user types
 
 ## View live multi-user demo
 
@@ -1074,9 +1082,9 @@ When authenticating with a 3rd party provider, the following steps will take pla
 
 The postMessage event must include the following a parameters:
 
-* message - this must contain the value "deliverCredentials"
-* auth-token - a unique token set by your server.
-* uid - the id that was returned by the provider. For example, the user's facebook id, twitter id, etc.
+* `message` - this must contain the value "deliverCredentials"
+* `auth-token` - a unique token set by your server.
+* `uid` - the id that was returned by the provider. For example, the user's facebook id, twitter id, etc.
 
 ##### Example redirect_uri destination:
 ~~~html
@@ -1118,7 +1126,182 @@ The postMessage event must include the following a parameters:
 
 The client's tokens are stored in cookies using the [jquery-cookie][jquery-cookie] plugin, or localStorage if configured. This is done so that users won't need to re-authenticate each time they return to the site or refresh the page.
 
-## Credits
+![Token validation][token-validation-flow]
+
+## Email registration
+
+This plugin also provides support for email registration. The following diagram illustrates this process.
+
+![Email registration][email-registration-flow]
+
+## Email sign in
+
+![Email authentication][email-sign-in-flow]
+
+## Password reset
+
+The password reset flow is similar to the email registration flow.
+
+![Password reset][password-reset-flow]
+
+When the user visits the link contained in the resulting email, they will be authenticated for a single session. An event will be broadcast that can be used to prompt the user to update their password. See the `auth.passwordResetConfirm.success` event for details.
+
+## Token management
+
+Tokens should be invalidated after each request to the API. The following diagram illustrates this concept:
+
+![Token handling][token-handling-diagram]
+
+During each request, a new token is generated. The `access-token` header that should be used in the next request is returned in the `access-token` header of the response to the previous request. The last request in the diagram fails because it tries to use a token that was invalidated by the previous request.
+
+The benefit of this measure is that if a user's token is compromised, the user will immediately be forced to re-authenticate. This will invalidate the token that is now in use by the attacker.
+
+The only case where an expired token is allowed is during [batch requests](#batch-requests).
+
+Token management is handled by default when using this module with the [devise token auth][dta] gem.
+
+## Batch requests
+
+By default, the API should update the auth token for each request ([read more](#token-management). But sometimes it's neccessary to make several concurrent requests to the API, for example:
+
+##### Example batch request
+
+~~~javascript
+$.getJSON('/api/restricted_resource_1').success(function(resp) {
+  // handle response
+});
+
+$.getJSON('/api/restricted_resource_2').success(function(resp) {
+  // handle response
+});
+~~~
+
+In this case, it's impossible to update the `access-token` header for the second request with the `access-token` header of the first response because the second request will begin before the first one is complete. The server must allow these batches of concurrent requests to share the same auth token. This diagram illustrates how batch requests are identified by the server:
+
+![Batch request overview][batch-request-a]
+
+The "5 second" buffer in the diagram is the default used by the [devise token auth][dta] gem.
+
+The following diagram details the relationship between the client, server, and access tokens used over time when dealing with batch requests:
+
+![Batch request overview cont][batch-request-b]
+
+Note that when the server identifies that a request is part of a batch request, the user's auth token is not updated. The auth token will be updated for the first request in the batch, and then that same token will be returned in the responses for each subsequent request in the batch (as shown in the diagram).
+
+The [devise token auth][dta] gem automatically manages batch requests, and it provides settings to fine-tune how batch request groups are identified.
+
+## Identifying users on the server.
+
+The user's authentication information is included by the client in the `access-token` header of each request. If you're using the [devise token auth](https://github.com/lynndylanhurley/devise_token_auth) gem, the header must follow the [RFC 6750 Bearer Token](http://tools.ietf.org/html/rfc6750) format:
+
+~~~
+"access-token": "wwwww",
+"token-type":   "Bearer",
+"client":       "xxxxx",
+"expiry":       "yyyyy",
+"uid":          "zzzzz"
+~~~
+
+Replace `xxxxx` with the user's `auth_token` and `zzzzz` with the user's `uid`. The `client` field exists to allow for multiple simultaneous sessions per user. The `client` field defaults to `default` if omitted. `expiry` is used by the client to invalidate expired tokens without making an API request. A more in depth explanation of these values is [here](https://github.com/lynndylanhurley/devise_token_auth#identifying-users-in-controllers).
+
+This will all happen automatically when using this module.
+
+**Note**: You can customize the auth headers however you like. [Read more](#using-alternate-header-formats).
+
+---
+
+# Internet Explorer
+
+Internet Explorer (8, 9, 10, & 11) present the following obstacles:
+
+* IE8 & IE9 don't really support cross origin requests (CORS).
+* IE8+ `postMessage` implementations don't work for our purposes.
+* IE8 & IE9 both try to cache ajax requests.
+
+The following measures are necessary when dealing with these older browsers.
+
+### AJAX cache must be disabled for IE8 + IE9
+
+IE8 + IE9 will try to cache ajax requests. This results in an issue where the request return 304 status with `Content-Type` set to `html` and everything goes haywire.
+
+The solution to this problem is to set the `If-Modified-Since` headers to `'0'` on each of the request methods that we use in our app. This is done by default when using this module.
+
+The solution was lifted from [this stackoverflow post](http://stackoverflow.com/questions/16098430/angular-ie-caching-issue-for-http).
+
+### IE8 and IE9 must proxy CORS requests
+
+You will need to set up an API proxy if the following conditions are both true:
+
+* your API lives on a different domain than your client
+* you wish to support IE8 and IE9
+
+##### Example proxy using express for node.js
+~~~javascript
+var express   = require('express');
+var request   = require('request');
+var httpProxy = require('http-proxy');
+var CONFIG    = require('config');
+
+// proxy api requests (for older IE browsers)
+app.all('/proxy/*', function(req, res, next) {
+  // transform request URL into remote URL
+  var apiUrl = 'http:'+CONFIG.API_URL+req.params[0];
+  var r = null;
+
+  // preserve GET params
+  if (req._parsedUrl.search) {
+    apiUrl += req._parsedUrl.search;
+  }
+
+  // handle POST / PUT
+  if (req.method === 'POST' || req.method === 'PUT') {
+    r = request[req.method.toLowerCase()]({
+      uri: apiUrl,
+      json: req.body
+    });
+  } else {
+    r = request(apiUrl);
+  }
+
+  // pipe request to remote API
+  req.pipe(r).pipe(res);
+});
+~~~
+
+The above example assumes that you're using [express](http://expressjs.com/), [request](https://github.com/mikeal/request), and [http-proxy](https://github.com/nodejitsu/node-http-proxy), and that you have set the API_URL value using [node-config](https://github.com/lorenwest/node-config).
+
+### IE8+ must use hard redirects for provider authentication
+
+Most modern browsers can communicate across tabs and windows using [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage). This doesn't work for certain flawed browsers. In these cases the client must take the following steps when performing provider authentication (facebook, github, etc.):
+
+1. navigate from the client site to the API
+1. navigate from the API to the provider
+1. navigate from the provider to the API
+1. navigate from the API back to the client
+
+These steps are taken automatically when using this module with IE8+.
+
+---
+
+# Development
+
+### Running the dev server
+
+There is a test project in the `demo` directory of this app. To start a dev server, perform the following steps.
+
+1. `cd` to the root of this project.
+1. `npm install`
+1. `grunt serve`
+
+A dev server will start on [localhost:7777](http://localhost:7777). The test suite will be run as well.
+
+### Testing against a live API
+
+This module was built against [this API](https://github.com/lynndylanhurley/devise_token_auth_demo). You can use this, or feel free to use your own.
+
+---
+
+# Credits
 
 Code and ideas were stolen from the following sources:
 
@@ -1126,7 +1309,9 @@ Code and ideas were stolen from the following sources:
 * [this SO post on string templating](http://stackoverflow.com/questions/14879866/javascript-templating-function-replace-string-and-dont-take-care-of-whitespace)
 * [this brilliant AngularJS module][ng-token-auth]
 
-## License
+---
+
+# License
 
 WTFPL © Lynn Dylan Hurley
 
