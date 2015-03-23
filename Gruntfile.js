@@ -47,7 +47,7 @@ module.exports = function (grunt) {
           'git checkout master',
           "git branch -D "+DEPLOY_TAG,
           "rm -rf demo/dist-production"
-        ],
+        ].join('&&'),
         execOptions: {
           env: {
             'NODE_ENV': 'production'
