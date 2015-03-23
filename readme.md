@@ -1,7 +1,6 @@
-# j-toker
+# Simple, secure user authentication for jQuery.
 
-> Simple, secure user authentication for jQuery.
-
+![j-toker][logo]
 
 This module provides the following features:
 
@@ -1340,3 +1339,4 @@ WTFPL © Lynn Dylan Hurley
 [token-handling-diagram]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/token-update-detail.jpg
 [batch-request-a]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/batch-request-overview.jpg
 [batch-request-b]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/batch-request-detail.jpg
+[logo]: https://github.com/lynndylanhurley/j-toker/raw/master/demo/src/images/j-toker-logo.gif
