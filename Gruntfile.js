@@ -5,6 +5,8 @@ module.exports = function (grunt) {
   // Show elapsed time at the end
   require('time-grunt')(grunt);
 
+  var DEPLOY_TAG = '' + new Date().getTime();
+
   // Project configuration.
   grunt.initConfig({
     // Metadata.
@@ -27,6 +29,30 @@ module.exports = function (grunt) {
       dist: {
         src: ['src/<%= pkg.name %>.js'],
         dest: 'dist/jquery.<%= pkg.name %>.js'
+      }
+    },
+
+    shell: {
+      multiple: {
+        deploy: [
+          "heroku config:set NODE_ENV=production --app j-toker-demo",
+          "git checkout -b "+DEPLOY_TAG,
+          "rm config/default.yml",
+          "cp config/production.yml config/default.yml",
+          'cp -R demo/dist demo/dist-production'
+          'git add -u .',
+          'git add .',
+          "git commit -am 'commit for "+DEPLOY_TAG+" push'",
+          "git push -f production "+DEPLOY_TAG+":master",
+          'git checkout master',
+          "git branch -D "+DEPLOY_TAG,
+          "rm -rf demo/dist-production"
+        ],
+        execOptions: {
+          env: {
+            'NODE_ENV': 'production'
+          }
+        }
       }
     },
 
@@ -103,6 +129,15 @@ module.exports = function (grunt) {
       }
     },
 
+    fingerprint: {
+      assets: {
+        src: [
+          'demo/dist/scripts/*.js',
+          'demo/dist/styles/*.css'
+        ]
+      }
+    }
+
     sass: {
       dist: {
         files: [{
@@ -115,7 +150,10 @@ module.exports = function (grunt) {
 
         options: {
           compass: true,
-          includePaths: ['node_modules/bootstrap-sass/assets/stylesheets']
+          includePaths: [
+            'node_modules/bootstrap-sass/assets/stylesheets',
+            'node_modules/highlight.js/styles'
+          ]
         }
       }
     },
@@ -140,6 +178,10 @@ module.exports = function (grunt) {
       sass: {
         files: 'demo/src/styles/**/*.scss',
         tasks: ['sass']
+      },
+      express: {
+        files: ['demo/app.js'],
+        tasks: ['express:dev']
       }
     },
 
@@ -150,6 +192,15 @@ module.exports = function (grunt) {
           port: 7777
         }
       }
+    },
+
+    express: {
+      options: {
+        port: 7777,
+        script: 'demo/app.js'
+      },
+      dev: {},
+      production: {}
     }
   });
 
@@ -159,6 +210,8 @@ module.exports = function (grunt) {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
     grunt.task.run(['serve']);
   });
-  grunt.registerTask('serve', ['clean', 'sass:dist', 'connect', 'copy', 'browserify:app', 'concat', 'uglify',  'watch']);
+  grunt.registerTask('serve', ['clean', 'sass:dist', 'copy', 'browserify:app', 'concat', 'uglify', 'express:dev', 'watch']);
   grunt.registerTask('test', ['jshint', 'connect', 'qunit']);
+
+  grunt.registerTask('deploy', ['clean', 'sass:dist', 'copy', 'browserify:app', 'concat', 'uglify', 'shell:deploy'])
 };

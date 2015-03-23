@@ -15,26 +15,25 @@ var Auth         = require('../../../src/j-toker.js'),
     NavItemLink  = RRBS.NavItemLink,
     PubSub       = require('pubsub-js');
 
-
 // configure jToker
 Auth.configure([
   {
     default: {
-      apiUrl: '//devise-token-auth.dev',
+      apiUrl:  window.config.apiUrl,
       proxyIf: function() { return window.oldIE();}
     }
   }, {
     evilUser: {
-      apiUrl: '//devise-token-auth.dev',
+      apiUrl:                window.config.apiUrl,
       proxyIf:               function() { return window.isOldIE(); },
-      signOutUrl:              '/mangs/sign_out',
-      emailSignInPath:         '/mangs/sign_in',
-      emailRegistrationPath:   '/mangs',
-      accountUpdatePath:       '/mangs',
-      accountDeletePath:       '/mangs',
-      passwordResetPath:       '/mangs/password',
-      passwordUpdatePath:      '/mangs/password',
-      tokenValidationPath:     '/mangs/validate_token',
+      signOutUrl:            '/mangs/sign_out',
+      emailSignInPath:       '/mangs/sign_in',
+      emailRegistrationPath: '/mangs',
+      accountUpdatePath:     '/mangs',
+      accountDeletePath:     '/mangs',
+      passwordResetPath:     '/mangs/password',
+      passwordUpdatePath:    '/mangs/password',
+      tokenValidationPath:   '/mangs/validate_token',
       authProviderPaths: {
         github:    '/mangs/github',
         facebook:  '/mangs/facebook',

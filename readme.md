@@ -1,6 +1,6 @@
-# jToker 
+# jToker
 
-### simple, secure user authentication for jQuery
+### Simple, secure user authentication for jQuery
 
 ![j-toker][logo]
 
@@ -18,12 +18,15 @@
 * Session support using cookies or localStorage
 * Tested with Chrome, Safari, Firefox and IE8+
 
+---
 
 # Live Demo
 
 This project comes bundled with a test app. You can run the demo locally by following these instructions, or you can use it here in production.
 
 The demo uses [React][react], and the source can be found [here](https://github.com/lynndylanhurley/j-toker/tree/master/demo/src).
+
+---
 
 # Table of Contents
 
@@ -78,7 +81,7 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
    ~~~sh
    # using bower:
    bower install j-toker --save
-   
+
    # using npm:
    npm install j-toker --save
    ~~~
@@ -89,28 +92,28 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
    * [PubSubJS][pubsub-js]: (optional) Event publish / subscribe.
 
    These dependencies were pulled down automatically if you used [bower] or [npm] to install jToker.
-3. Include j-toker in your project. 
+3. Include j-toker in your project.
    * If you're using [browserify][browserify] or similar, this will look like this:
- 
+
      ~~~javascript
      // this will resolve the dependencies automatically
      var Auth = require('j-toker');
      ~~~
-   
+
    * Otherwise you will need to include j-toker and its dependencies manually:
-   
+
      ~~~html
      <!-- in your index.html file -->
-     
+
      <!-- dependencies - these should come BEFORE j-toker -->
      <script src='/js/jquery/dist/jquery.js'></script>
      <script src='/js/jquery.cookie/jquery.cookie.js'></script>
      <script src='/js/jquery-deparam/jquery-deparam.js'></script>
      <script src='/js/pubsub-js/src/pubsub.js'></script>
-     
+
      <!-- this should come AFTER the preceeding files -->
      <script src='/js/jquery.j-toker.js'></script>
-     
+
      <!-- jToker will now be available at $.auth -->
      ~~~
 
@@ -139,7 +142,7 @@ That's it! 99% of you are done.
 
 ~~~javascript
 
-// the following configuration shows all of the available options 
+// the following configuration shows all of the available options
 // and their default settings
 
 $.auth.configure({
@@ -387,7 +390,7 @@ Initiate an OAuth2 authentication.
 ##### arguments:
 
 * **`provider`**: the name of the target provider service as represented in the `authProviderPaths` config hash.
-   
+
    ~~~javascript
    $.auth.authenticate({provider: 'github'});
    ~~~
@@ -401,7 +404,7 @@ Initiate an OAuth2 authentication.
     }
   });
   ~~~
-  
+
 * **`config`**: the name of the configuration to be used when multiple auth configurations are available.
 
    ~~~javascript
@@ -432,7 +435,7 @@ Create an account using email for confirmation.
     password_confirmation: '*****'
   });
   ~~~
-  
+
 * **`config`**: the name of the configuration to be used when multiple configurations are available.
 
   ~~~javascript
@@ -479,7 +482,7 @@ Authenticate a user that registered via email.
     config: 'altUser'
   });
   ~~~
-  
+
 --
 
 ### $.auth.validateToken
@@ -498,14 +501,14 @@ var React = require('react'),
     Router = require('react-router'),
     Transition = Router.Transition,
     Auth = require('j-toker');
-    
+
 var PageComponent = React.createClass({
   getInitialState: function() {
     return {
       username: ''
     };
   },
-  
+
   componentDidMount: function() {
     Auth.validateUser()
       .then(function(user) {
@@ -517,7 +520,7 @@ var PageComponent = React.createClass({
         Transition.redirect('login');
       });
   },
-  
+
   render: function() {
     return (
       <p>Welcome {this.state.username}!</p>
@@ -603,22 +606,22 @@ var App = React.createClass({
       user: Auth.user
     };
   },
-  
+
   // update the user object on all auth-related events
   componentWillMount: function() {
     PubSub.subscribe('auth', function() {
       this.setState({user: Auth.user});
     }.bind(this));
   },
-  
+
   // ...
- 
+
 });
 ~~~
 --
 
 ### auth.validation.success
-Broadcast after successful user authentication. Event message contains the user object. 
+Broadcast after successful user authentication. Event message contains the user object.
 
 ##### Broadcast after:
 * `$.auth.emailSignIn`

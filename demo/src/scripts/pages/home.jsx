@@ -42,6 +42,12 @@ module.exports = React.createClass({
             <Well>
               <h1>jToker</h1>
               <h4>Simple, secure authentication for single-page apps</h4>
+              <p>
+                This demo was built using
+                <a href='https://facebook.github.io/react/'>React</a>.
+                View the source code
+                <a href='https://github.com/lynndylanhurley/j-toker'>here</a>.
+              </p>
             </Well>
           </Col>
         </Row>
