@@ -4,7 +4,7 @@
 
 ![j-toker][logo]
 
-This module provides the following features:
+### Features:
 
 * OAuth2 authentication
 * Email authentication, including:
