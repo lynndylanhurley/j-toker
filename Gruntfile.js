@@ -197,12 +197,8 @@ module.exports = function (grunt) {
 
   // Default task.
   grunt.registerTask('default', ['jshint', 'connect', 'qunit', 'clean', 'concat', 'uglify']);
-  grunt.registerTask('server', function () {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve']);
-  });
-  grunt.registerTask('serve', ['clean', 'sass:dist', 'copy', 'browserify:app', 'concat', 'uglify', 'express:dev', 'watch']);
   grunt.registerTask('test', ['jshint', 'connect', 'qunit']);
-
-  grunt.registerTask('deploy', ['clean', 'sass:dist', 'copy', 'browserify:app', 'concat', 'uglify', 'shell:deploy'])
+  grunt.registerTask('build', ['clean', 'sass:dist', 'copy', 'browserify:app', 'concat', 'uglify']);
+  grunt.registerTask('serve', ['build', 'express:dev', 'watch']);
+  grunt.registerTask('deploy', ['build', 'shell:deploy']);
 };

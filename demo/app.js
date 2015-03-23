@@ -35,7 +35,6 @@ app.all('/proxy/*', function(req, res, next) {
 });
 
 
-//app.get(/^(\/[^#\.]+)$/, function(req, res) {
 // redirect to push state url (i.e. /blog -> /#/blog)
 app.get(/^(\/[^#\.]+)$/, function(req, res) {
   var path = req.url
