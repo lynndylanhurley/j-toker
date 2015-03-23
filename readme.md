@@ -22,6 +22,8 @@ This module provides the following features:
 
 This project comes bundled with a test app. You can run the demo locally by following these instructions, or you can use it here in production.
 
+The demo uses [React][react], and the source can be found [here](https://github.com/lynndylanhurley/j-toker/tree/master/demo/src).
+
 # Table of Contents
 
 * [About this module](#about-this-module)
@@ -457,7 +459,7 @@ var PageComponent = React.createClass({
       }.bind(this))
       .fail(function() {
         Transition.redirect('login');
-      }
+      });
   },
   
   render: function() {
@@ -559,7 +561,7 @@ Broadcast after successful user authentication. Event message contains the user 
 ##### Example:
 
 ~~~javascript
-PubSub.subscribe('auth.validation.success', function(msg, user) {
+PubSub.subscribe('auth.validation.success', function(ev, user) {
   alert('Welcome' + user.name + '!');
 });
 ~~~
@@ -573,38 +575,298 @@ Broadcast after failed user authentication. Event message contains errors relate
 * `$.auth.validateToken`
 
 ##### Example:
-
 ~~~javascript
-PubSub.subscribe('auth.validation.success', function(msg, err) {
+PubSub.subscribe('auth.validation.error', function(ev, err) {
   alert('Validation failure.');
 });
 ~~~
 
 ### auth.emailRegistration.success
+Broadcast after email sign up request was successfully completed.
 
+##### Broadcast after:
+* `$.auth.emailSignUp`
+
+~~~javascript
+PubSub.subscribe('auth.emailRegistration.success', function(ev, msg) {
+  alert('Check your email!');
+});
+~~~
 
 ### auth.emailRegistration.error
-### auth.passwordResetRequest.success
-### auth.passwordResetRequest.error
-### auth.emailConfirmation.success
-### auth.emailConfirmation.error
-### auth.passwordResetConfirm.success
-### auth.passwordResetConfirm.error
-### auth.emailSignIn.success
-### auth.emailSignIn.error
-### auth.oAuthSignIn.success
-### auth.oAuthSignIn.error
-### auth.signIn.success
-### auth.signIn.error
-### auth.signOut.success
-### auth.signOut.error
-### auth.accountUpdate.success
-### auth.accountUpdate.error
-### auth.destroyAccount.success
-### auth.destroyAccount.error
-### auth.passwordUpdate.success
-### auth.passwordUpdate.error
+Broadcast after email sign up requests fail.
 
+##### Broadcast after:
+* `$auth.emailSignUp`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.emailRegistration.error', function(ev, msg) {
+  alert('There was a error submitting your request. Please try again!');
+});
+~~~
+
+
+### auth.passwordResetRequest.success
+Broadcast after password reset requests complete successfully.
+
+##### Broadcast after:
+* `$.auth.passwordResetRequest`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.passwordResetRequest.success', function(ev, msg) {
+  alert('Check your email!');
+});
+~~~
+
+### auth.passwordResetRequest.error
+Broadcast after password reset requests fail.
+
+##### Broadcast after:
+* `$.auth.passwordResetRequest`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.passwordResetRequest.error', function(ev, msg) {
+  alert('There was an error submitting your request. Please try again!');
+});
+~~~
+
+### auth.emailConfirmation.success
+Broadcast upon visiting the link contained in a registration confirmation email if the subsequent validation succeeds.
+
+##### Broadcast after:
+* `$.auth.validateToken`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.emailConfirmation.success', function(ev, msg) {
+  alert('Welcome' + $.auth.user.name + '!');
+});
+~~~
+
+### auth.emailConfirmation.error
+Broadcast upon visiting the link contained in a registration confirmation email if the subsequent validation fails.
+
+##### Broadcast after:
+* `$.auth.validateToken`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.passwordResetRequest.error', function(ev, msg) {
+  alert('There was an error authenticating your new account!');
+});
+~~~
+
+### auth.passwordResetConfirm.success
+Broadcast upon visiting the link contained in a password reset confirmation email if the subsequent validation succeeds.
+
+##### Broadcast after:
+* `$.auth.validateToken`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.emailConfirmation.success', function(ev, msg) {
+  alert('Welcome' + $.auth.user.name + '! Change your password!');
+});
+~~~
+
+### auth.passwordResetConfirm.error
+Broadcast upon visiting the link contained in a password reset confirmation email if the subsequent validation fails.
+
+##### Broadcast after:
+* `$.auth.validateToken`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.passwordResetRequest.error', function(ev, msg) {
+  alert('There was an error authenticating your account!');
+});
+~~~
+
+### auth.emailSignIn.success
+Broadcast after a user successfully completes authentication using an email account.
+
+##### Broadcast after:
+* `$.auth.emailSignIn`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.emailSignIn.success', function(ev, msg) {
+  alert('Welcome' + $.auth.user.name + '! Change your password!');
+});
+~~~
+
+### auth.emailSignIn.error
+Broadcast after a user fails to authenticate using their email account.
+
+##### Broadcast after:
+* `$.auth.emailSignIn`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.emailSignIn.error', function(ev, msg) {
+  alert('There was an error authenticating your account!');
+});
+~~~
+
+### auth.oAuthSignIn.success
+Broadcast after a user successfully authenticates with an OAuth2 provider.
+
+##### Broadcast after:
+* `$.auth.oAuthSignIn`
+
+#####Example:
+~~~javascript
+PubSub.subscribe('auth.oAuthSignIn.success', function(ev, msg) {
+  alert('Welcome' + $.auth.user.name + '!');
+});
+~~~
+
+### auth.oAuthSignIn.error
+Broadcast after a user fails to authenticate using an OAuth2 provider.
+
+##### Broadcast after:
+* `$.auth.oAuthSignIn`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.oAuthSignIn.error', function(ev, msg) {
+  alert('There was an error authenticating your account!');
+});
+~~~
+
+### auth.signIn.success
+Broadcast after a user successfully signs in using either email or OAuth2 authentication.
+
+##### Broadcast after:
+* `$.auth.emailSignIn`
+* `$.auth.oAuthSignIn`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.oAuthSignIn.success', function(ev, msg) {
+  alert('Welcome' + $.auth.user.name + '!');
+});
+~~~
+
+### auth.signIn.error
+Broadcast after a user fails to sign in using either email or OAuth2 authentication.
+
+##### Broadcast after:
+* `$.auth.emailSignIn`
+* `$.auth.oAuthSignIn`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.signIn.error', function(ev, msg) {
+  alert('There was an error authenticating your account!');
+});
+~~~
+
+### auth.signOut.success
+Broadcast after a user successfully signs out.
+
+##### Broadcast after:
+* `$.auth.signOut`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.signOut.success', function(ev, msg) {
+  alert('Goodbye!');
+});
+~~~
+
+### auth.signOut.error
+Broadcast after a user fails to sign out.
+
+##### Broadcast after:
+* `$.auth.signOut`
+
+~~~javascript
+PubSub.subscribe('auth.signOut.success', function(ev, msg) {
+  alert('There was a problem with your sign out attempt. Please try again!');
+});
+~~~
+
+### auth.accountUpdate.success
+Broadcast after a user successfully updates their account info.
+
+##### Broadcast after:
+* `$.auth.updateAccount`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.accountUpdate.success', function(ev, msg) {
+  alert('Your account has been updated!');
+});
+~~~
+
+### auth.accountUpdate.error
+Broadcast when an account update request fails.
+
+##### Broadcast after:
+* `$.auth.updateAccount`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.accountUpdate.error', function(ev, msg) {
+  alert('There was an error while trying to update your account.');
+});
+~~~
+
+### auth.destroyAccount.success
+Broadcast after a user's account has been successfully destroyed.
+
+##### Broadcast after:
+* `$.auth.destroyAccount`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.destroyAccount.success', function(ev, msg) {
+  alert('Goodbye!');
+});
+~~~
+
+### auth.destroyAccount.error
+Broadcast after an attempt to destroy a user's account fails.
+
+##### Broadcast after:
+* `$.auth.destroyAccount`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.destroyAccount.error', function(ev, msg) {
+  alert('There was an error while trying to destroy your account.');
+});
+~~~
+
+### auth.passwordUpdate.success
+Broadcast after a user successfully changes their password.
+
+##### Broadcast after:
+* `$.auth.updatePassword`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.passwordUpdate.success', function(ev, msg) {
+  alert('Your password has been changed!');
+});
+~~~
+
+### auth.passwordUpdate.error
+Broadcast after an attempt to change a user's password fails.
+
+##### Broadcast after:
+* `$.auth.updatePassword`
+
+##### Example:
+~~~javascript
+PubSub.subscribe('auth.passwordUpdate.error', function(ev, msg) {
+  alert('There was an error while trying to change your password.');
+});
+~~~
 
 ## Credits
 
@@ -632,3 +894,4 @@ WTFPL © Lynn Dylan Hurley
 [common-js]: http://en.wikipedia.org/wiki/CommonJS
 [dfd]: https://api.jquery.com/jQuery.Deferred/
 [angular]: https://angularjs.org/
+[react]: http://facebook.github.io/react/
