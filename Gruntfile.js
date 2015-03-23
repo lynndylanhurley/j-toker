@@ -39,7 +39,7 @@ module.exports = function (grunt) {
           "git checkout -b "+DEPLOY_TAG,
           "rm config/default.yml",
           "cp config/production.yml config/default.yml",
-          'cp -R demo/dist demo/dist-production'
+          'cp -R demo/dist demo/dist-production',
           'git add -u .',
           'git add .',
           "git commit -am 'commit for "+DEPLOY_TAG+" push'",
