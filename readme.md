@@ -1,3 +1,5 @@
+# jToker
+
 ![j-toker][logo]
 
 > Simple, secure user authentication for jQuery.
