@@ -129,15 +129,6 @@ module.exports = function (grunt) {
       }
     },
 
-    fingerprint: {
-      assets: {
-        src: [
-          'demo/dist/scripts/*.js',
-          'demo/dist/styles/*.css'
-        ]
-      }
-    }
-
     sass: {
       dist: {
         files: [{
