@@ -33,8 +33,8 @@ module.exports = function (grunt) {
     },
 
     shell: {
-      multiple: {
-        deploy: [
+      deploy: {
+        command: [
           "heroku config:set NODE_ENV=production --app j-toker-demo",
           "git checkout -b "+DEPLOY_TAG,
           "rm config/default.yml",
