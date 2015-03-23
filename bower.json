@@ -1,6 +1,33 @@
 {
   "name": "j-toker",
+  "description": "Simple, secure token authentication for jQuery.",
   "version": "0.0.1",
+  "authors": "Lynn Dylan Hurley <lynn.dylan.hurley@gmail.com> (http://github.com/lynndylanhurley)",
+  "homepage": "http://github.com/lynndylanhurley/j-toker",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lynndylanhurley/j-toker.git"
+  },
+  "license": "WTFPL",
+  "keywords": [
+    "jquery",
+    "react",
+    "token",
+    "auth",
+    "authentication",
+    "secure",
+    "oauth2",
+    "oauth"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "Gruntfile.js",
+    "package.json",
+    "test",
+    "demo",
+    "config"
+  ]
   "main": "dist/jquery.j-toker.js",
   "dependencies": {
     "jquery": "2.1.3",
