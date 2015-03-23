@@ -41,7 +41,7 @@ The demo uses [React][react], and the source can be found [here](https://github.
   * [$.auth.signOut](#authsignout)
   * [$.auth.destroyAccount](#authdestroyaccount)
 * [Events](#events)
-* Using alternate response formats
+* [Using alternate response formats](#alternate-response-formats)
 * Using multiple user types
 * Conceptual diagrams
   * OAuth2 Authentication
@@ -205,61 +205,91 @@ $.auth.configure({
 ###### string
 The base route to your api. Each of the following paths will be relative to this URL. Authentication headers will only be added to requests with this value as the base URL.
 
+--
+
 ### tokenValidationPath
 ###### string
 Path (relative to `apiUrl`) to validate authentication tokens. [Read more](#token-validation-flow).
+
+--
 
 ### signOutUrl
 ###### string
 Path (relative to `apiUrl`) to de-authenticate the current user. This will destroy the user's token both server-side and client-side.
 
+--
+
 ### authProviderPaths
 ###### object
 An object containing paths to auth endpoints. Keys should be the names of the providers, and the values should be the auth paths relative to the `apiUrl`. [Read more](#oauth-2-authentication-flow).
+
+--
 
 ### emailRegistrationPath
 ###### string
 Path (relative to `apiUrl`) for submitting new email registrations. [Read more](#email-registration-flow).
 
+--
+
 ### accountUpdatePath
 ###### string
 Path (relative to `apiUrl`) for submitting account update requests.
+
+--
 
 ### accountDeletePath
 ###### string
 Path (relative to `apiUrl`) for submitting account deletion requests.
 
+--
+
 ### confirmationSuccessUrl
 ###### string or function
 The absolute url to which the API should redirect after users visit the link contained in email-registration confirmation emails.
+
+--
 
 ### emailSignInPath
 ###### string
 Path (relative to `apiUrl`) for signing in to an existing email account.
 
+--
+
 ### passwordResetPath
 ###### string
 Path (relative to `apiUrl`) for requesting password reset emails.
+
+--
 
 ### passwordResetSuccessUrl
 ###### string or function
 The absolute url to which the API should redirect after users visit the link contained in password-reset confirmation emails.
 
+--
+
 ### passwordUpdatePath
 ###### string
 Path (relative to `apiUrl`) for submitting new passwords for authenticated users.
+
+--
 
 ### storage
 ###### string
 The method used to persist tokens between sessions. Allowed values are `cookies` and `localStorage`.
 
+--
+
 ### proxyIf
 ###### function
 Older browsers have troubel with [CORS][cors]. Pass a method to this option that will determine whether or not a proxy should be used.
 
+--
+
 ### proxyUrl
 ###### string
 If the `proxyIf` method returns `true`, this is the URL that will be used in place of `apiUrl`.
+
+--
 
 ### tokenFormat
 ###### object
@@ -272,21 +302,31 @@ A template for authentication tokens. The template will be provided a context wi
 
 The above strings will be replaced with their corresponding values as found in the response headers.
 
+--
+
 ### parseExpiry
 ###### function
 A function that will return the token's expiry from the current headers. `null` is returned if no expiry is found.
+
+--
 
 ### handleLoginResponse
 ###### function
 A function used to identify and return the current user's account info (`id`, `username`, etc.) from the response of a successful login request.
 
+--
+
 ### handleAccountUpdateResponse
 ###### function
 A function used to identify and return the current user's info (`id`, `username`, etc.) from the response of a successful account update request.
 
+--
+
 ### handleTokenValidationResponse
 ###### function
 A function used to identify and return the current user's info (`id`, `username`, etc.) from the response of a successful token validation request.
+
+--
 
 # Usage
 
@@ -325,11 +365,15 @@ $.auth
   });
 ~~~
 
+--
+
 ### $.auth.user
 An object representing the current user. In addition to the attributes of your user model, the following additional attributes are available:
 
-* **`signedIn`**: (boolean) will return true if there is a current user.
+* **`signedIn`**: (boolean) will be true if there is a current user.
 * **`configName`**: (string) the name of the configuration used to authenticate the current user. When using a single API configuration (most cases), this will be `default`.
+
+--
 
 ### $.auth.oAuthSignIn
 Initiate an OAuth2 authentication.
@@ -363,6 +407,8 @@ Initiate an OAuth2 authentication.
     }
   });
   ~~~
+
+--
 
 ### $.auth.emailSignUp
 Create an account using email for confirmation.
@@ -403,6 +449,8 @@ Create an account using email for confirmation.
   });
   ~~~
 
+--
+
 ### $.auth.emailSignIn
 Authenticate a user that registered via email.
 
@@ -425,6 +473,8 @@ Authenticate a user that registered via email.
     config: 'altUser'
   });
   ~~~
+  
+--
 
 ### $.auth.validateToken
 Use this method to verify that the current user's access-token exists and is valid.
@@ -470,6 +520,8 @@ var PageComponent = React.createClass({
 });
 ~~~
 
+--
+
 ### $.auth.updateAccount
 Update the current user's account info. This method accepts an object that should contain valid attributes and values for the current user's model.
 
@@ -478,6 +530,8 @@ $.auth.updateAccount({
   favorite_book: 'Molloy'
 });
 ~~~
+
+--
 
 ### $.auth.requestPasswordReset
 Send password reset instructions to a user that was registered by email.
@@ -488,6 +542,8 @@ Send password reset instructions to a user that was registered by email.
 ~~~javascript
 $.auth.requestPasswordReset({email: 'test@test.com'});
 ~~~
+
+--
 
 ### $.auth.updatePassword
 Change the current user's password. This only applies to users that were registered by email.
@@ -503,12 +559,16 @@ $.auth.updatePassword({
 });
 ~~~
 
+--
+
 ### $.auth.signOut
 De-authenticates the current user. This will destroy the current user's client-side and server-side auth credentials.
 
 ~~~javascript
 $.auth.signOut();
 ~~~
+
+--
 
 ### $.auth.destroyAccount
 Destroy the current user's account.
@@ -549,6 +609,7 @@ var App = React.createClass({
  
 });
 ~~~
+--
 
 ### auth.validation.success
 Broadcast after successful user authentication. Event message contains the user object. 
@@ -565,6 +626,7 @@ PubSub.subscribe('auth.validation.success', function(ev, user) {
   alert('Welcome' + user.name + '!');
 });
 ~~~
+--
 
 ### auth.validation.error
 Broadcast after failed user authentication. Event message contains errors related to the failure.
@@ -580,6 +642,7 @@ PubSub.subscribe('auth.validation.error', function(ev, err) {
   alert('Validation failure.');
 });
 ~~~
+--
 
 ### auth.emailRegistration.success
 Broadcast after email sign up request was successfully completed.
@@ -592,6 +655,7 @@ PubSub.subscribe('auth.emailRegistration.success', function(ev, msg) {
   alert('Check your email!');
 });
 ~~~
+--
 
 ### auth.emailRegistration.error
 Broadcast after email sign up requests fail.
@@ -605,7 +669,7 @@ PubSub.subscribe('auth.emailRegistration.error', function(ev, msg) {
   alert('There was a error submitting your request. Please try again!');
 });
 ~~~
-
+--
 
 ### auth.passwordResetRequest.success
 Broadcast after password reset requests complete successfully.
@@ -619,6 +683,7 @@ PubSub.subscribe('auth.passwordResetRequest.success', function(ev, msg) {
   alert('Check your email!');
 });
 ~~~
+--
 
 ### auth.passwordResetRequest.error
 Broadcast after password reset requests fail.
@@ -632,6 +697,7 @@ PubSub.subscribe('auth.passwordResetRequest.error', function(ev, msg) {
   alert('There was an error submitting your request. Please try again!');
 });
 ~~~
+--
 
 ### auth.emailConfirmation.success
 Broadcast upon visiting the link contained in a registration confirmation email if the subsequent validation succeeds.
@@ -645,6 +711,7 @@ PubSub.subscribe('auth.emailConfirmation.success', function(ev, msg) {
   alert('Welcome' + $.auth.user.name + '!');
 });
 ~~~
+--
 
 ### auth.emailConfirmation.error
 Broadcast upon visiting the link contained in a registration confirmation email if the subsequent validation fails.
@@ -658,6 +725,7 @@ PubSub.subscribe('auth.passwordResetRequest.error', function(ev, msg) {
   alert('There was an error authenticating your new account!');
 });
 ~~~
+--
 
 ### auth.passwordResetConfirm.success
 Broadcast upon visiting the link contained in a password reset confirmation email if the subsequent validation succeeds.
@@ -671,6 +739,7 @@ PubSub.subscribe('auth.emailConfirmation.success', function(ev, msg) {
   alert('Welcome' + $.auth.user.name + '! Change your password!');
 });
 ~~~
+--
 
 ### auth.passwordResetConfirm.error
 Broadcast upon visiting the link contained in a password reset confirmation email if the subsequent validation fails.
@@ -684,6 +753,7 @@ PubSub.subscribe('auth.passwordResetRequest.error', function(ev, msg) {
   alert('There was an error authenticating your account!');
 });
 ~~~
+--
 
 ### auth.emailSignIn.success
 Broadcast after a user successfully completes authentication using an email account.
@@ -697,6 +767,7 @@ PubSub.subscribe('auth.emailSignIn.success', function(ev, msg) {
   alert('Welcome' + $.auth.user.name + '! Change your password!');
 });
 ~~~
+--
 
 ### auth.emailSignIn.error
 Broadcast after a user fails to authenticate using their email account.
@@ -710,6 +781,7 @@ PubSub.subscribe('auth.emailSignIn.error', function(ev, msg) {
   alert('There was an error authenticating your account!');
 });
 ~~~
+--
 
 ### auth.oAuthSignIn.success
 Broadcast after a user successfully authenticates with an OAuth2 provider.
@@ -723,6 +795,7 @@ PubSub.subscribe('auth.oAuthSignIn.success', function(ev, msg) {
   alert('Welcome' + $.auth.user.name + '!');
 });
 ~~~
+--
 
 ### auth.oAuthSignIn.error
 Broadcast after a user fails to authenticate using an OAuth2 provider.
@@ -736,6 +809,7 @@ PubSub.subscribe('auth.oAuthSignIn.error', function(ev, msg) {
   alert('There was an error authenticating your account!');
 });
 ~~~
+--
 
 ### auth.signIn.success
 Broadcast after a user successfully signs in using either email or OAuth2 authentication.
@@ -750,6 +824,7 @@ PubSub.subscribe('auth.oAuthSignIn.success', function(ev, msg) {
   alert('Welcome' + $.auth.user.name + '!');
 });
 ~~~
+--
 
 ### auth.signIn.error
 Broadcast after a user fails to sign in using either email or OAuth2 authentication.
@@ -764,6 +839,7 @@ PubSub.subscribe('auth.signIn.error', function(ev, msg) {
   alert('There was an error authenticating your account!');
 });
 ~~~
+--
 
 ### auth.signOut.success
 Broadcast after a user successfully signs out.
@@ -777,6 +853,7 @@ PubSub.subscribe('auth.signOut.success', function(ev, msg) {
   alert('Goodbye!');
 });
 ~~~
+--
 
 ### auth.signOut.error
 Broadcast after a user fails to sign out.
@@ -789,6 +866,7 @@ PubSub.subscribe('auth.signOut.success', function(ev, msg) {
   alert('There was a problem with your sign out attempt. Please try again!');
 });
 ~~~
+--
 
 ### auth.accountUpdate.success
 Broadcast after a user successfully updates their account info.
@@ -802,6 +880,7 @@ PubSub.subscribe('auth.accountUpdate.success', function(ev, msg) {
   alert('Your account has been updated!');
 });
 ~~~
+--
 
 ### auth.accountUpdate.error
 Broadcast when an account update request fails.
@@ -815,6 +894,7 @@ PubSub.subscribe('auth.accountUpdate.error', function(ev, msg) {
   alert('There was an error while trying to update your account.');
 });
 ~~~
+--
 
 ### auth.destroyAccount.success
 Broadcast after a user's account has been successfully destroyed.
@@ -828,6 +908,7 @@ PubSub.subscribe('auth.destroyAccount.success', function(ev, msg) {
   alert('Goodbye!');
 });
 ~~~
+--
 
 ### auth.destroyAccount.error
 Broadcast after an attempt to destroy a user's account fails.
@@ -841,6 +922,7 @@ PubSub.subscribe('auth.destroyAccount.error', function(ev, msg) {
   alert('There was an error while trying to destroy your account.');
 });
 ~~~
+--
 
 ### auth.passwordUpdate.success
 Broadcast after a user successfully changes their password.
@@ -854,6 +936,7 @@ PubSub.subscribe('auth.passwordUpdate.success', function(ev, msg) {
   alert('Your password has been changed!');
 });
 ~~~
+--
 
 ### auth.passwordUpdate.error
 Broadcast after an attempt to change a user's password fails.
@@ -867,6 +950,173 @@ PubSub.subscribe('auth.passwordUpdate.error', function(ev, msg) {
   alert('There was an error while trying to change your password.');
 });
 ~~~
+--
+
+# Alternate response formats
+
+By default, this module expects user info (id, name, etc.) to be contained within the data param of successful login / token-validation responses. The following example shows an example of an expected response:
+
+##### Expected API login response example
+~~~
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+{
+  "data": {
+    "id":"123",
+    "name": "Slemp Diggler",
+    "etc": "..."
+  }
+}
+~~~
+
+The above example follows the format used by the [devise token gem][dta]. Usage with APIs following this format will require no additional configuration.
+
+But not all APIs use this format. Some APIs simply return the serialized user model with no container params:
+
+~~~
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+{
+  "id":"123",
+  "name": "Slemp Diggler",
+  "etc": "..."
+}
+~~~
+
+Functions can be provided to identify and return the relevant user data from successful authentication responses. The above example response can be handled with the following configuration:
+
+##### Example configuration when using alternate login response
+
+~~~javascript
+$.auth.configure({
+  apiUrl: 'http://api.example.com'
+
+  handleLoginResponse: function(response) {
+    return response;
+  },
+
+  handleAccountUpdateResponse: function(response) {
+    return response;
+  },
+
+  handleTokenValidationResponse: function(response) {
+    return response;
+  }
+});
+~~~
+
+# Multiple Types
+
+## View live multi-user demo
+
+This module allows for the use of multiple user authentication configurations. The following example assumes that the API supports two user classes, `User` and `EvilUser`. The following examples assume that `User` authentication routes are mounted at `/auth,` and the `EvilUser` authentication routes are mounted at `evil_user_auth`.
+
+##### Example configuration for multiple user types
+
+~~~javascript
+Auth.configure([
+  {
+    default: {
+      apiUrl: '//devise-token-auth.dev',
+      proxyIf: function() { return window.oldIE();}
+    }
+  }, {
+    evilUser: {
+      apiUrl:                  '//devise-token-auth.dev',
+      proxyIf:                 function() { return window.isOldIE(); },
+      signOutUrl:              '/evil_user_auth/sign_out',
+      emailSignInPath:         '/evil_user_auth/sign_in',
+      emailRegistrationPath:   '/evil_user_auth',
+      accountUpdatePath:       '/evil_user_auth',
+      accountDeletePath:       '/evil_user_auth',
+      passwordResetPath:       '/evil_user_auth/password',
+      passwordUpdatePath:      '/evil_user_auth/password',
+      tokenValidationPath:     '/evil_user_auth/validate_token',
+      authProviderPaths: {
+        github:    '/evil_user_auth/github',
+        facebook:  '/evil_user_auth/facebook',
+        google:    '/evil_user_auth/google_oauth2'
+      }
+    }
+  }
+]);
+~~~
+
+## Multiple user type usage
+
+The following API methods accept a config option that can be used to specify the desired configuration.
+
+* `$.auth.oAuthSignIn`
+* `$.auth.validateUser`
+* `$.auth.emailSignUp`
+* `$.auth.emailSignIn`
+* `$.auth.requestPasswordReset`
+
+All other methods (`$.auth.signOut`, `$.auth.updateAccount`, etc.) derive the configuration type from the current signed-in user.
+
+The first available configuration will be used if none is provided (`default` in the example above).
+
+# Conceptual
+
+The following diagrams illustrate the authentication processes used by this plugin.
+
+## OAuth2 Sign In
+
+The following diagram illustrates the steps necessary to authenticate a client using an oauth2 provider.
+
+![OAuth2 Flow][o-auth-flow]
+
+When authenticating with a 3rd party provider, the following steps will take place.
+
+1. An external window will be opened to the provider's authentication page.
+2. Once the user signs in, they will be redirected back to the API at the callback uri that was registered with the oauth2 provider.
+3. The API will send the user's info back to the client via postMessage event, and then close the external window.
+
+The postMessage event must include the following a parameters:
+
+* message - this must contain the value "deliverCredentials"
+* auth-token - a unique token set by your server.
+* uid - the id that was returned by the provider. For example, the user's facebook id, twitter id, etc.
+
+##### Example redirect_uri destination:
+~~~html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      window.addEventListener("message", function(ev) {
+
+        // this page must respond to "requestCredentials"
+        if (ev.data === "requestCredentials") {
+
+          ev.source.postMessage({
+             message: "deliverCredentials", // required
+             auth_token: 'xxxx', // required
+             uid: 'yyyy', // required
+
+             // additional params will be added to the user object
+             name: 'Slemp Diggler'
+             // etc.
+
+          }, '*');
+
+          // close window after message is sent
+          window.close();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <pre>
+      Redirecting...
+    </pre>
+  </body>
+</html>
+~~~
+
+## Token validation
+
+The client's tokens are stored in cookies using the [jquery-cookie][jquery-cookie] plugin, or localStorage if configured. This is done so that users won't need to re-authenticate each time they return to the site or refresh the page.
 
 ## Credits
 
@@ -874,6 +1124,7 @@ Code and ideas were stolen from the following sources:
 
 * [this SO post on token-auth security][so-post]
 * [this SO post on string templating](http://stackoverflow.com/questions/14879866/javascript-templating-function-replace-string-and-dont-take-care-of-whitespace)
+* [this brilliant AngularJS module][ng-token-auth]
 
 ## License
 
@@ -895,3 +1146,12 @@ WTFPL © Lynn Dylan Hurley
 [dfd]: https://api.jquery.com/jQuery.Deferred/
 [angular]: https://angularjs.org/
 [react]: http://facebook.github.io/react/
+
+[o-auth-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/omniauth-flow.jpg
+[token-validation-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/validation-flow.jpg
+[email-registration-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/email-registration-flow.jpg
+[email-sign-in-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/email-sign-in-flow.jpg
+[password-reset-flow]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/password-reset-flow.jpg
+[token-handling-diagram]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/token-update-detail.jpg
+[batch-request-a]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/batch-request-overview.jpg
+[batch-request-b]: https://github.com/lynndylanhurley/ng-token-auth/raw/master/test/app/images/flow/batch-request-detail.jpg
