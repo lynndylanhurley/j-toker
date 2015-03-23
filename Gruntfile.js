@@ -35,18 +35,18 @@ module.exports = function (grunt) {
     shell: {
       deploy: {
         command: [
-          "heroku config:set NODE_ENV=production NPM_CONFIG_PRODUCTION=false --app j-toker-demo",
-          "git checkout -b "+DEPLOY_TAG,
-          "rm config/default.yml",
-          "cp config/production.yml config/default.yml",
+          'heroku config:set NODE_ENV=production NPM_CONFIG_PRODUCTION=false --app j-toker-demo',
+          'git checkout -b '+DEPLOY_TAG,
+          'rm config/default.yml',
+          'cp config/production.yml config/default.yml',
           'cp -R demo/dist demo/dist-production',
           'git add -u .',
           'git add .',
-          "git commit -am 'commit for "+DEPLOY_TAG+" push'",
-          "git push -f production "+DEPLOY_TAG+":master",
+          'git commit -am "commit for '+DEPLOY_TAG+' push"',
+          'git push -f production '+DEPLOY_TAG+':master',
           'git checkout master',
-          "git branch -D "+DEPLOY_TAG,
-          "rm -rf demo/dist-production"
+          'git branch -D '+DEPLOY_TAG,
+          'rm -rf demo/dist-production'
         ].join('&&'),
         execOptions: {
           env: {

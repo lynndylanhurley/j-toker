@@ -1,6 +1,23 @@
 sudo: false
 language: node_js
 node_js:
-  - 'iojs'
-  - '0.12'
-  - '0.10'
+- iojs
+- '0.12'
+- '0.10'
+env:
+  global:
+  - secure: ZxWHVOTp14mnRygP9hfmh4BpuiJIzRbjklILayVb0Foqzn7Z7YfVycHh5QkqS/ck1NXyNvDoeaGHB34EXDUF2js3YN4/hNKYL3IHE3KWlLUDMZdjEHhCn+R0Chn+RO+ZzfBVwzcnoWpxgaxNDCGNuekEk/SSCjRx4kIWLMRl3Qg=
+  - secure: bm6wlihR5vFGwD4KlCUbFeDtdFz/cpxKSf3WyYivPUq3ByU4RND2Ejt/A1AZgPzbdo99H2kDbRhkk7Osd0xwegBXba2P7ZsZQLnTGikyucFPhvhoZNuCv0JD5Dne0R8U6xJyjXvfQxfSnOn3wjfFp+QFzZMQSKKrCN/4PLQ3+c0=
+addons:
+  sauce_connect: true
+
+cache:
+  directories:
+  - node_modules
+
+before_install:
+- npm install
+
+#after_success:
+#- CODECLIMATE_REPO_TOKEN=3190c235d12d91187eea9e2f447d3006e4ed896a6b696398ddf55be8ccac60e2
+  #node_modules/.bin/codeclimate < coverage/*/lcov.info
