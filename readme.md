@@ -4,6 +4,8 @@
 
 ![j-toker][logo]
 
+[![Build Status](https://magnum.travis-ci.com/lynndylanhurley/j-toker.svg?token=3E1Wh8RpQzLxg3zZajyy)](https://magnum.travis-ci.com/lynndylanhurley/j-toker)
+
 ### Features:
 
 * OAuth2 authentication
