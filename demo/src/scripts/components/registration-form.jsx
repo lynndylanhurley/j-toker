@@ -90,8 +90,10 @@ module.exports = React.createClass({
       configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
     }
 
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/registration-form.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Register by Email' bsStyle='info'>
+      <Panel header='Register by Email' bsStyle='info' footer={sourceLink}>
         <form>
           <Input type='email'
                 name='email'

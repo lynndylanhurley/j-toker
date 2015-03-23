@@ -64,8 +64,11 @@ module.exports = React.createClass({
   },
 
   render: function() {
+
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/destroy-account.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Destroy Account' bsStyle='danger'>
+      <Panel header='Destroy Account' bsStyle='danger' footer={sourceLink}>
         <Button onClick={this.handleDestroyClick}
                 disabled={!this.props.signedIn}
                 bsStyle='danger'>

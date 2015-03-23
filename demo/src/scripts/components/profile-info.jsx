@@ -45,8 +45,11 @@ module.exports = React.createClass({
   },
 
   render: function() {
+
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/profile-info.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Account Info' bsStyle='info'>
+      <Panel header='Account Info' bsStyle='info' footer={sourceLink}>
         <Row>
           <Col xs={9}>
             <label>email:</label>

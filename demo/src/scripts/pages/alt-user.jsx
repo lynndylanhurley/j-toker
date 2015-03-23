@@ -38,7 +38,7 @@ module.exports = React.createClass({
         <Row>
           <Col xs={12}>
             <Well>
-              <h1>Using an alternate user class</h1>
+              <h1>Alternate user type example</h1>
               <p>
                 Use the panels on this page to authenticate using a different
                 user class than is used on the landing page.

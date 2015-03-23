@@ -131,8 +131,10 @@ module.exports = React.createClass({
       evilUserMsg      = 'These requests should fail.';
     }
 
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/access-control.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Access Control' bsStyle={groupBtnClass}>
+      <Panel header='Access Control' bsStyle={groupBtnClass} footer={sourceLink}>
         <h4>{groupHeader}</h4>
         <Panel>
           <p>{groupMsg}</p>

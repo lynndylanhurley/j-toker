@@ -82,8 +82,11 @@ module.exports = React.createClass({
   },
 
   render: function() {
+
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/password-update.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Change Password' bsStyle='info'>
+      <Panel header='Change Password' bsStyle='info' footer={sourceLink}>
         <form>
            <Input type='password'
                   name='password'

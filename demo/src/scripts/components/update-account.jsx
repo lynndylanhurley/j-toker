@@ -75,8 +75,10 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/update-account.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Update Account' bsStyle='info'>
+      <Panel header='Update Account' bsStyle='info' footer={sourceLink}>
         <form>
            <Input type='text'
                   name='nickname'

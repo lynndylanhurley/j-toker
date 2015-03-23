@@ -85,8 +85,10 @@ module.exports = React.createClass({
       configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
     }
 
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/oauth-form.jsx' target='blank'>View component source</a>;
+
     return(
-      <Panel header='OAuth Sign In' bsStyle='info'>
+      <Panel header='OAuth Sign In' bsStyle='info' footer={sourceLink}>
         <Input type='text'
                name='favorite_color'
                label='Favorite Color'

@@ -61,8 +61,10 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/signout-form.jsx' target='blank'>View component source</a>;
+
     return (
-      <Panel header='Sign Out' bsStyle='info'>
+      <Panel header='Sign Out' bsStyle='info' footer={sourceLink}>
         <Button className='btn btn-primary'
                 onClick={this.handleSignOutClick}
                 disabled={!this.props.signedIn}>

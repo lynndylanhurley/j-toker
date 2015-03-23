@@ -82,9 +82,10 @@ module.exports = React.createClass({
       configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
     }
 
+    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/password-reset.jsx' target='blank'>View component source</a>;
 
     return (
-      <Panel header='Request Password Reset' bsStyle='info'>
+      <Panel header='Request Password Reset' bsStyle='info' footer={sourceLink}>
         <form>
           <Input type='email'
                 name='email'
