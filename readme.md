@@ -50,6 +50,7 @@ The demo uses [React][react], and the source can be found [here](https://github.
   * [$.auth.signOut](#authsignout)
   * [$.auth.destroyAccount](#authdestroyaccount)
 * [Events](#events)
+* [Possible complications](#possible-complications)
 * [Using alternate response formats](#alternate-response-formats)
 * [Using multiple user types](#multiple-user-types)
 * [Conceptual diagrams](#conceptual)
@@ -968,6 +969,23 @@ PubSub.subscribe('auth.passwordUpdate.error', function(ev, msg) {
 
 ---
 
+# Possible complications
+
+This plugin uses the global jQuery [`beforeSend`](https://api.jquery.com/Ajax_Events/) callback to append authentication headers to AJAX requests. This may conflict with your own use of the callback. In that case, just call the `$.auth.appendAuthHeaders` method during your own callback.
+
+##### Custom `beforeSend` usage example
+
+~~~javascript
+$.ajaxSetup({
+  beforeSend: function(xhr, settings) {
+    // append outbound auth headers
+    $.auth.appendAuthHeaders(xhr, settings);
+    
+    // now do whatever you want
+  }
+});
+~~~
+
 # Alternate response formats
 
 By default, this plugin expects user info (id, name, etc.) to be contained within the data param of successful login / token-validation responses. The following example shows an example of an expected response:
@@ -1280,9 +1298,9 @@ app.all('/proxy/*', function(req, res, next) {
 
 The above example assumes that you're using [express](http://expressjs.com/), [request](https://github.com/mikeal/request), and [http-proxy](https://github.com/nodejitsu/node-http-proxy), and that you have set the API_URL value using [node-config](https://github.com/lorenwest/node-config).
 
-### IE8+ must use hard redirects for provider authentication
+### IE8-11 must use hard redirects for provider authentication
 
-Most modern browsers can communicate across tabs and windows using [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage). This doesn't work for certain flawed browsers. In these cases the client must take the following steps when performing provider authentication (facebook, github, etc.):
+Most modern browsers can communicate across tabs and windows using [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage). This doesn't work for certain browsers (IE8-11). In these cases the client must take the following steps when performing provider authentication (facebook, github, etc.):
 
 1. navigate from the client site to the API
 1. navigate from the API to the provider
@@ -1313,6 +1331,14 @@ There is a test project in the `demo` directory of this app. To start a dev serv
 1. `grunt serve`
 
 A dev server will start on [localhost:7777](http://localhost:7777). The test suite will be run as well.
+
+### Running the tests
+
+If you just want to run the tests, follow these steps:
+
+1. `cd` into the root of this project
+1. `npm install`
+1. `grunt`
 
 ### Testing against a live API
 
