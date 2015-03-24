@@ -1258,16 +1258,6 @@
   };
 
 
-  // check if using IE
-  window.isIE = function() {
-    var ua = nav.userAgent.toLowerCase();
-    return (
-      ua && ua.indexOf('msie') !== -1) ||
-      !!ua.match(/Trident.*rv\:11\./
-    );
-  };
-
-
   // check if IE < 10
   window.isOldIE = function() {
     var oldIE = false,
@@ -1281,6 +1271,15 @@
     }
 
     return oldIE;
+  };
+
+
+  // check if using IE
+  window.isIE = function() {
+    var ieLTE10 = window.isOldIE(),
+        ie11    = !!nav.userAgent.match(/Trident.*rv\:11\./);
+
+    return (ieLTE10 || ie11);
   };
 
 
