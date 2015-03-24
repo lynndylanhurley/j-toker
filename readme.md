@@ -4,6 +4,7 @@
 
 ![j-toker][logo]
 
+[![npm version](https://badge.fury.io/js/j-toker.svg)](http://badge.fury.io/js/j-toker)
 [![Build Status](https://magnum.travis-ci.com/lynndylanhurley/j-toker.svg?token=3E1Wh8RpQzLxg3zZajyy)](https://magnum.travis-ci.com/lynndylanhurley/j-toker)
 [![Test Coverage](https://codeclimate.com/repos/551098d4695680699c005e31/badges/efa4ca64d67204ad1660/coverage.svg)](https://codeclimate.com/repos/551098d4695680699c005e31/feed)
 
@@ -60,6 +61,7 @@ The demo uses [React][react], and the source can be found [here](https://github.
 * [Notes on Batch Requests](#batch-requests)
 * [Token Formatting](#identifying-users-on-the-server)
 * [Internet Explorer Caveats](#internet-explorer)
+* [Contributing](#contributing)
 * [Development](#development)
 * [Callouts](#credits)
 
@@ -1289,6 +1291,15 @@ Most modern browsers can communicate across tabs and windows using [postMessage]
 These steps are taken automatically when using this module with IE8+.
 
 ---
+
+# Contributing
+
+1. Create a feature branch with your changes.
+1. Write some test cases.
+1. Make all the tests pass.
+1. Issue a pull request.
+
+I will grant you commit access if you send quality pull requests.
 
 # Development
 
