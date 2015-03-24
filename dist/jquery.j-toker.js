@@ -1,4 +1,4 @@
-/*! j-toker - v0.0.3 - 2015-03-23
+/*! j-toker - v0.0.4 - 2015-03-24
 * Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
@@ -171,7 +171,10 @@
 
     // remove event listeners
     $(document).unbind('ajaxComplete', this.updateAuthCredentials);
-    window.removeEventListener('message', this.handlePostMessage);
+
+    if (window.removeEventListener) {
+      window.removeEventListener('message', this.handlePostMessage);
+    }
 
     // remove global ajax "interceptors"
     $.ajaxSetup({beforeSend: undefined});
@@ -1028,7 +1031,7 @@
     // unescape the quotes and return the string.
     try {
       // return parsed json response
-      return JSON.parse(val);
+      return $.parseJSON(val);
     } catch (err) {
       // unescape quotes
       return unescapeQuotes(val);

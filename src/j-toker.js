@@ -176,7 +176,10 @@
 
     // remove event listeners
     $(document).unbind('ajaxComplete', this.updateAuthCredentials);
-    window.removeEventListener('message', this.handlePostMessage);
+
+    if (window.removeEventListener) {
+      window.removeEventListener('message', this.handlePostMessage);
+    }
 
     // remove global ajax "interceptors"
     $.ajaxSetup({beforeSend: undefined});
@@ -1033,7 +1036,7 @@
     // unescape the quotes and return the string.
     try {
       // return parsed json response
-      return JSON.parse(val);
+      return $.parseJSON(val);
     } catch (err) {
       // unescape quotes
       return unescapeQuotes(val);
