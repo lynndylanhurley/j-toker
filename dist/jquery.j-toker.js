@@ -1,4 +1,4 @@
-/*! j-toker - v0.0.2 - 2015-03-23
+/*! j-toker - v0.0.3 - 2015-03-23
 * Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
@@ -759,7 +759,7 @@
 
   Auth.prototype.buildOAuthUrl = function(configName, params) {
     var config = this.getConfig(configName),
-        oAuthUrl = this.getApiUrl() + config.authProviderPaths['github'] +
+        oAuthUrl = this.getConfig().apiUrl + config.authProviderPaths['github'] +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 

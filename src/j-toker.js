@@ -764,7 +764,7 @@
 
   Auth.prototype.buildOAuthUrl = function(configName, params) {
     var config = this.getConfig(configName),
-        oAuthUrl = this.getApiUrl() + config.authProviderPaths['github'] +
+        oAuthUrl = this.getConfig().apiUrl + config.authProviderPaths['github'] +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
