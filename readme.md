@@ -35,7 +35,7 @@ The demo uses [React][react], and the source can be found [here](https://github.
 
 # Table of Contents
 
-* [About this module](#about-this-module)
+* [About this plugin](#about-this-plugin)
 * [Installation](#installation)
 * [Configuration](#configuration)
 * [API](#api)
@@ -68,21 +68,21 @@ The demo uses [React][react], and the source can be found [here](https://github.
 
 ---
 
-# About this module
+# About this plugin
 
-This module relies on [token based authentication][token-auth-wiki]. This requires coordination between the client and the server. [Diagrams](#conceptual) are included to illustrate this relationship.
+This plugin relies on [token based authentication][token-auth-wiki]. This requires coordination between the client and the server. [Diagrams](#conceptual) are included to illustrate this relationship.
 
-This module was designed to work out of the box with the legendary [devise token auth][dta] gem, but it's flexible enough to be used in just about any environment.
+This plugin was designed to work out of the box with the legendary [devise token auth][dta] gem, but it's flexible enough to be used in just about any environment.
 
 Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] instead.
 
-**About security**: [read here][so-post] for more information on securing your token auth system. The [devise token auth][dta] gem has adequate security measures in place, and this module was built to work seamlessly with that gem.
+**About security**: [read here][so-post] for more information on securing your token auth system. The [devise token auth][dta] gem has adequate security measures in place, and this plugin was built to work seamlessly with that gem.
 
 ---
 
 # Installation
 
-1. Download this module and its dependencies.
+1. Download this plugin and its dependencies.
 
    ~~~sh
    # using bower:
@@ -130,7 +130,7 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
 
 # Configuration
 
-`$.auth.configure` will need to be called before this module can be used.
+`$.auth.configure` will need to be called before this plugin can be used.
 
 When this plugin is used with [devise token auth][dta], you may only need to set the `apiUrl` config option.
 
@@ -970,7 +970,7 @@ PubSub.subscribe('auth.passwordUpdate.error', function(ev, msg) {
 
 # Alternate response formats
 
-By default, this module expects user info (id, name, etc.) to be contained within the data param of successful login / token-validation responses. The following example shows an example of an expected response:
+By default, this plugin expects user info (id, name, etc.) to be contained within the data param of successful login / token-validation responses. The following example shows an example of an expected response:
 
 ##### Expected API login response example
 ~~~
@@ -1027,7 +1027,7 @@ $.auth.configure({
 
 ## [View live multi-user demo][multi-user-demo]
 
-This module allows for the use of multiple user authentication configurations. The following example assumes that the API supports two user classes, `User` and `EvilUser`. The following examples assume that `User` authentication routes are mounted at `/auth,` and the `EvilUser` authentication routes are mounted at `evil_user_auth`.
+This plugin allows for the use of multiple user authentication configurations. The following example assumes that the API supports two user classes, `User` and `EvilUser`. The following examples assume that `User` authentication routes are mounted at `/auth,` and the `EvilUser` authentication routes are mounted at `evil_user_auth`.
 
 ##### Example configuration for multiple user types
 
@@ -1168,7 +1168,7 @@ The benefit of this measure is that if a user's token is compromised, the user w
 
 The only case where an expired token is allowed is during [batch requests](#batch-requests).
 
-Token management is handled by default when using this module with the [devise token auth][dta] gem.
+Token management is handled by default when using this plugin with the [devise token auth][dta] gem.
 
 ## Batch requests
 
@@ -1214,7 +1214,7 @@ The user's authentication information is included by the client in the `access-t
 
 Replace `xxxxx` with the user's `auth_token` and `zzzzz` with the user's `uid`. The `client` field exists to allow for multiple simultaneous sessions per user. The `client` field defaults to `default` if omitted. `expiry` is used by the client to invalidate expired tokens without making an API request. A more in depth explanation of these values is [here](https://github.com/lynndylanhurley/devise_token_auth#identifying-users-in-controllers).
 
-This will all happen automatically when using this module.
+This will all happen automatically when using this plugin.
 
 **Note**: You can customize the auth headers however you like. [Read more](#using-alternate-header-formats).
 
@@ -1234,7 +1234,7 @@ The following measures are necessary when dealing with these older browsers.
 
 IE8 + IE9 will try to cache ajax requests. This results in an issue where the request return 304 status with `Content-Type` set to `html` and everything goes haywire.
 
-The solution to this problem is to set the `If-Modified-Since` headers to `'0'` on each of the request methods that we use in our app. This is done by default when using this module.
+The solution to this problem is to set the `If-Modified-Since` headers to `'0'` on each of the request methods that we use in our app. This is done by default when using this plugin.
 
 The solution was lifted from [this stackoverflow post](http://stackoverflow.com/questions/16098430/angular-ie-caching-issue-for-http).
 
@@ -1289,7 +1289,7 @@ Most modern browsers can communicate across tabs and windows using [postMessage]
 1. navigate from the provider to the API
 1. navigate from the API back to the client
 
-These steps are taken automatically when using this module with IE8+.
+These steps are taken automatically when using this plugin with IE8+.
 
 ---
 
@@ -1316,7 +1316,7 @@ A dev server will start on [localhost:7777](http://localhost:7777). The test sui
 
 ### Testing against a live API
 
-This module was built against [this API](https://github.com/lynndylanhurley/devise_token_auth_demo). You can use this, or feel free to use your own.
+This plugin was built against [this API](https://github.com/lynndylanhurley/devise_token_auth_demo). You can use this, or feel free to use your own.
 
 ---
 
