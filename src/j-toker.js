@@ -1104,8 +1104,6 @@
     // fetch current auth headers from storage
     var currentHeaders = $.auth.retrieveData(SAVED_CREDS_KEY);
 
-    console.log('appending request headers');
-
     // check config apiUrl matches the current request url
     if (isApiRequest(settings.url) && currentHeaders) {
 
@@ -1125,8 +1123,6 @@
 
   // update auth credentials after request is made to the API
   Auth.prototype.updateAuthCredentials = function(ev, xhr, settings) {
-    console.log('ajax complete', settings);
-
     // check config apiUrl matches the current response url
     if (isApiRequest(settings.url)) {
       // set header for each key in `tokenFormat` config
