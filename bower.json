@@ -1,7 +1,7 @@
 {
   "name": "j-toker",
   "description": "Simple, secure token authentication for jQuery.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "authors": "Lynn Dylan Hurley <lynn.dylan.hurley@gmail.com> (http://github.com/lynndylanhurley)",
   "homepage": "http://github.com/lynndylanhurley/j-toker",
   "repository": {
