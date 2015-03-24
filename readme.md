@@ -98,7 +98,7 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
    * [PubSubJS][pubsub-js]: (optional) Event publish / subscribe.
 
    These dependencies were pulled down automatically if you used [bower] or [npm] to install jToker.
-3. Include j-toker in your project.
+3. Include jToker in your project.
    * If you're using [browserify][browserify] or similar, this will look like this:
 
      ~~~javascript
@@ -106,12 +106,12 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
      var Auth = require('j-toker');
      ~~~
 
-   * Otherwise you will need to include j-toker and its dependencies manually:
+   * Otherwise you will need to include jToker and its dependencies manually:
 
      ~~~html
      <!-- in your index.html file -->
 
-     <!-- dependencies - these should come BEFORE j-toker -->
+     <!-- dependencies - these should come BEFORE jToker -->
      <script src='/js/jquery/dist/jquery.js'></script>
      <script src='/js/jquery.cookie/jquery.cookie.js'></script>
      <script src='/js/jquery-deparam/jquery-deparam.js'></script>
