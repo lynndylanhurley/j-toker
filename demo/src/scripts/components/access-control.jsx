@@ -33,8 +33,7 @@ module.exports = React.createClass({
   },
 
   handleSingleRequestClick: function(ev) {
-    //var url = Auth.getConfig().apiUrl + '/demo/members_only';
-    var url = Auth.getConfig().apiUrl + $(ev.target).data('url');
+    var url = Auth.getApiUrl() + $(ev.target).data('url');
 
     $.getJSON(url)
       .then(function(resp) {
@@ -52,7 +51,7 @@ module.exports = React.createClass({
   },
 
   handleMultiRequestClick: function(ev) {
-    var url = Auth.getConfig().apiUrl + $(ev.target).data('url');
+    var url = Auth.getApiUrl() + $(ev.target).data('url');
 
     $.when(
       $.getJSON(url),

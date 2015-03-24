@@ -42,7 +42,6 @@ module.exports = React.createClass({
   },
 
   handleSignInClick: function(ev) {
-    console.log('submitting email login', this.state);
     Auth.emailSignIn({
       email:    this.state.email,
       password: this.state.password,

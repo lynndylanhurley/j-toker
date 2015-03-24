@@ -20,7 +20,7 @@ Auth.configure([
   {
     default: {
       apiUrl:  window.config.apiUrl,
-      proxyIf: function() { return window.oldIE();}
+      proxyIf: function() { return window.isOldIE(); }
     }
   }, {
     evilUser: {

@@ -83,8 +83,15 @@ module.exports = function (grunt) {
     browserify: {
       options: {
         debug: true,
-        transform: ['reactify'],
+        transform: ['reactify', 'uglifyify'],
         extensions: ['.jsx']
+      },
+      polyfills: {
+        src: [
+          'node_modules/es5-shim/es5-shim.js',
+          'node_modules/es5-shim/es5-sham.js'
+        ],
+        dest: 'demo/dist/scripts/polyfills.js'
       },
       app: {
         src: [
@@ -215,6 +222,7 @@ module.exports = function (grunt) {
     'clean',
     'sass:dist',
     'copy',
+    'browserify:polyfills',
     'browserify:app',
     'concat',
     'uglify'

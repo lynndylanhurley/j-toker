@@ -332,6 +332,12 @@
   };
 
 
+  Auth.prototype.getApiUrl = function() {
+    var config = this.getConfig();
+    return (config.proxyIf()) ? config.proxyUrl : config.apiUrl;
+  };
+
+
   // interpolate values of tokenFormat hash with ctx, return new hash
   Auth.prototype.buildAuthHeaders = function(ctx) {
     var headers = {},
@@ -582,7 +588,7 @@
       );
     } else {
       var config = this.getConfig(opts.config),
-          url    = config.apiUrl + config.tokenValidationPath;
+          url    = this.getApiUrl() + config.tokenValidationPath;
 
       // found saved creds, verify with API
       $.ajax({
@@ -639,7 +645,7 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.emailRegistrationPath,
+        url    = this.getApiUrl() + config.emailRegistrationPath,
         dfd    = $.Deferred();
 
     opts.config_name = opts.config;
@@ -678,7 +684,7 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.emailSignInPath,
+        url    = this.getApiUrl() + config.emailSignInPath,
         dfd    = $.Deferred();
 
     // don't send config name to API
@@ -758,7 +764,7 @@
 
   Auth.prototype.buildOAuthUrl = function(configName, params) {
     var config = this.getConfig(configName),
-        oAuthUrl = config.apiUrl + config.authProviderPaths['github'] +
+        oAuthUrl = this.getApiUrl() + config.authProviderPaths['github'] +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
@@ -809,7 +815,7 @@
     }
 
     var config     = this.getConfig(opts.config),
-        signOutUrl = config.apiUrl + config.signOutPath,
+        signOutUrl = this.getApiUrl() + config.signOutPath,
         dfd        = $.Deferred();
 
     $.ajax({
@@ -845,7 +851,7 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.accountUpdatePath,
+        url    = this.getApiUrl() + config.accountUpdatePath,
         dfd    = $.Deferred();
 
     delete opts.config;
@@ -882,7 +888,7 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.accountDeletePath,
+        url    = this.getApiUrl() + config.accountDeletePath,
         dfd    = $.Deferred();
 
     $.ajax({
@@ -923,7 +929,7 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.passwordResetPath,
+        url    = this.getApiUrl() + config.passwordResetPath,
         dfd    = $.Deferred();
 
     opts.config_name = opts.config;
@@ -961,7 +967,7 @@
     }
 
     var config = this.getConfig(opts.config),
-        url    = config.apiUrl + config.passwordUpdatePath,
+        url    = this.getApiUrl() + config.passwordUpdatePath,
         dfd    = $.Deferred();
 
     delete opts.config;
@@ -1098,8 +1104,16 @@
     // fetch current auth headers from storage
     var currentHeaders = $.auth.retrieveData(SAVED_CREDS_KEY);
 
+    console.log('appending request headers');
+
     // check config apiUrl matches the current request url
     if (isApiRequest(settings.url) && currentHeaders) {
+
+      // bust IE cache
+      xhr.setRequestHeader(
+        'If-Modified-Since',
+        'Mon, 26 Jul 1997 05:00:00 GMT'
+      );
 
       // set header for each key in `tokenFormat` config
       for (var key in $.auth.getConfig().tokenFormat) {
@@ -1111,6 +1125,8 @@
 
   // update auth credentials after request is made to the API
   Auth.prototype.updateAuthCredentials = function(ev, xhr, settings) {
+    console.log('ajax complete', settings);
+
     // check config apiUrl matches the current response url
     if (isApiRequest(settings.url)) {
       // set header for each key in `tokenFormat` config
@@ -1227,7 +1243,7 @@
 
 
   var isApiRequest = function(url) {
-    return (url.match($.auth.getConfig().apiUrl));
+    return (url.match($.auth.getApiUrl()));
   };
 
 

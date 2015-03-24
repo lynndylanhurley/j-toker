@@ -2,7 +2,8 @@ var express    = require('express'),
     request    = require('request'),
     httpProxy  = require('http-proxy'),
     CONFIG     = require('config'),
-    handlebars = require('express-handlebars');
+    handlebars = require('express-handlebars'),
+    compress   = require('compression');
 
 var port = process.env.PORT || 7777;
 var app  = express();
@@ -15,7 +16,7 @@ var app  = express();
 // proxy api requests (for older IE browsers)
 app.all('/proxy/*', function(req, res, next) {
   // transform request URL into remote URL
-  var apiUrl = 'http:'+CONFIG.get('apiUrl')+req.params[0];
+  var apiUrl = 'http:'+CONFIG.get('apiUrl')+'/'+req.params[0];
   var r = null;
 
   // preserve GET params
@@ -38,6 +39,12 @@ app.all('/proxy/*', function(req, res, next) {
 // redirect to push state url (i.e. /blog -> /#/blog)
 app.get(/^(\/[^#\.]+)$/, function(req, res) {
   var path = req.url
+
+  // preserve GET params
+  if (req._parsedUrl.search) {
+    path += req._parsedUrl.search;
+  }
+
   res.redirect('/#'+path);
 });
 
@@ -57,5 +64,6 @@ app.engine('.html', handlebars({extname: '.html'}));
 app.set('views', __dirname + '/' + CONFIG.get('distDir'));
 app.set('view engine', '.html');
 
+app.use(compress());
 app.use(express.static(__dirname + '/' + CONFIG.get('distDir')));
 app.listen(port);
