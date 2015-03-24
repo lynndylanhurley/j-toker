@@ -27,7 +27,7 @@
     "test",
     "demo",
     "config"
-  ]
+  ],
   "main": "dist/jquery.j-toker.js",
   "dependencies": {
     "jquery": "2.1.3",

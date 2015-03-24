@@ -18,7 +18,7 @@ module.exports = function (grunt) {
       ' Licensed WTFPL */\n',
     // Task configuration.
     clean: {
-      files: ['dist', 'demo/dist']
+      files: ['dist', 'demo/dist', 'reports']
     },
 
     concat: {
@@ -67,11 +67,17 @@ module.exports = function (grunt) {
     },
 
     qunit: {
-      all: {
-        options: {
-          urls: ['http://localhost:7777/test/<%= pkg.name %>.html']
+      options: {
+        coverage: {
+          src: ['src/j-toker.js'],
+          instrumentedFiles: 'tmp/',
+          lcovReport: 'reports/lcov'
         }
-      }
+      },
+      files: ['test/j-toker.html']
+      //all: {
+        //urls: ['http://localhost:7777/test/<%= pkg.name %>.html'],
+      //}
     },
 
     browserify: {
@@ -196,9 +202,27 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'connect', 'qunit', 'clean', 'concat', 'uglify']);
-  grunt.registerTask('test', ['jshint', 'connect', 'qunit']);
-  grunt.registerTask('build', ['clean', 'sass:dist', 'copy', 'browserify:app', 'concat', 'uglify']);
-  grunt.registerTask('serve', ['build', 'express:dev', 'watch']);
-  grunt.registerTask('deploy', ['build', 'shell:deploy']);
+  grunt.registerTask('test', [
+    'clean',
+    'jshint',
+    'connect',
+    'qunit',
+    'concat',
+    'uglify'
+  ]);
+
+  grunt.registerTask('build-demo', [
+    'clean',
+    'sass:dist',
+    'copy',
+    'browserify:app',
+    'concat',
+    'uglify'
+  ]);
+
+  grunt.registerTask('serve-tests', ['test', 'watch']);
+
+  grunt.registerTask('default', ['test']);
+  grunt.registerTask('serve', ['build-demo', 'express:dev', 'watch']);
+  grunt.registerTask('deploy', ['build-demo', 'shell:deploy']);
 };

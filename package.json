@@ -2,9 +2,7 @@
   "name": "j-toker",
   "version": "0.0.1",
   "description": "Simple, secure token authentication for jQuery.",
-  "main": {
-    "dist/jquery.j-toker.js"
-  },
+  "main": "dist/jquery.j-toker.js",
   "engines": {
     "node": "0.10.x"
   },
@@ -37,8 +35,10 @@
     "pubsub-js": "^1.5.2"
   },
   "devDependencies": {
+    "blanket": "^1.1.6",
     "bootstrap": "^3.3.4",
     "bootstrap-sass": "^3.3.4",
+    "codeclimate-test-reporter": "0.0.4",
     "config": "^1.12.0",
     "connect-livereload": "^0.5.3",
     "console-polyfill": "^0.2.1",
@@ -52,11 +52,11 @@
     "grunt-contrib-connect": "0.9.0",
     "grunt-contrib-copy": "0.8.0",
     "grunt-contrib-jshint": "0.10.0",
-    "grunt-contrib-qunit": "0.5.1",
     "grunt-contrib-sass": "^0.9.2",
     "grunt-contrib-uglify": "0.7.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-express-server": "^0.4.19",
+    "grunt-qunit-istanbul": "^0.4.7",
     "grunt-react": "0.12.0",
     "grunt-sass": "^0.18.1",
     "grunt-shell": "^1.1.2",

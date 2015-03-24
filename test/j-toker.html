@@ -4,6 +4,17 @@
     <meta charset="utf-8">
     <title>j-toker Test Suite</title>
 
+    <!-- coverage reporter -->
+    <script src='../node_modules/blanket/dist/qunit/blanket.js'></script>
+    <script>
+      if (location.href.match(/(\?|&)gruntReport($|&|=)/)) {
+          blanket.options(
+            "reporter",
+            "../node_modules/grunt-blanket-qunit/reporter/grunt-reporter.js"
+          );
+      }
+    </script>
+
     <!-- Load plugin deps. -->
     <script src="../node_modules/jquery/dist/jquery.js"></script>
     <script src="../node_modules/jquery-deparam/jquery-deparam.js"></script>
@@ -17,7 +28,7 @@
     <script src="../node_modules/console-polyfill/index.js"></script>
 
     <!-- Load plugin. -->
-    <script src="../src/j-toker.js"></script>
+    <script src="../src/j-toker.js" data-cover></script>
 
     <!-- Load unit tests. -->
     <script src="unit/configuration.js"></script>

@@ -66,8 +66,6 @@
       PASSWORD_UPDATE_SUCCESS        = 'auth.passwordUpdate.success',
       PASSWORD_UPDATE_ERROR          = 'auth.passwordUpdate.error';
 
-  console.log('===== init jToker ======');
-
   var Auth = function () {
     // set flag so we know when plugin has been configured.
     this.configured = false;

@@ -19,6 +19,5 @@ before_install:
 - gem install sass
 - npm install
 
-#after_success:
-#- CODECLIMATE_REPO_TOKEN=3190c235d12d91187eea9e2f447d3006e4ed896a6b696398ddf55be8ccac60e2
-  #node_modules/.bin/codeclimate < coverage/*/lcov.info
+after_success:
+  CODECLIMATE_REPO_TOKEN=474d64bb1ab64b0e30cc9c0d2147ba1f5bb87a6c5b29091050fe991fc7349c1b codeclimate < reports/lcov/lcov.info
