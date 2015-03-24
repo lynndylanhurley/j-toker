@@ -25,7 +25,7 @@
       $.auth.persistData('authHeaders', currentToken);
 
       // mock success response to sign in
-      this.server.respondWith('GET', '/api/auth/sign_out', [
+      this.server.respondWith('DELETE', '/api/auth/sign_out', [
         200, {
           'Content-Type': 'application/json'
         }, JSON.stringify({success: true})]);
@@ -70,7 +70,7 @@
       var done = assert.async();
 
       // mock success response to sign in
-      this.server.respondWith('GET', '/api/auth/sign_out', [
+      this.server.respondWith('DELETE', '/api/auth/sign_out', [
         500, {
           'Content-Type': 'application/json'
         }, JSON.stringify({success: false})]);

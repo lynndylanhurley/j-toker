@@ -63,6 +63,10 @@ module.exports = function (grunt) {
       dist: {
         src: '<%= concat.dist.dest %>',
         dest: 'dist/jquery.<%= pkg.name %>.min.js'
+      },
+      demo: {
+        src: 'demo/dist/scripts/main.js',
+        dest: 'demo/dist/scripts/main.js'
       }
     },
 
@@ -89,7 +93,8 @@ module.exports = function (grunt) {
       polyfills: {
         src: [
           'node_modules/es5-shim/es5-shim.js',
-          'node_modules/es5-shim/es5-sham.js'
+          'node_modules/es5-shim/es5-sham.js',
+          'node_modules/html5shiv/html5shiv-printshiv.js',
         ],
         dest: 'demo/dist/scripts/polyfills.js'
       },

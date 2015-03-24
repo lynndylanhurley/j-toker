@@ -63,6 +63,7 @@
     "grunt-sass": "^0.18.1",
     "grunt-shell": "^1.1.2",
     "highlight.js": "^8.4.0",
+    "html5shiv": "^3.7.2",
     "http-proxy": "^1.9.0",
     "js-yaml": "^3.2.7",
     "jshint-stylish": "1.0.0",

@@ -816,7 +816,7 @@
     $.ajax({
       url: signOutUrl,
       context: this,
-      method: 'GET',
+      method: 'DELETE',
 
       success: function(resp) {
         this.resolvePromise(SIGN_OUT_SUCCESS, dfd, resp);
