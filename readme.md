@@ -5,6 +5,7 @@
 ![j-toker][logo]
 
 [![npm version](https://badge.fury.io/js/j-toker.svg)](http://badge.fury.io/js/j-toker)
+[![bower version](https://badge.fury.io/bo/j-toker.svg)](http://badge.fury.io/bo/j-toker)
 [![Build Status](https://magnum.travis-ci.com/lynndylanhurley/j-toker.svg?token=3E1Wh8RpQzLxg3zZajyy)](https://magnum.travis-ci.com/lynndylanhurley/j-toker)
 [![Test Coverage](https://codeclimate.com/repos/551098d4695680699c005e31/badges/efa4ca64d67204ad1660/coverage.svg)](https://codeclimate.com/repos/551098d4695680699c005e31/feed)
 
