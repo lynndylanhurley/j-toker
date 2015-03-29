@@ -296,8 +296,8 @@
     }
 
     // iterate over config items, extend each from defaults
-    for (var config in opts) {
-      var configName = getFirstObjectKey(opts[config]);
+    for (var i = 0; i < opts.length; i++) {
+      var configName = getFirstObjectKey(opts[i]);
 
       // set first set as default config
       if (!this.defaultConfigKey) {
@@ -306,7 +306,7 @@
 
       // save config to `configs` hash
       this.configs[configName] = $.extend(
-        {}, this.configBase, opts[config][configName]
+        {}, this.configBase, opts[i][configName]
       );
     }
 
