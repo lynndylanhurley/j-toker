@@ -1348,6 +1348,10 @@ This plugin was built against [this API](https://github.com/lynndylanhurley/devi
 
 # Credits
 
+Thanks to the following contributors:
+
+* [gbataille](https://github.com/gbataille)
+
 Code and ideas were stolen from the following sources:
 
 * [this SO post on token-auth security][so-post]
