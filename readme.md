@@ -517,7 +517,7 @@ var PageComponent = React.createClass({
   },
 
   componentDidMount: function() {
-    Auth.validateUser()
+    Auth.validateToken()
       .then(function(user) {
         this.setState({
           username: user.username
