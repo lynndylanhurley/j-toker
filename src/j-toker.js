@@ -765,9 +765,9 @@
   };
 
 
-  Auth.prototype.buildOAuthUrl = function(configName, params) {
+  Auth.prototype.buildOAuthUrl = function(configName, params, providerPath) {
     var config = this.getConfig(configName),
-        oAuthUrl = this.getConfig().apiUrl + config.authProviderPaths['github'] +
+        oAuthUrl = this.getConfig().apiUrl + providerPath +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
@@ -794,9 +794,10 @@
       throw 'jToker: provider param undefined for `oAuthSignIn` method.';
     }
 
+
     var config       = this.getConfig(opts.config),
         providerPath = config.authProviderPaths[opts.provider],
-        oAuthUrl     = this.buildOAuthUrl(opts.config, opts.params);
+        oAuthUrl     = this.buildOAuthUrl(opts.config, opts.params, providerPath);
 
     if (!providerPath) {
       throw 'jToker: providerPath not found for provider: '+opts.provider;
@@ -1292,3 +1293,4 @@
   return $.auth;
 
 }));
+q
