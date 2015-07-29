@@ -1,4 +1,4 @@
-/*! j-toker - v0.0.7 - 2015-07-29
+/*! j-toker - v0.0.8 - 2015-07-29
 * Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
