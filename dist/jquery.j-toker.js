@@ -1,4 +1,4 @@
-/*! j-toker - v0.0.4 - 2015-03-24
+/*! j-toker - v0.0.7 - 2015-07-29
 * Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
@@ -291,8 +291,8 @@
     }
 
     // iterate over config items, extend each from defaults
-    for (var config in opts) {
-      var configName = getFirstObjectKey(opts[config]);
+    for (var i = 0; i < opts.length; i++) {
+      var configName = getFirstObjectKey(opts[i]);
 
       // set first set as default config
       if (!this.defaultConfigKey) {
@@ -301,7 +301,7 @@
 
       // save config to `configs` hash
       this.configs[configName] = $.extend(
-        {}, this.configBase, opts[config][configName]
+        {}, this.configBase, opts[i][configName]
       );
     }
 
@@ -760,9 +760,9 @@
   };
 
 
-  Auth.prototype.buildOAuthUrl = function(configName, params) {
+  Auth.prototype.buildOAuthUrl = function(configName, params, providerPath) {
     var config = this.getConfig(configName),
-        oAuthUrl = this.getConfig().apiUrl + config.authProviderPaths['github'] +
+        oAuthUrl = this.getConfig().apiUrl + providerPath +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
@@ -789,9 +789,10 @@
       throw 'jToker: provider param undefined for `oAuthSignIn` method.';
     }
 
+
     var config       = this.getConfig(opts.config),
         providerPath = config.authProviderPaths[opts.provider],
-        oAuthUrl     = this.buildOAuthUrl(opts.config, opts.params);
+        oAuthUrl     = this.buildOAuthUrl(opts.config, opts.params, providerPath);
 
     if (!providerPath) {
       throw 'jToker: providerPath not found for provider: '+opts.provider;
@@ -1287,3 +1288,4 @@
   return $.auth;
 
 }));
+q
