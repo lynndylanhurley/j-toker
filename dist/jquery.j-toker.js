@@ -1,4 +1,4 @@
-/*! j-toker - v0.0.8 - 2015-07-29
+/*! j-toker - v0.0.9 - 2015-08-04
 * Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
@@ -761,8 +761,7 @@
 
 
   Auth.prototype.buildOAuthUrl = function(configName, params, providerPath) {
-    var config = this.getConfig(configName),
-        oAuthUrl = this.getConfig().apiUrl + providerPath +
+      var oAuthUrl = this.getConfig().apiUrl + providerPath +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
@@ -1288,4 +1287,3 @@
   return $.auth;
 
 }));
-q

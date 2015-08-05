@@ -766,8 +766,7 @@
 
 
   Auth.prototype.buildOAuthUrl = function(configName, params, providerPath) {
-    var config = this.getConfig(configName),
-        oAuthUrl = this.getConfig().apiUrl + providerPath +
+      var oAuthUrl = this.getConfig().apiUrl + providerPath +
           '?auth_origin_url='+encodeURIComponent(window.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
@@ -1293,4 +1292,3 @@
   return $.auth;
 
 }));
-q
