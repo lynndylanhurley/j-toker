@@ -6,9 +6,12 @@
  * Licensed under the WTFPL license.
  */
 (function (factory) {
+  var root = Function('return this')(); // jshint ignore:line
+
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     define([
+      root,
       'jquery',
       'jquery-deparam',
       'pubsub-js',
@@ -17,6 +20,7 @@
   } else if (typeof exports === 'object') {
     // Node/CommonJS
     module.exports = factory(
+      root,
       require('jquery'),
       require('jquery-deparam'),
       require('pubsub-js'),
@@ -24,16 +28,18 @@
     );
   } else {
     // Browser globals
-    factory(jQuery, window.deparam, window.PubSub);
+    factory(root, jQuery, root.deparam, root.PubSub);
   }
-}(function ($, deparam, PubSub) {
+}(function (root, $, deparam, PubSub) {
   // singleton baby
-  if ($.auth) {
-    return $.auth;
+  if (root.auth) {
+    return root.auth;
   }
 
+  //console.log("root", root);
+
   // use for IE detection
-  var nav = window.navigator;
+  var nav = root.navigator;
 
   // cookie/localStorage value keys
   var INITIAL_CONFIG_KEY = 'default',
@@ -111,11 +117,11 @@
       cookiePath:            '/',
 
       passwordResetSuccessUrl: function() {
-        return window.location.href;
+        return root.location.href;
       },
 
       confirmationSuccessUrl:  function() {
-        return window.location.href;
+        return root.location.href;
       },
 
       tokenFormat: {
@@ -177,8 +183,8 @@
     // remove event listeners
     $(document).unbind('ajaxComplete', this.updateAuthCredentials);
 
-    if (window.removeEventListener) {
-      window.removeEventListener('message', this.handlePostMessage);
+    if (root.removeEventListener) {
+      root.removeEventListener('message', this.handlePostMessage);
     }
 
     // remove global ajax "interceptors"
@@ -208,7 +214,7 @@
       throw 'jToker: jQuery not found. This module depends on jQuery.';
     }
 
-    if (!window.localStorage && !$.cookie) {
+    if (!root.localStorage && !$.cookie) {
       errors.push(
         'This browser does not support localStorage. You must install '+
         'jquery-cookie to use jToker with this browser.'
@@ -249,8 +255,8 @@
       key = sessionKeys[key];
 
       // kill all local storage keys
-      if (window.localStorage) {
-        window.localStorage.removeItem(key);
+      if (root.localStorage) {
+        root.localStorage.removeItem(key);
       }
 
       if ($.cookie) {
@@ -316,15 +322,15 @@
     // TODO: add config option for these bindings
     if (true) {
       // update auth creds after each request to the API
-      $(document).ajaxComplete($.auth.updateAuthCredentials);
+      $(document).ajaxComplete(root.auth.updateAuthCredentials);
 
       // intercept requests to the API, append auth headers
-      $.ajaxSetup({beforeSend: $.auth.appendAuthHeaders});
+      $.ajaxSetup({beforeSend: root.auth.appendAuthHeaders});
     }
 
     // IE8 won't have this feature
-    if (window.addEventListener) {
-      window.addEventListener("message", this.handlePostMessage, false);
+    if (root.addEventListener) {
+      root.addEventListener("message", this.handlePostMessage, false);
     }
 
     // pull creds from search bar if available
@@ -376,34 +382,34 @@
     if (ev.data.message === 'deliverCredentials') {
       delete ev.data.message;
 
-      var initialHeaders = $.auth.normalizeTokenKeys(ev.data),
-          authHeaders    = $.auth.buildAuthHeaders(initialHeaders),
-          user           = $.auth.setCurrentUser(ev.data);
+      var initialHeaders = root.auth.normalizeTokenKeys(ev.data),
+          authHeaders    = root.auth.buildAuthHeaders(initialHeaders),
+          user           = root.auth.setCurrentUser(ev.data);
 
-      $.auth.persistData(SAVED_CREDS_KEY, authHeaders);
-      $.auth.resolvePromise(OAUTH_SIGN_IN_SUCCESS, $.auth.oAuthDfd, user);
-      $.auth.broadcastEvent(SIGN_IN_SUCCESS, user);
-      $.auth.broadcastEvent(VALIDATION_SUCCESS, user);
+      root.auth.persistData(SAVED_CREDS_KEY, authHeaders);
+      root.auth.resolvePromise(OAUTH_SIGN_IN_SUCCESS, root.auth.oAuthDfd, user);
+      root.auth.broadcastEvent(SIGN_IN_SUCCESS, user);
+      root.auth.broadcastEvent(VALIDATION_SUCCESS, user);
 
       stopListening = true;
     }
 
     if (ev.data.message === 'authFailure') {
-      $.auth.rejectPromise(
+      root.auth.rejectPromise(
         OAUTH_SIGN_IN_ERROR,
-        $.auth.oAuthDfd,
+        root.auth.oAuthDfd,
         ev.data,
         'OAuth authentication failed.'
       );
 
-      $.auth.broadcastEvent(SIGN_IN_ERROR, ev.data);
+      root.auth.broadcastEvent(SIGN_IN_ERROR, ev.data);
 
       stopListening = true;
     }
 
     if (stopListening) {
-      clearTimeout($.auth.oAuthTimer);
-      $.auth.oAuthTimer = null;
+      clearTimeout(root.auth.oAuthTimer);
+      root.auth.oAuthTimer = null;
     }
   };
 
@@ -496,7 +502,7 @@
     // strip all values from both actual and anchor search params
     var newSearch   = $.param(this.stripKeys(this.getSearchQs(), keys)),
         newAnchorQs = $.param(this.stripKeys(this.getAnchorQs(), keys)),
-        newAnchor   = window.location.hash.split('?')[0];
+        newAnchor   = root.location.hash.split('?')[0];
 
     if (newSearch) {
       newSearch = "?" + newSearch;
@@ -511,10 +517,10 @@
     }
 
     // reconstruct location with stripped auth keys
-    var newLocation = window.location.protocol +
+    var newLocation = root.location.protocol +
                       '//'+
-                      window.location.host+
-                      window.location.pathname+
+                      root.location.host+
+                      root.location.pathname+
                       newSearch+
                       newAnchor;
 
@@ -751,7 +757,7 @@
 
 
   Auth.prototype.openAuthWindow = function(url) {
-    if (this.getConfig().forceHardRedirect || window.isIE()) {
+    if (this.getConfig().forceHardRedirect || root.isIE()) {
       // redirect to external auth provider. credentials should be
       // provided in location search hash upon return
       this.setLocation(url);
@@ -767,7 +773,7 @@
 
   Auth.prototype.buildOAuthUrl = function(configName, params, providerPath) {
       var oAuthUrl = this.getConfig().apiUrl + providerPath +
-          '?auth_origin_url='+encodeURIComponent(window.location.href) +
+          '?auth_origin_url='+encodeURIComponent(root.location.href) +
           '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName());
 
     if (params) {
@@ -1012,7 +1018,7 @@
         break;
 
       default:
-        window.localStorage.setItem(key, val);
+        root.localStorage.setItem(key, val);
         break;
     }
   };
@@ -1028,7 +1034,7 @@
         break;
 
       default:
-        val = window.localStorage.getItem(key);
+        val = root.localStorage.getItem(key);
         break;
     }
 
@@ -1059,8 +1065,8 @@
       configName = $.cookie(SAVED_CONFIG_KEY);
     }
 
-    if (window.localStorage && !configName) {
-      configName = window.localStorage.getItem(SAVED_CONFIG_KEY);
+    if (root.localStorage && !configName) {
+      configName = root.localStorage.getItem(SAVED_CONFIG_KEY);
     }
 
     configName = configName || this.defaultConfigKey || INITIAL_CONFIG_KEY;
@@ -1079,7 +1085,7 @@
         break;
 
       default:
-        window.localStorage.removeItem(key);
+        root.localStorage.removeItem(key);
         break;
     }
   };
@@ -1105,7 +1111,7 @@
   // send auth credentials with all requests to the API
   Auth.prototype.appendAuthHeaders = function(xhr, settings) {
     // fetch current auth headers from storage
-    var currentHeaders = $.auth.retrieveData(SAVED_CREDS_KEY);
+    var currentHeaders = root.auth.retrieveData(SAVED_CREDS_KEY);
 
     // check config apiUrl matches the current request url
     if (isApiRequest(settings.url) && currentHeaders) {
@@ -1117,7 +1123,7 @@
       );
 
       // set header for each key in `tokenFormat` config
-      for (var key in $.auth.getConfig().tokenFormat) {
+      for (var key in root.auth.getConfig().tokenFormat) {
         xhr.setRequestHeader(key, currentHeaders[key]);
       }
     }
@@ -1136,7 +1142,7 @@
       var blankHeaders = true;
 
       // set header key + val for each key in `tokenFormat` config
-      for (var key in $.auth.getConfig().tokenFormat) {
+      for (var key in root.auth.getConfig().tokenFormat) {
         newHeaders[key] = xhr.getResponseHeader(key);
 
         if (newHeaders[key]) {
@@ -1146,7 +1152,7 @@
 
       // persist headers for next request
       if (!blankHeaders) {
-        $.auth.persistData(SAVED_CREDS_KEY, newHeaders);
+        root.auth.persistData(SAVED_CREDS_KEY, newHeaders);
       }
     }
   };
@@ -1154,18 +1160,18 @@
 
   // stub for mock overrides
   Auth.prototype.getRawSearch = function() {
-    return window.location.search;
+    return root.location.search;
   };
 
 
   // stub for mock overrides
   Auth.prototype.getRawAnchor = function() {
-    return window.location.hash;
+    return root.location.hash;
   };
 
 
   Auth.prototype.setRawAnchor = function(a) {
-    window.location.hash = a;
+    root.location.hash = a;
   };
 
 
@@ -1177,7 +1183,7 @@
 
   // stub for mock overrides
   Auth.prototype.setRawSearch = function(s) {
-    window.location.search = s;
+    root.location.search = s;
   };
 
 
@@ -1196,13 +1202,13 @@
 
   // stub for mock overrides
   Auth.prototype.setLocation = function(url) {
-    window.location.replace(url);
+    root.location.replace(url);
   };
 
 
   // stub for mock overrides
   Auth.prototype.createPopup = function(url) {
-    return window.open(url);
+    return root.open(url);
   };
 
 
@@ -1242,7 +1248,7 @@
 
 
   var isApiRequest = function(url) {
-    return (url.match($.auth.getApiUrl()));
+    return (url.match(root.auth.getApiUrl()));
   };
 
 
@@ -1262,7 +1268,7 @@
 
 
   // check if IE < 10
-  window.isOldIE = function() {
+  root.isOldIE = function() {
     var oldIE = false,
         ua    = nav.userAgent.toLowerCase();
 
@@ -1278,8 +1284,8 @@
 
 
   // check if using IE
-  window.isIE = function() {
-    var ieLTE10 = window.isOldIE(),
+  root.isIE = function() {
+    var ieLTE10 = root.isOldIE(),
         ie11    = !!nav.userAgent.match(/Trident.*rv\:11\./);
 
     return (ieLTE10 || ie11);
@@ -1287,8 +1293,8 @@
 
 
   // export service
-  $.auth = new Auth();
+  root.auth = $.auth = new Auth();
 
-  return $.auth;
+  return root.auth;
 
 }));
