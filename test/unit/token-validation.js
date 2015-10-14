@@ -5,6 +5,7 @@
     beforeEach: function() {
       this.server = sinon.fakeServer.create();
       $.auth.configure(null, true);
+      $.auth.configDfd = false;
       sinon.spy($.auth, 'broadcastEvent');
     },
 
@@ -28,6 +29,8 @@
             email:    validEmail,
             uid:      validUid
           };
+
+      console.log("@-->target test");
 
       // mock success response
       this.server.respondWith('GET', '/api/auth/validate_token', [

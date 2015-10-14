@@ -1,5 +1,12 @@
 (function ($) {
-  var sinon = window.sinon,
+  var sinon    = window.sinon,
+      uid      = 'xyz123',
+      email    = "test@test.com",
+      token    = '321zyx',
+      newToken = '432yxw',
+      clientId = 'zyx987',
+      expiry   = "" + new Date().getTime() * 1000 + 5000,
+
       defaultConfig = {
         apiUrl:                '/api',
         signOutPath:           '/auth/sign_out',
@@ -56,17 +63,232 @@
         }
       };
 
+  function setCookie(key, val) {
+    $.cookie(key, JSON.stringify(val), {
+      expires: new Date().getTime() + 5000,
+      path:    '/'
+    });
+  }
 
   QUnit.module('jQuery.auth.configure', {
     beforeEach: function() {
+      this.server = sinon.fakeServer.create();
+      sinon.spy($.auth,  'validateToken');
+      sinon.spy($.auth,  'broadcastEvent');
       sinon.spy($.auth, 'configure');
     },
 
     afterEach: function() {
+      this.server = sinon.fakeServer.restore();
       $.auth.configure.restore();
+      $.auth.broadcastEvent.restore();
+      $.auth.validateToken.restore();
       $.auth.reset();
     }
   });
+
+  QUnit.test(
+    'password reset success after redirect', function(assert) {
+      var initialCreds = {
+            'access-token': token,
+            'token-type':   'Bearer',
+            client:         clientId,
+            uid:            uid,
+            expiry:         expiry
+          },
+          updatedCreds = {
+            'access-token': newToken,
+            'token-type':   'Bearer',
+            client:         clientId,
+            uid:            uid,
+            expiry:         expiry
+          };
+
+      setCookie('authHeaders', initialCreds);
+      setCookie('mustResetPassword', true);
+
+      // mock success response
+      this.server.respondWith('GET', '/api/auth/validate_token', [
+        200, {
+          'access-token': newToken,
+          'token-type':   'Bearer',
+          client:         clientId,
+          uid:            uid,
+          expiry:         expiry,
+          'Content-Type': 'application/json'
+        }, JSON.stringify({
+          email: email,
+          uid:   uid
+        })
+      ]);
+
+      $.auth.configure(null);
+
+      this.server.respond();
+
+      assert.ok(
+        $.auth.validateToken.calledOnce,
+        '`validateToken` was only called once and only once'
+      );
+
+      assert.ok(
+        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirm.success'),
+        '`auth.passwordResetConfirm.success` event was broadcast'
+      )
+
+      assert.deepEqual(
+        updatedCreds,
+        $.auth.retrieveData('authHeaders'),
+        'creds were updated after on validateToken was called'
+      );
+    }
+  );
+
+
+  QUnit.test(
+    'password reset failure after redirect', function(assert) {
+      var initialCreds = {
+            'access-token': token,
+            'token-type':   'Bearer',
+            client:         clientId,
+            uid:            uid,
+            expiry:         expiry
+          },
+          randomKey = '(x)(x)',
+          expectedLocation = window.location.protocol +
+          '//' +
+          window.location.host +
+          window.location.pathname +
+          '?randomKey='+encodeURIComponent(randomKey);
+
+      setCookie('authHeaders', initialCreds);
+      setCookie('mustResetPassword', true);
+
+      // mock success response
+      this.server.respondWith('GET', '/api/auth/validate_token', [
+        401, {
+          'Content-Type': 'application/json'
+        }, JSON.stringify({
+          message: 'Invalid credentials.'
+        })
+      ]);
+
+      $.auth.configure(null);
+
+      this.server.respond();
+
+      assert.ok(
+        $.auth.validateToken.calledOnce,
+        '`validateToken` was only called once and only once'
+      );
+
+      assert.ok(
+        $.auth.broadcastEvent.calledWith('auth.passwordResetConfirm.error'),
+        '`auth.passwordResetConfirm.error` event was broadcast'
+      );
+
+      assert.strictEqual(
+        undefined,
+        $.auth.retrieveData('authHeaders'),
+        'creds were destroyed after validateToken failed'
+      );
+
+    }
+  ),
+
+
+  QUnit.test(
+    'email confiramation failure is handled after redirect', function(assert) {
+      var initialCreds = {
+            'access-token': token,
+            'token-type':   'Bearer',
+            client:         clientId,
+            uid:            uid,
+            expiry:         expiry
+          };
+
+      setCookie('authHeaders', initialCreds);
+      setCookie('firstTimeLogin', true);
+
+      // mock success response
+      this.server.respondWith('GET', '/api/auth/validate_token', [
+        401, {
+          'Content-Type': 'application/json'
+          }, JSON.stringify({
+        message: 'Invalid credentials.'
+      })]);
+
+      $.auth.configure(null);
+
+      this.server.respond();
+
+      assert.ok(
+        $.auth.validateToken.calledOnce,
+        '`validateToken` was only called once and only once'
+      );
+
+      assert.strictEqual(
+        'auth.emailConfirmation.error',
+        $.auth.broadcastEvent.getCall(0).args[0],
+        '`auth.emailConfirmation.error` event was broadcast'
+      );
+
+      assert.strictEqual(
+        undefined,
+        $.auth.retrieveData('authHeaders'),
+        'creds were destroyed after validateToken failed'
+      );
+    }
+  );
+
+  QUnit.test(
+    'email confirmation validated after redirect', function(assert) {
+      var initialCreds = {
+            'access-token': token,
+            'token-type':   'Bearer',
+            client:         clientId,
+            uid:            uid,
+            expiry:         expiry
+          },
+          updatedCreds = {
+            'access-token': newToken,
+            'token-type':   'Bearer',
+            client:         clientId,
+            uid:            uid,
+            expiry:         expiry
+          };
+
+      setCookie('authHeaders', initialCreds);
+      setCookie('firstTimeLogin', true);
+
+      // mock success response
+      this.server.respondWith('GET', '/api/auth/validate_token', [
+        200, updatedCreds,
+        JSON.stringify({
+          email: email,
+          uid:   uid
+        })
+      ]);
+
+      $.auth.configure(null);
+
+      this.server.respond();
+
+      console.log("token validation called", $.auth.validateToken.called);
+
+      assert.strictEqual(
+        'auth.emailConfirmation.success',
+        $.auth.broadcastEvent.getCall(0).args[0],
+        '`auth.emailConfirmation.success` event was broadcast'
+      );
+
+      assert.deepEqual(
+        updatedCreds,
+        $.auth.retrieveData('authHeaders'),
+        'creds were updated after on validateToken was called'
+      );
+    }
+  );
 
 
   QUnit.test('scenario 1: no session, using no configuration', function(assert) {

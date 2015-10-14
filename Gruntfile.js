@@ -198,7 +198,8 @@ module.exports = function (grunt) {
       server: {
         options: {
           hostname: '*',
-          port: process.env.PORT || 7777
+          port: process.env.PORT || 7777,
+          keepalive: true
         }
       }
     },

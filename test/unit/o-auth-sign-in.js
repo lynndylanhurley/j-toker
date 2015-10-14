@@ -79,7 +79,8 @@
           expectedUrl = config.apiUrl +
                         config.authProviderPaths['github'] +
                         '?auth_origin_url='+encodeURIComponent(window.location.href) +
-                        '&config_name=default';
+                        '&config_name=default' +
+                        '&omniauth_window_type=newWindow';
 
       $.auth
         .oAuthSignIn({provider: 'github'})
@@ -143,7 +144,8 @@
           expectedUrl = config.apiUrl +
                         config.authProviderPaths['github'] +
                         '?auth_origin_url='+encodeURIComponent(window.location.href) +
-                        '&config_name=default';
+                        '&config_name=default' +
+                        '&omniauth_window_type=newWindow';
 
       $.auth.oAuthSignIn({provider: 'github'});
 
