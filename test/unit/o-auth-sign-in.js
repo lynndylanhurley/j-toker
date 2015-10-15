@@ -177,6 +177,7 @@
             '`postMessage` event was caught'
           );
 
+          console.log("@-->asserting auth.oAuthSignIn.error");
           assert.ok(
             $.auth.broadcastEvent.calledWith('auth.oAuthSignIn.error'),
             '`auth.oAuthSignIn.error` event was called'

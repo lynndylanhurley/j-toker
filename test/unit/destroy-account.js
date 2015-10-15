@@ -70,7 +70,6 @@
           );
 
           done();
-
         });
 
       this.server.respond();

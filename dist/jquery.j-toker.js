@@ -166,6 +166,7 @@
     this.mustResetPassword = false;
     this.firstTimeLogin    = false;
     this.oAuthDfd          = null;
+    this.willRedirect      = false;
 
     if (this.oAuthTimer) {
       clearTimeout(this.oAuthTimer);
@@ -185,7 +186,7 @@
     }
 
     // remove global ajax "interceptors"
-    //$.ajaxSetup({beforeSend: undefined});
+    $.ajaxSetup({beforeSend: undefined});
   };
 
 
@@ -236,7 +237,6 @@
         var warnMessage = warnings.join(' ');
         console.warn('jToker: Warning: ' + warnMessage);
       }
-
   };
 
   // need a way to destroy the current session without relying on `getConfig`.
@@ -265,6 +265,7 @@
           });
         }
 
+        // remove from base path in case config is not specified
         $.removeCookie(key, {
           path: "/"
         });
@@ -329,7 +330,7 @@
       $(document).ajaxComplete(root.auth.updateAuthCredentials);
 
       // intercept requests to the API, append auth headers
-      $.ajaxPrefilter(root.auth.appendAuthHeaders);
+      $.ajaxSetup({beforeSend: root.auth.appendAuthHeaders});
     }
 
     // IE8 won't have this feature
@@ -352,9 +353,12 @@
     // initialize the client.
     else if (this.getConfig().initialCredentials) {
       // skip initial headers check (i.e. check was already done server-side)
-      this.persistData(SAVED_CREDS_KEY, this.getConfig().initialCredentials.headers);
-      this.setCurrentUser(this.getConfig().initialCredentials.user);
-      return new $.Deferred().resolve(this.getConfig().initialCredentials.user);
+      var c = this.getConfig();
+      this.persistData(SAVED_CREDS_KEY, c.initialCredentials.headers);
+      this.persistData(MUST_RESET_PASSWORD, c.initialCredentials.mustResetPassword);
+      this.persistData(FIRST_TIME_LOGIN, c.initialCredentials.firstTimeLogin);
+      this.setCurrentUser(c.initialCredentials.user);
+      return new $.Deferred().resolve(c.initialCredentials.user);
     }
 
     // otherwise check with server if any existing tokens are found
@@ -588,26 +592,23 @@
   };
 
 
-  // always reject after 0 timeout to ensure that ajaxComplete callback
-  // has run before promise is rejected
   Auth.prototype.rejectPromise = function(evMsg, dfd, data, reason) {
-    var self = this,
-        p = $.Deferred();
+    var self = this;
 
     // jQuery has a strange way of returning error responses...
     data = $.parseJSON((data && data.responseText) || '{}');
 
+    // always reject after 0 timeout to ensure that ajaxComplete callback
+    // has run before promise is rejected
     setTimeout(function() {
       self.broadcastEvent(evMsg, data);
       dfd.reject({
         reason: reason,
         data: data
       });
-
-      p.resolve();
     }, 0);
 
-    return p.promise();
+    return dfd;
   };
 
 
@@ -639,9 +640,7 @@
         dfd,
         {},
         'Cannot validate token; no token found.'
-      ).then(function() {
-        this.configDfd = null;
-      });
+      );
     } else {
       var config = this.getConfig(opts.config),
           url    = this.getApiUrl() + config.tokenValidationPath;
@@ -669,10 +668,7 @@
             this.mustResetPassword = true;
           }
 
-          this.resolvePromise(VALIDATION_SUCCESS, dfd, this.user)
-            .then(function() {
-              this.configDfd = null;
-            });
+          this.resolvePromise(VALIDATION_SUCCESS, dfd, this.user);
         },
 
         error: function(resp) {
@@ -695,9 +691,7 @@
             dfd,
             resp,
             'Cannot validate token; token rejected by server.'
-          ).then(function() {
-            this.configDfd = null;
-          });
+          );
         }
       });
     }
@@ -799,18 +793,19 @@
   // 2. user fails authentication
   // 3. auth window is closed
   Auth.prototype.listenForCredentials = function(popup) {
+    var self = this;
     if (popup.closed) {
-      this.rejectPromise(
+      self.rejectPromise(
         OAUTH_SIGN_IN_ERROR,
-        this.oAuthDfd,
+        self.oAuthDfd,
         null,
         'OAuth window was closed bofore registration was completed.'
       );
     } else {
       popup.postMessage('requestCredentials', '*');
-      this.oAuthTimer = setTimeout(function() {
-        this.listenForCredentials(popup);
-      }.bind(this), 500);
+      self.oAuthTimer = setTimeout(function() {
+        self.listenForCredentials(popup);
+      }, 500);
     }
   };
 
@@ -1070,15 +1065,15 @@
     val = JSON.stringify(val);
 
     switch (this.getConfig(config).storage) {
-      case 'cookies':
+      case 'localStorage':
+        root.localStorage.setItem(key, val);
+        break;
+
+      default:
         $.cookie(key, val, {
           expires: this.getConfig(config).cookieExpiry,
           path:    this.getConfig(config).cookiePath
         });
-        break;
-
-      default:
-        root.localStorage.setItem(key, val);
         break;
     }
   };
@@ -1089,12 +1084,12 @@
     var val = null;
 
     switch (this.getConfig().storage) {
-      case 'cookies':
-        val = $.cookie(key);
+      case 'localStorage':
+        val = root.localStorage.getItem(key);
         break;
 
       default:
-        val = root.localStorage.getItem(key);
+        val = $.cookie(key);
         break;
     }
 
@@ -1169,27 +1164,23 @@
 
 
   // send auth credentials with all requests to the API
-  Auth.prototype.appendAuthHeaders = function(options) {
-    if (!options.beforeSend) {
-      options.beforeSend = function(xhr, settings) {
-        // fetch current auth headers from storage
-        var currentHeaders = root.auth.retrieveData(SAVED_CREDS_KEY);
+  Auth.prototype.appendAuthHeaders = function(xhr, settings) {
+    // fetch current auth headers from storage
+    var currentHeaders = root.auth.retrieveData(SAVED_CREDS_KEY);
 
-        // check config apiUrl matches the current request url
-        if (isApiRequest(settings.url) && currentHeaders) {
+    // check config apiUrl matches the current request url
+    if (isApiRequest(settings.url) && currentHeaders) {
 
-          // bust IE cache
-          xhr.setRequestHeader(
-            'If-Modified-Since',
-            'Mon, 26 Jul 1997 05:00:00 GMT'
-          );
+      // bust IE cache
+      xhr.setRequestHeader(
+        'If-Modified-Since',
+        'Mon, 26 Jul 1997 05:00:00 GMT'
+      );
 
-          // set header for each key in `tokenFormat` config
-          for (var key in root.auth.getConfig().tokenFormat) {
-            xhr.setRequestHeader(key, currentHeaders[key]);
-          }
-        }
-      };
+      // set header for each key in `tokenFormat` config
+      for (var key in root.auth.getConfig().tokenFormat) {
+        xhr.setRequestHeader(key, currentHeaders[key]);
+      }
     }
   };
 

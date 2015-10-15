@@ -2,9 +2,7 @@
   var sinon      = window.sinon,
       uid        = 'xyz123',
       token      = '321zyx',
-      newToken   = '432yxw',
       clientId   = 'zyx987',
-      email      = 'test@test.com',
       expiry     = "" + new Date().getTime() * 1000 + 5000,
       mockSearch = null,
       mockLocation = null;

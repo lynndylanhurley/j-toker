@@ -71,17 +71,16 @@ module.exports = function (grunt) {
     },
 
     qunit: {
-      options: {
-        coverage: {
-          src: ['src/j-toker.js'],
-          instrumentedFiles: 'tmp/',
-          lcovReport: 'reports/lcov'
-        }
-      },
-      files: ['test/j-toker.html']
-      //all: {
-        //urls: ['http://localhost:7777/test/<%= pkg.name %>.html'],
-      //}
+      all: {
+        options: {
+          coverage: {
+            src: ['src/j-toker.js'],
+            instrumentedFiles: 'tmp/',
+            lcovReport: 'reports/lcov'
+          },
+          urls: ['http://localhost:7777/test/j-toker.html']
+        },
+      }
     },
 
     browserify: {
@@ -199,7 +198,7 @@ module.exports = function (grunt) {
         options: {
           hostname: '*',
           port: process.env.PORT || 7777,
-          keepalive: true
+          keepalive: false
         }
       }
     },

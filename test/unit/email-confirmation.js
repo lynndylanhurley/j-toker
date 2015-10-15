@@ -2,7 +2,6 @@
   var sinon        = window.sinon,
       uid          = 'xyz123',
       token        = '321zyx',
-      newToken     = '432yxw',
       clientId     = 'zyx987',
       expiry       = "" + new Date().getTime() * 1000 + 5000,
       mockSearch   = null,
