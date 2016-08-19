@@ -94,7 +94,7 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
    ~~~
 2. Ensure that the following dependencies are included:
    * [jquery][jquery]: AJAX requests
-   * [jquery-cookie][jquery-cookie]: Persist data through browser sessions
+   * [js-cookie][js-cookie]: Persist data through browser sessions
    * [jquery-deparam][jquery-deparam]: Querystring param deconstruction.
    * [PubSubJS][pubsub-js]: (optional) Event publish / subscribe.
 
@@ -114,7 +114,7 @@ Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] in
 
      <!-- dependencies - these should come BEFORE jToker -->
      <script src='/js/jquery/dist/jquery.js'></script>
-     <script src='/js/jquery.cookie/jquery.cookie.js'></script>
+     <script src='/js/js-cookie/src/js.cookie.js'></script>
      <script src='/js/jquery-deparam/jquery-deparam.js'></script>
      <script src='/js/pubsub-js/src/pubsub.js'></script>
 
@@ -1152,7 +1152,7 @@ The postMessage event must include the following a parameters:
 
 ## Token validation
 
-The client's tokens are stored in cookies using the [jquery-cookie][jquery-cookie] plugin, or localStorage if configured. This is done so that users won't need to re-authenticate each time they return to the site or refresh the page.
+The client's tokens are stored in cookies using the [js-cookie][js-cookie] plugin, or localStorage if configured. This is done so that users won't need to re-authenticate each time they return to the site or refresh the page.
 
 ![Token validation][token-validation-flow]
 
@@ -1369,7 +1369,7 @@ WTFPL © Lynn Dylan Hurley
 [token-auth-wiki]: http://stackoverflow.com/questions/1592534/what-is-token-based-authentication
 [so-post]: http://stackoverflow.com/questions/18605294/is-devises-token-authenticatable-secure
 [jquery]: https://jquery.com/
-[jquery-cookie]: https://github.com/carhartl/jquery-cookie
+[js-cookie]: https://github.com/js-cookie/js-cookie
 [jquery-deparam]: https://www.npmjs.com/package/jquery-deparam
 [pubsub-js]: https://github.com/mroderick/PubSubJS
 [bower]: http://bower.io/

@@ -1,5 +1,5 @@
-/*! j-toker - v0.0.10-beta3 - 2015-10-14
-* Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
+/*! j-toker - v0.0.10-beta3 - 2016-08-19
+* Copyright (c) 2016 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
@@ -7,7 +7,7 @@
       'jquery',
       'jquery-deparam',
       'pubsub-js',
-      'jquery.cookie'
+      'js-cookie'
     ], factory);
   } else if (typeof exports === 'object') {
     // Node/CommonJS
@@ -15,13 +15,13 @@
       require('jquery'),
       require('jquery-deparam'),
       require('pubsub-js'),
-      require('jquery.cookie')
+      require('js-cookie')
     );
   } else {
     // Browser globals
-    factory(window.jQuery, window.deparam, window.PubSub);
+    factory(window.jQuery, window.deparam, window.PubSub, window.Cookies);
   }
-}(function ($, deparam, PubSub) {
+}(function ($, deparam, PubSub, Cookies) {
   var root = Function('return this')(); // jshint ignore:line
 
   // singleton baby
@@ -211,10 +211,10 @@
         throw 'jToker: jQuery not found. This module depends on jQuery.';
       }
 
-      if (!root.localStorage && !$.cookie) {
+      if (!root.localStorage && !Cookies) {
         errors.push(
           'This browser does not support localStorage. You must install '+
-            'jquery-cookie to use jToker with this browser.'
+            'js-cookie to use jToker with this browser.'
         );
       }
 
@@ -255,18 +255,18 @@
         root.localStorage.removeItem(key);
       }
 
-      if ($.cookie) {
+      if (Cookies) {
         // each config may have different cookiePath settings
         for (var config in this.configs) {
           var cookiePath = this.configs[config].cookiePath;
 
-          $.removeCookie(key, {
+          Cookies.remove(key, {
             path: cookiePath
           });
         }
 
         // remove from base path in case config is not specified
-        $.removeCookie(key, {
+        Cookies.remove(key, {
           path: "/"
         });
       }
@@ -1070,7 +1070,7 @@
         break;
 
       default:
-        $.cookie(key, val, {
+        Cookies.set(key, val, {
           expires: this.getConfig(config).cookieExpiry,
           path:    this.getConfig(config).cookiePath
         });
@@ -1089,7 +1089,7 @@
         break;
 
       default:
-        val = $.cookie(key);
+        val = Cookies.get(key);
         break;
     }
 
@@ -1116,8 +1116,8 @@
       configName = this.getQs().config;
     }
 
-    if ($.cookie && !configName) {
-      configName = $.cookie(SAVED_CONFIG_KEY);
+    if (Cookies && !configName) {
+      configName = Cookies.get(SAVED_CONFIG_KEY);
     }
 
     if (root.localStorage && !configName) {
@@ -1134,7 +1134,7 @@
   Auth.prototype.deleteData = function(key) {
     switch (this.getConfig().storage) {
       case 'cookies':
-        $.removeCookie(key, {
+        Cookies.remove(key, {
           path: this.getConfig().cookiePath
         });
         break;
