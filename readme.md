@@ -75,7 +75,7 @@ This plugin relies on [token based authentication][token-auth-wiki]. This requir
 
 This plugin was designed to work out of the box with the legendary [devise token auth][dta] gem, but it's flexible enough to be used in just about any environment.
 
-Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] instead.
+Oh wait you're using [Angular][angular]? Use [ng-token-auth][ng-token-auth] (AngularJS) or [Angular2-Token](https://github.com/neroniaky/angular2-token) (Angular2) instead.
 
 **About security**: [read here][so-post] for more information on securing your token auth system. The [devise token auth][dta] gem has adequate security measures in place, and this plugin was built to work seamlessly with that gem.
 
@@ -980,7 +980,7 @@ $.ajaxSetup({
   beforeSend: function(xhr, settings) {
     // append outbound auth headers
     $.auth.appendAuthHeaders(xhr, settings);
-    
+
     // now do whatever you want
   }
 });
