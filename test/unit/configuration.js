@@ -412,7 +412,7 @@
       {second: {apiUrl: secondApiUrl}}
     ], true);
 
-    $.cookie('currentConfigName', 'second', {path: '/'});
+    window.Cookies.set('currentConfigName', 'second', {path: '/'});
 
     assert.ok(
       $.auth.configure.calledOnce,
@@ -430,7 +430,7 @@
   QUnit.test('scenario 3a: recovered session, using default config', function(assert) {
     var defaultApiUrl = '//api.cyclonopedia.dev';
 
-    $.cookie('currentConfigName', 'default', {path: '/'});
+    window.Cookies.set('currentConfigName', 'default', {path: '/'});
 
     $.auth.configure({apiUrl: defaultApiUrl}, true);
 
