@@ -6,7 +6,7 @@
 
 [![npm version](https://badge.fury.io/js/j-toker.svg)](http://badge.fury.io/js/j-toker)
 [![bower version](https://badge.fury.io/bo/j-toker.svg)](http://badge.fury.io/bo/j-toker)
-[![Build Status](https://magnum.travis-ci.com/lynndylanhurley/j-toker.svg?token=3E1Wh8RpQzLxg3zZajyy)](https://magnum.travis-ci.com/lynndylanhurley/j-toker)
+[![Build Status](https://api.travis-ci.org/lynndylanhurley/j-toker.svg)](https://magnum.travis-ci.com/lynndylanhurley/j-toker)
 [![Test Coverage](https://codeclimate.com/repos/551098d4695680699c005e31/badges/efa4ca64d67204ad1660/coverage.svg)](https://codeclimate.com/repos/551098d4695680699c005e31/feed)
 
 ### Features:
@@ -75,7 +75,7 @@ This plugin relies on [token based authentication][token-auth-wiki]. This requir
 
 This plugin was designed to work out of the box with the legendary [devise token auth][dta] gem, but it's flexible enough to be used in just about any environment.
 
-Oh wait you're using [AngularJS][angular]? Use [ng-token-auth][ng-token-auth] instead.
+Oh wait you're using [Angular][angular]? Use [ng-token-auth][ng-token-auth] (AngularJS) or [Angular2-Token](https://github.com/neroniaky/angular2-token) (Angular2) instead.
 
 **About security**: [read here][so-post] for more information on securing your token auth system. The [devise token auth][dta] gem has adequate security measures in place, and this plugin was built to work seamlessly with that gem.
 
@@ -980,7 +980,7 @@ $.ajaxSetup({
   beforeSend: function(xhr, settings) {
     // append outbound auth headers
     $.auth.appendAuthHeaders(xhr, settings);
-    
+
     // now do whatever you want
   }
 });

@@ -79,7 +79,8 @@
           expectedUrl = config.apiUrl +
                         config.authProviderPaths['github'] +
                         '?auth_origin_url='+encodeURIComponent(window.location.href) +
-                        '&config_name=default';
+                        '&config_name=default' +
+                        '&omniauth_window_type=newWindow';
 
       $.auth
         .oAuthSignIn({provider: 'github'})
@@ -143,7 +144,8 @@
           expectedUrl = config.apiUrl +
                         config.authProviderPaths['github'] +
                         '?auth_origin_url='+encodeURIComponent(window.location.href) +
-                        '&config_name=default';
+                        '&config_name=default' +
+                        '&omniauth_window_type=newWindow';
 
       $.auth.oAuthSignIn({provider: 'github'});
 
@@ -175,6 +177,7 @@
             '`postMessage` event was caught'
           );
 
+          console.log("@-->asserting auth.oAuthSignIn.error");
           assert.ok(
             $.auth.broadcastEvent.calledWith('auth.oAuthSignIn.error'),
             '`auth.oAuthSignIn.error` event was called'
