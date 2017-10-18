@@ -891,6 +891,7 @@
       url: signOutUrl,
       context: this,
       method: 'DELETE',
+      data: opts,
 
       success: function(resp) {
         this.resolvePromise(SIGN_OUT_SUCCESS, dfd, resp);
