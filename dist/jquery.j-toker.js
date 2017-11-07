@@ -1,5 +1,5 @@
-/*! j-toker - v0.0.10-beta3 - 2015-10-14
-* Copyright (c) 2015 Lynn Dylan Hurley; Licensed WTFPL */
+/*! j-toker - v0.0.10-beta3 - 2017-10-16
+* Copyright (c) 2017 Lynn Dylan Hurley; Licensed WTFPL */
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.

@@ -1327,7 +1327,7 @@ I will grant you commit access if you send quality pull requests.
 There is a test project in the `demo` directory of this app. To start a dev server, perform the following steps.
 
 1. `cd` to the root of this project.
-1. `npm install`
+1. `yarn`
 1. `grunt serve`
 
 A dev server will start on [localhost:7777](http://localhost:7777). The test suite will be run as well.
@@ -1337,7 +1337,7 @@ A dev server will start on [localhost:7777](http://localhost:7777). The test sui
 If you just want to run the tests, follow these steps:
 
 1. `cd` into the root of this project
-1. `npm install`
+1. `yarn`
 1. `grunt`
 
 ### Testing against a live API
