@@ -9,13 +9,7 @@ var React          = require('react'),
     SignIn         = require('../components/login-form.jsx'),
     ProfileInfo    = require('../components/profile-info.jsx'),
     SignOut        = require('../components/signout-form.jsx'),
-    OAuth          = require('../components/oauth-form.jsx'),
-    Registration   = require('../components/registration-form.jsx'),
-    Destruction    = require('../components/destroy-account.jsx'),
-    UpdateAccount  = require('../components/update-account.jsx'),
-    ResetPassword  = require('../components/password-reset.jsx'),
-    UpdatePassword = require('../components/password-update.jsx'),
-    AccessControl  = require('../components/access-control.jsx');
+    Registration   = require('../components/registration-form.jsx')
 
 
 module.exports = React.createClass({
@@ -40,21 +34,10 @@ module.exports = React.createClass({
         <Row>
           <Col xs={12}>
             <Well>
-              <h1>jToker</h1>
-              <h4>Simple, secure authentication for single-page apps</h4>
+              <h1>Watch Sauce</h1>
+              <h4>Workflow demonstration</h4>
               <p>
-                This demo was built using
-                <a href='https://facebook.github.io/react/'
-                   target='_blank'
-                   className='react-logo'>
-                  <img src='./images/react-logo.svg' width='20' height='20' />
-                  React
-                </a>
-              </p>
-              <p>
-                View the source code&nbsp;
-                <a href='https://github.com/lynndylanhurley/j-toker/tree/master/demo/src'
-                   target='_blank'>here</a>.
+                Basic instructions go here.
               </p>
             </Well>
           </Col>
@@ -73,32 +56,9 @@ module.exports = React.createClass({
           </Col>
 
           <Col xs={12} sm={6}>
-            <Destruction {...this.props.user} />
-          </Col>
-
-          <Col xs={12} sm={6}>
-            <OAuth {...this.props.user} />
-          </Col>
-
-          <Col xs={12} sm={6}>
             <Registration />
           </Col>
 
-          <Col xs={12} sm={6}>
-            <ResetPassword />
-          </Col>
-
-          <Col xs={12} sm={6}>
-            <UpdateAccount />
-          </Col>
-
-          <Col xs={12} sm={6}>
-            <UpdatePassword {...this.props.user} />
-          </Col>
-
-          <Col xs={12} sm={6}>
-            <AccessControl {...this.props.user} />
-          </Col>
         </Row>
       </Grid>
     );
