@@ -7,28 +7,41 @@ var React          = require('react'),
     Col            = BS.Col,
     Well           = BS.Well,
     //SignIn         = require('../components/login-form.jsx'),
-    //ProfileInfo    = require('../components/profile-info.jsx'),
+    ProfileInfo    = require('../components/profile-info.jsx'),
     //SignOut        = require('../components/signout-form.jsx'),
     Registration   = require('../components/registration-form.jsx')
 
 
 module.exports = React.createClass({
 
-  componentWillMount: function() {
-    $('body').toggleClass('evil', false);
-  },
-
   propTypes: {
-    user: React.PropTypes.object
+    device: React.PropTypes.object
   },
 
   getDefaultProps: function() {
     return {
-      user: {}
+      device: {
+        deviceToken: 'token001',
+        deviceName: 'watch01',
+        propertyName: 'Hotel Albatross',
+        integrationType: 'hotsos'
+      }
     };
   },
 
+  updateDeviceConfig: function (deviceConfig) {
+    console.log(deviceConfig);
+    this.setState({
+      device: deviceConfig
+    });
+    console.log(this.state);
+    console.log(this.props);
+  },
+
   render: function() {
+
+    listName = "FoobarListNameYay =)"
+
     return (
       <Grid>
         <Row>
@@ -45,7 +58,11 @@ module.exports = React.createClass({
         <Row>
 
           <Col xs={12} sm={6}>
-            <Registration />
+            <Registration onDeviceEnrollSuccess={this.updateDeviceConfig}/>
+          </Col>
+
+          <Col xs={12} sm={6}>
+            <ProfileInfo deviceConfig={this.props.device}/>
           </Col>
 
         </Row>

@@ -1,12 +1,13 @@
 var React              = require('react'),
+    $                  = require('jquery'),
     BS                 = require('react-bootstrap'),
     Input              = BS.Input,
     Button             = BS.Button,
     Panel              = BS.Panel,
     ResponseModalMixin = require('../mixins/response-modal.jsx'),
     FormStateMixin     = require('../mixins/form-state.jsx'),
-    Highlight          = require('react-highlight'),
-    $                  = require('jquery');
+    Highlight          = require('react-highlight');
+
 
 module.exports = React.createClass({
   mixins: [
@@ -34,6 +35,7 @@ module.exports = React.createClass({
       integrationType: '',
       deviceToken: '',
       isModalOpen: false,
+      open: false,
       errors: null
     };
   },
@@ -54,13 +56,20 @@ module.exports = React.createClass({
       "data": JSON.stringify(data),
     })
     .done( function(response){
+        this.props.onDeviceEnrollSuccess({
+          deviceName: response.data.device_name,
+          propertyName: response.data.property_name,
+          deviceToken: response.data.device_token,
+          deviceName: response.data.device_name
+        });
         this.setState({
           deviceName: response.data.device_name,
           propertyName: response.data.property_name,
           deviceToken: response.data.device_token,
           isModalOpen: true,
-          errors: null
-        });
+          errors: null,
+          open: false
+        })
       }.bind(this))
     .fail(function(response, status, error){
          this.setState({
@@ -97,11 +106,11 @@ module.exports = React.createClass({
     //var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/registration-form.jsx' target='blank'>View component source</a>;
 
     return (
-      <Panel header='Enroll Device' bsStyle='info'>
+      <Panel header='Enroll Device' bsStyle='info' collapsible expanded={this.state.open}>
         <form>
           <Input type='text'
                 name='enrollmentCode'
-                label='enrollmentCode'
+                label='Enrollment Code (required)'
                 placeholder='Enter code...'
                 value={this.state.enrollmentCode}
                 disabled={!$.isEmptyObject(this.state.deviceToken)}
@@ -109,7 +118,7 @@ module.exports = React.createClass({
 
           <Input type='text'
                 name='deviceName'
-                label='deviceName'
+                label='Device Name (optional)'
                 placeholder='Enter device name...'
                 value={this.state.deviceName}
                 disabled={!$.isEmptyObject(this.state.deviceToken)}
