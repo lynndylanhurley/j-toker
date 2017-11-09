@@ -14,6 +14,12 @@ var React          = require('react'),
 
 module.exports = React.createClass({
 
+ getInitialState: function() {
+      return ({
+          device: this.props.device
+      });
+  },
+
   propTypes: {
     device: React.PropTypes.object
   },
@@ -21,21 +27,18 @@ module.exports = React.createClass({
   getDefaultProps: function() {
     return {
       device: {
-        deviceToken: 'token001',
-        deviceName: 'watch01',
-        propertyName: 'Hotel Albatross',
-        integrationType: 'hotsos'
+        deviceToken: '',
+        deviceName: '',
+        propertyName: '',
+        integrationType: ''
       }
     };
   },
 
   updateDeviceConfig: function (deviceConfig) {
-    console.log(deviceConfig);
     this.setState({
       device: deviceConfig
     });
-    console.log(this.state);
-    console.log(this.props);
   },
 
   render: function() {
@@ -62,7 +65,7 @@ module.exports = React.createClass({
           </Col>
 
           <Col xs={12} sm={6}>
-            <ProfileInfo deviceConfig={this.props.device}/>
+            <ProfileInfo device={this.state.device}/>
           </Col>
 
         </Row>

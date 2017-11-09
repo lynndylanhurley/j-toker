@@ -60,7 +60,7 @@ module.exports = React.createClass({
           deviceName: response.data.device_name,
           propertyName: response.data.property_name,
           deviceToken: response.data.device_token,
-          deviceName: response.data.device_name
+          integrationType: response.data.integration_type
         });
         this.setState({
           deviceName: response.data.device_name,

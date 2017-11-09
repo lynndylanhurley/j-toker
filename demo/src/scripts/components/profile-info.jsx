@@ -8,22 +8,6 @@ var React = require('react'),
 
 module.exports = React.createClass({
 
-  propTypes: {
-    deviceToken: React.PropTypes.string,
-    deviceName: React.PropTypes.string,
-    propertyName: React.PropTypes.string,
-    integrationType: React.PropTypes.string
-  },
-
-  getDefaultProps: function() {
-    return {
-      deviceToken:          '',
-      deviceName:           '',
-      propertyName:         '',
-      integrationType:      ''
-    }
-  },
-
   render: function() {
 
     return (
@@ -32,16 +16,16 @@ module.exports = React.createClass({
           <Col xs={9}>
 
             <label>Device token:</label>
-            <p>{this.props.deviceConfig.deviceToken || 'n/a'}</p>
+            <p>{this.props.device.deviceToken || 'n/a'}</p>
 
             <label>Device name:</label>
-            <p>{this.props.deviceConfig.deviceName || 'n/a'}</p>
+            <p>{this.props.device.deviceName || 'n/a'}</p>
 
             <label>Property name:</label>
-            <p>{this.props.deviceConfig.propertyName || 'n/a'}</p>
+            <p>{this.props.device.propertyName || 'n/a'}</p>
 
             <label>Integration type:</label>
-            <p>{this.props.deviceConfig.integrationType || 'n/a'}</p>
+            <p>{this.props.device.integrationType || 'n/a'}</p>
 
           </Col>
         </Row>
