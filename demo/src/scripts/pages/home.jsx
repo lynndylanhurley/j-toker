@@ -6,9 +6,9 @@ var React          = require('react'),
     Row            = BS.Row,
     Col            = BS.Col,
     Well           = BS.Well,
-    SignIn         = require('../components/login-form.jsx'),
-    ProfileInfo    = require('../components/profile-info.jsx'),
-    SignOut        = require('../components/signout-form.jsx'),
+    //SignIn         = require('../components/login-form.jsx'),
+    //ProfileInfo    = require('../components/profile-info.jsx'),
+    //SignOut        = require('../components/signout-form.jsx'),
     Registration   = require('../components/registration-form.jsx')
 
 
@@ -43,17 +43,6 @@ module.exports = React.createClass({
           </Col>
         </Row>
         <Row>
-          <Col xs={12} sm={6}>
-            <ProfileInfo {...this.props.user} />
-          </Col>
-
-          <Col xs={12} sm={6}>
-            <SignIn {...this.props.user} />
-          </Col>
-
-          <Col xs={12} sm={6}>
-            <SignOut {...this.props.user} />
-          </Col>
 
           <Col xs={12} sm={6}>
             <Registration />
