@@ -9,8 +9,9 @@ var React          = require('react'),
     SignIn         = require('../components/login-form.jsx'),
     ProfileInfo    = require('../components/profile-info.jsx'),
     AuthInfo       = require('../components/auth-info.jsx'),
+    AlertForm      = require('../components/alert-form.jsx'),
     //SignOut        = require('../components/signout-form.jsx'),
-    Registration   = require('../components/registration-form.jsx')
+    Registration   = require('../components/registration-form.jsx');
 
 
 module.exports = React.createClass({
@@ -19,14 +20,16 @@ module.exports = React.createClass({
     return ({
       device: this.props.device,
       user: this.props.user,
-      auth: this.props.user
+      auth: this.props.user,
+      signedIn: false
     });
   },
 
   propTypes: {
     device: React.PropTypes.object,
     user: React.PropTypes.object,
-    auth: React.PropTypes.object
+    auth: React.PropTypes.object,
+    signedIn: React.PropTypes.bool
   },
 
   getDefaultProps: function() {
@@ -46,7 +49,8 @@ module.exports = React.createClass({
         uid: '',
         provider: '',
         expiry: null
-      }
+      },
+      signedIn: false
     };
   },
 
@@ -64,7 +68,8 @@ module.exports = React.createClass({
 
   updateAuthHeaders: function (authHeaders) {
     this.setState({
-      auth: authHeaders
+      auth: authHeaders,
+      signedIn: true
     })
   },
 
@@ -99,6 +104,10 @@ module.exports = React.createClass({
 
           <Col xs={12} sm={6}>
             <AuthInfo auth={this.state.auth}/>
+          </Col>
+
+          <Col xs={12} sm={6}>
+            <AlertForm auth={this.state.auth} signedIn={this.state.signedIn}/>
           </Col>
 
         </Row>
