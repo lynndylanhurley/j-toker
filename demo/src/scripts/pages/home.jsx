@@ -6,8 +6,9 @@ var React          = require('react'),
     Row            = BS.Row,
     Col            = BS.Col,
     Well           = BS.Well,
-    //SignIn         = require('../components/login-form.jsx'),
+    SignIn         = require('../components/login-form.jsx'),
     ProfileInfo    = require('../components/profile-info.jsx'),
+    AuthInfo       = require('../components/auth-info.jsx'),
     //SignOut        = require('../components/signout-form.jsx'),
     Registration   = require('../components/registration-form.jsx')
 
@@ -15,13 +16,17 @@ var React          = require('react'),
 module.exports = React.createClass({
 
  getInitialState: function() {
-      return ({
-          device: this.props.device
-      });
+    return ({
+      device: this.props.device,
+      user: this.props.user,
+      auth: this.props.user
+    });
   },
 
   propTypes: {
-    device: React.PropTypes.object
+    device: React.PropTypes.object,
+    user: React.PropTypes.object,
+    auth: React.PropTypes.object
   },
 
   getDefaultProps: function() {
@@ -31,6 +36,16 @@ module.exports = React.createClass({
         deviceName: '',
         propertyName: '',
         integrationType: ''
+      },
+      user: {
+        name: ''
+      },
+      auth: {
+        accessToken: '',
+        client: '',
+        uid: '',
+        provider: '',
+        expiry: null
       }
     };
   },
@@ -41,9 +56,19 @@ module.exports = React.createClass({
     });
   },
 
-  render: function() {
+  updateUserConfig: function (userConfig) {
+    this.setState({
+      user: userConfig
+    });
+  },
 
-    listName = "FoobarListNameYay =)"
+  updateAuthHeaders: function (authHeaders) {
+    this.setState({
+      auth: authHeaders
+    })
+  },
+
+  render: function() {
 
     return (
       <Grid>
@@ -66,6 +91,14 @@ module.exports = React.createClass({
 
           <Col xs={12} sm={6}>
             <ProfileInfo device={this.state.device}/>
+          </Col>
+
+          <Col xs={12} sm={6}>
+            <SignIn device={this.state.device} updateUser={this.updateUserConfig} updateAuth={this.updateAuthHeaders}/>
+          </Col>
+
+          <Col xs={12} sm={6}>
+            <AuthInfo auth={this.state.auth}/>
           </Col>
 
         </Row>

@@ -1,4 +1,5 @@
 var React              = require('react'),
+    $                  = require('jquery'),
     BS                 = require('react-bootstrap'),
     Input              = BS.Input,
     Button             = BS.Button,
@@ -31,46 +32,64 @@ module.exports = React.createClass({
       email: '',
       password: '',
       isModalOpen: false,
+      signedIn: this.props.signedIn,
       errors: null
     };
   },
 
-  handleInputChange: function(ev) {
-    var nextState = _.cloneDeep(this.state);
-    nextState[ev.target.name] = ev.target.value;
-    this.setState(nextState);
-  },
 
   handleSignInClick: function(ev) {
-    Auth.emailSignIn({
-      email:    this.state.email,
-      password: this.state.password,
-      config:   this.props.config
+    var data = {
+      "device_token": this.props.device.deviceToken,
+      "login_id": this.state.loginId
+    }
+
+    $.ajax({
+      "url": "http://omega13:8080/api/v2/devices/users/sign_in",
+      "method": "POST",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "processData": false,
+      "data": JSON.stringify(data),
+      "complete": function(xhr, status){
+        //console.log(xhr.getAllResponseHeaders());
+        //var responseHeaders = JSON.parse(xhr.getAllResponseHeaders());
+        //console.log(responseHeaders);
+        this.props.updateAuth({
+          accessToken: xhr.getResponseHeader('access-token'),
+          client: xhr.getResponseHeader('client'),
+          uid: xhr.getResponseHeader('uid'),
+          expiry: xhr.getResponseHeader('expiry'),
+          provider: 'email'
+        });
+      }.bind(this)
     })
-
-      .then(function(resp) {
-        this.setState({
-          email: '',
-          password: '',
-          errors: null,
-          isModalOpen: true
+    .done( function(response){
+        this.props.updateUser({
+          name: 'Pera Perez'
         });
+        this.setState({
+          name: 'Pera Perez',
+          signedIn: true,
+          isModalOpen: true,
+          errors: null
+        })
       }.bind(this))
-
-      .fail(function(resp) {
-        this.setState({
-          errors: resp.data.errors,
-          isModalOpen: true
+    .fail(function(response, status, error){
+         this.setState({
+          isModalOpen: true,
+          errors: [error]
         });
-      }.bind(this));
+    }.bind(this));
   },
 
-  successModalTitle: 'Email Sign In Success',
-  errorModalTitle: 'Email Sign In Error',
+  successModalTitle: 'User Sign In Success',
+  errorModalTitle: 'User Sign In Error',
 
   renderSuccessMessage: function() {
     return (
-      <p>Welcome {Auth.user.email}!</p>
+      <p>Welcome {this.state.name}!</p>
     );
   },
 
@@ -82,49 +101,24 @@ module.exports = React.createClass({
 
 
   render: function() {
-    var configParam = <span></span>;
-
-    if (this.props.config !== 'default') {
-      configParam = <span>&nbsp;&nbsp;config: '{this.props.config}',<br /></span>;
-    }
-
-    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/login-form.jsx' target='blank'>View component source</a>;
 
     return (
-      <Panel header='Email Sign In' bsStyle='info' footer={sourceLink}>
+      <Panel header='Login' bsStyle='info'>
         <form>
-          <Input type='email'
-                name='email'
-                label='Email'
-                placeholder='Enter email...'
-                disabled={this.props.signedIn}
-                value={this.state.email}
-                onChange={this.handleInputChange} />
-
-          <Input type='password'
-                name='password'
-                label='Password'
-                placeholder='Enter password...'
-                disabled={this.props.signedIn}
-                value={this.state.password}
+          <Input type='text'
+                name='loginId'
+                label='Login ID'
+                placeholder='Enter login...'
+                disabled={this.state.signedIn}
+                value={this.state.loginId}
                 onChange={this.handleInputChange} />
 
           <Button className='btn btn-primary'
                   onClick={this.handleSignInClick}
-                  disabled={this.props.signedIn}>
-            Sign In
+                  disabled={this.state.signedIn}>
+            Log In
           </Button>
         </form>
-
-        <br />
-        <label>Example</label>
-        <Highlight className='javascript'>
-          $.auth.emailSignIn({'{'}<br />
-            {configParam}
-            &nbsp;&nbsp;email: 'xxx',<br />
-            &nbsp;&nbsp;password: 'yyy'<br />
-          {'}'});
-        </Highlight>
 
       </Panel>
     );

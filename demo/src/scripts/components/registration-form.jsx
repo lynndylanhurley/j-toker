@@ -35,7 +35,6 @@ module.exports = React.createClass({
       integrationType: '',
       deviceToken: '',
       isModalOpen: false,
-      open: false,
       errors: null
     };
   },
@@ -46,7 +45,7 @@ module.exports = React.createClass({
     }
 
     $.ajax({
-      "url": "http://omega13:8080/api/v2/devices",
+      "url": "http://omega13:8080/api/v2/devices/enrollments",
       "method": "POST",
       "headers": {
         "enrollment_code": this.state.enrollmentCode,
@@ -63,12 +62,11 @@ module.exports = React.createClass({
           integrationType: response.data.integration_type
         });
         this.setState({
-          deviceName: response.data.device_name,
-          propertyName: response.data.property_name,
           deviceToken: response.data.device_token,
+          propertyName: response.data.property_name,
+          deviceName: response.data.device_name,
           isModalOpen: true,
-          errors: null,
-          open: false
+          errors: null
         })
       }.bind(this))
     .fail(function(response, status, error){
@@ -76,7 +74,7 @@ module.exports = React.createClass({
           isModalOpen: true,
           errors: [error]
         });
-      }.bind(this));
+    }.bind(this));
   },
 
   successModalTitle: 'Device Enrollment Success',
@@ -106,7 +104,7 @@ module.exports = React.createClass({
     //var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/registration-form.jsx' target='blank'>View component source</a>;
 
     return (
-      <Panel header='Enroll Device' bsStyle='info' collapsible expanded={this.state.open}>
+      <Panel header='Enroll Device' bsStyle='info'>
         <form>
           <Input type='text'
                 name='enrollmentCode'
