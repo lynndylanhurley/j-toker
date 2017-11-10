@@ -19,15 +19,76 @@ module.exports = React.createClass({
     return {
       errors:         null,
       isModalOpen:    false,
-      alertActive:    false
+      alertActive:    false,
+      alertGuid:      '',
     }
   },
 
   handleActivateClick: function() {
-    this.setState({
-      alertActive: true,
-      isModalOpen: true
-    });
+    var data = {
+      "sos_request": {
+        "latitude": 47.6685285,
+        "longitude": -122.3872016
+      }
+    }
+
+    $.ajax({
+      "url": "http://omega13:8080/api/v2/sos_alerts",
+      "method": "POST",
+      "headers": {
+        "content-type": "application/json",
+        "access-token": this.props.auth.accessToken,
+        "client": this.props.auth.client,
+        "uid": this.props.auth.uid,
+        "provider": this.props.auth.provider
+      },
+      "processData": false,
+      "data": JSON.stringify(data)
+    })
+    .done( function(response){
+        console.log(response.data);
+        this.setState({
+          alertActive: true,
+          isModalOpen: true,
+          alertGuid: response.data.guid,
+          errors: null
+        })
+      }.bind(this))
+    .fail(function(response, status, error){
+      this.setState({
+        isModalOpen: true,
+        errors: [error]
+      });
+    }.bind(this));
+  },
+
+  handleCancelClick: function() {
+
+    $.ajax({
+      "url": "http://omega13:8080/api/v2/sos_alerts/" + this.state.alertGuid,
+      "method": "DELETE",
+      "headers": {
+        "content-type": "application/json",
+        "access-token": this.props.auth.accessToken,
+        "client": this.props.auth.client,
+        "uid": this.props.auth.uid,
+        "provider": this.props.auth.provider
+      },
+      "processData": false
+    })
+    .done( function(response){
+        this.setState({
+          alertActive: false,
+          isModalOpen: true,
+          errors: null
+        })
+      }.bind(this))
+    .fail(function(response, status, error){
+      this.setState({
+        isModalOpen: true,
+        errors: [error]
+      });
+    }.bind(this));
   },
 
   successModalTitle: 'Sos Activate Success',
