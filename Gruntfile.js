@@ -35,7 +35,7 @@ module.exports = function (grunt) {
     shell: {
       deploy: {
         command: [
-          'heroku config:set NODE_ENV=production NPM_CONFIG_PRODUCTION=false --app j-toker-demo',
+          'heroku config:set NODE_ENV=production NPM_CONFIG_PRODUCTION=false --app rm-preview-demo',
           'git checkout -b '+DEPLOY_TAG,
           'rm config/default.yml',
           'cp config/production.yml config/default.yml',
