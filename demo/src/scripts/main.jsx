@@ -4,7 +4,6 @@ var Auth         = require('../../../src/j-toker.js'),
     Route        = Router.Route,
     DefaultRoute = Router.DefaultRoute,
     RouteHandler = Router.RouteHandler,
-    Banner       = require('./components/github-banner.jsx'),
     HomePage     = require('./pages/home.jsx'),
     AltUserPage  = require('./pages/alt-user.jsx'),
     BS           = require('react-bootstrap'),
@@ -21,24 +20,6 @@ Auth.configure([
     default: {
       apiUrl:  window.config.apiUrl,
       proxyIf: function() { return window.isOldIE(); }
-    }
-  }, {
-    evilUser: {
-      apiUrl:                window.config.apiUrl,
-      proxyIf:               function() { return window.isOldIE(); },
-      signOutUrl:            '/mangs/sign_out',
-      emailSignInPath:       '/mangs/sign_in',
-      emailRegistrationPath: '/mangs',
-      accountUpdatePath:     '/mangs',
-      accountDeletePath:     '/mangs',
-      passwordResetPath:     '/mangs/password',
-      passwordUpdatePath:    '/mangs/password',
-      tokenValidationPath:   '/mangs/validate_token',
-      authProviderPaths: {
-        github:    '/mangs/github',
-        facebook:  '/mangs/facebook',
-        google:    '/mangs/google_oauth2'
-      }
     }
   }
 ]);
@@ -62,18 +43,15 @@ var App = React.createClass({
     return (
       <div>
         <header>
-          <Navbar brand='jToker'>
+          <Navbar brand='ReactMobile'>
             <Nav>
               <NavItemLink to='home'>Home</NavItemLink>
-              <NavItemLink to='alt-user'>Alternate User Class</NavItemLink>
             </Nav>
           </Navbar>
         </header>
 
         {/* placeholder for page content*/}
         <RouteHandler {...this.state} />
-
-        <Banner />
       </div>
     );
   }
@@ -84,7 +62,6 @@ var App = React.createClass({
 var routes = (
   <Route handler={App} path='/'>
     <DefaultRoute name='home' handler={HomePage} />
-    <Route name='alt-user' path='alt-user' handler={AltUserPage} />
   </Route>
 );
 

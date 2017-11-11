@@ -114,12 +114,12 @@ Oh wait you're using [Angular][angular]? Use [ng-token-auth][ng-token-auth] (Ang
 
      <!-- dependencies - these should come BEFORE jToker -->
      <script src='/js/jquery/dist/jquery.js'></script>
-     <script src='/js/jquery.cookie/jquery.cookie.js'></script>
+     <script src='/js/jquery-cookie/jquery.cookie.js'></script>
      <script src='/js/jquery-deparam/jquery-deparam.js'></script>
      <script src='/js/pubsub-js/src/pubsub.js'></script>
 
      <!-- this should come AFTER the preceeding files -->
-     <script src='/js/jquery.j-toker.js'></script>
+     <script src='/js/j-toker/dist/jquery.j-toker.js'></script>
 
      <!-- jToker will now be available at $.auth -->
      ~~~

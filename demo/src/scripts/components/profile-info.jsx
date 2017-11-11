@@ -7,69 +7,26 @@ var React = require('react'),
     Panel = BS.Panel;
 
 module.exports = React.createClass({
-  propTypes: {
-    email: React.PropTypes.string,
-    name: React.PropTypes.string,
-    nickname: React.PropTypes.string,
-    favorite_color: React.PropTypes.string,
-    image: React.PropTypes.string,
-    signedIn: React.PropTypes.bool,
-    configName: React.PropTypes.string
-  },
-
-  getDefaultProps: function() {
-    return {
-      email:          '',
-      name:           '',
-      nickname:       '',
-      favorite_color: '',
-      image:          '',
-      signedIn:       false,
-      configName:     ''
-    }
-  },
-
-  renderImage: function() {
-    var src = "http://placehold.it/120x120";
-    if (this.props.signedIn) {
-      if (this.props.image) {
-        src = this.props.image;
-      } else {
-        src = "https://placekitten.com/g/120/120";
-      }
-    }
-
-    return(
-      <img className='img-thumbnail' src={src} width="120" height="120" />
-    );
-  },
 
   render: function() {
 
-    var sourceLink = <a href='https://github.com/lynndylanhurley/j-toker/blob/master/demo/src/scripts/components/profile-info.jsx' target='blank'>View component source</a>;
-
     return (
-      <Panel header='Account Info' bsStyle='info' footer={sourceLink}>
+      <Panel header='Device Config' bsStyle='info'>
         <Row>
           <Col xs={9}>
-            <label>email:</label>
-            <p>{this.props.email || 'n/a'}</p>
 
-            <label>name:</label>
-            <p>{this.props.name || 'n/a'}</p>
+            <label>Device token:</label>
+            <p>{this.props.device.deviceToken || 'n/a'}</p>
 
-            <label>nickname:</label>
-            <p>{this.props.nickname || 'n/a'}</p>
+            <label>Device name:</label>
+            <p>{this.props.device.deviceName || 'n/a'}</p>
 
-            <label>favorite color:</label>
-            <p>{this.props.favorite_color || 'n/a'}</p>
+            <label>Property name:</label>
+            <p>{this.props.device.propertyName || 'n/a'}</p>
 
-            <label>using configuration:</label>
-            <p>{this.props.configName || 'n/a'}</p>
-          </Col>
+            <label>Integration type:</label>
+            <p>{this.props.device.integrationType || 'n/a'}</p>
 
-          <Col xs={3}>
-            {this.renderImage()}
           </Col>
         </Row>
       </Panel>
