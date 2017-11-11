@@ -45,7 +45,7 @@ module.exports = React.createClass({
     }
 
     $.ajax({
-      "url": "http://omega13:8080/api/v2/devices/users/sign_in",
+      "url": window.config.apiUrl + "/api/v2/devices/users/sign_in",
       "method": "POST",
       "headers": {
         "content-type": "application/json"
@@ -53,9 +53,6 @@ module.exports = React.createClass({
       "processData": false,
       "data": JSON.stringify(data),
       "complete": function(xhr, status){
-        //console.log(xhr.getAllResponseHeaders());
-        //var responseHeaders = JSON.parse(xhr.getAllResponseHeaders());
-        //console.log(responseHeaders);
         this.props.updateAuth({
           accessToken: xhr.getResponseHeader('access-token'),
           client: xhr.getResponseHeader('client'),
@@ -79,7 +76,7 @@ module.exports = React.createClass({
     .fail(function(response, status, error){
          this.setState({
           isModalOpen: true,
-          errors: [error]
+          errors: response.responseJSON.errors || [error]
         });
     }.bind(this));
   },
@@ -95,7 +92,7 @@ module.exports = React.createClass({
 
   renderErrorMessage: function() {
     return (
-      <p>There was an error: {this.state.errors.join(', ')}</p>
+      <p>{this.state.errors.join(', ')}</p>
     );
   },
 

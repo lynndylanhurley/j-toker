@@ -45,10 +45,11 @@ module.exports = React.createClass({
     }
 
     $.ajax({
-      "url": "http://omega13:8080/api/v2/devices/enrollments",
+      "url": window.config.apiUrl + "/api/v2/devices/enrollments",
       "method": "POST",
       "headers": {
         "enrollment_code": this.state.enrollmentCode,
+        "enrollment_code_password": this.state.enrollmentCodePassword,
         "content-type": "application/json"
       },
       "processData": false,
@@ -72,7 +73,7 @@ module.exports = React.createClass({
     .fail(function(response, status, error){
          this.setState({
           isModalOpen: true,
-          errors: [error]
+          errors: response.responseJSON.errors || [error]
         });
     }.bind(this));
   },
@@ -90,7 +91,7 @@ module.exports = React.createClass({
 
   renderErrorMessage: function() {
     return (
-      <p>There was an error: {this.state.errors.join(', ')}</p>
+      <p>{this.state.errors.join(', ')}</p>
     );
   },
 
@@ -111,6 +112,13 @@ module.exports = React.createClass({
                 label='Enrollment Code (required)'
                 placeholder='Enter code...'
                 value={this.state.enrollmentCode}
+                disabled={!$.isEmptyObject(this.state.deviceToken)}
+                onChange={this.handleInputChange} />
+
+          <Input type='text'
+                name='enrollmentCodePassword'
+                label='Enrollment Code Password (required)'
+                placeholder='Enter password...'
                 disabled={!$.isEmptyObject(this.state.deviceToken)}
                 onChange={this.handleInputChange} />
 

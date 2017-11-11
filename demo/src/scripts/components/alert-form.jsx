@@ -33,7 +33,7 @@ module.exports = React.createClass({
     }
 
     $.ajax({
-      "url": "http://omega13:8080/api/v2/sos_alerts",
+      "url": window.config.apiUrl + "/api/v2/sos_alerts",
       "method": "POST",
       "headers": {
         "content-type": "application/json",
@@ -57,7 +57,7 @@ module.exports = React.createClass({
     .fail(function(response, status, error){
       this.setState({
         isModalOpen: true,
-        errors: [error]
+        errors: response.responseJSON.error.message|| error
       });
     }.bind(this));
   },
@@ -65,7 +65,7 @@ module.exports = React.createClass({
   handleCancelClick: function() {
 
     $.ajax({
-      "url": "http://omega13:8080/api/v2/sos_alerts/" + this.state.alertGuid,
+      "url": window.config.apiUrl + "/api/v2/sos_alerts/" + this.state.alertGuid,
       "method": "DELETE",
       "headers": {
         "content-type": "application/json",
@@ -86,51 +86,50 @@ module.exports = React.createClass({
     .fail(function(response, status, error){
       this.setState({
         isModalOpen: true,
-        errors: [error]
+        errors: response.responseJSON.error.message || error
       });
     }.bind(this));
   },
 
-  successModalTitle: 'Sos Activate Success',
-  errorModalTitle: 'Sos Activate Error',
+  successModalTitle: 'Success',
+  errorModalTitle: 'Error',
 
   renderSuccessMessage: function() {
     return (
-      <p>SOS ALERT ACTIVATED!</p>
+      <p>API request OK</p>
     );
   },
 
   renderErrorMessage: function() {
     return (
       <p>
-        There was an error activating an sos alert:
-        {this.state.errors.join(' ')}
+        {this.state.errors}
       </p>
     );
   },
 
   render: function() {
     return (
-      <Panel header='Alert' bsStyle='info'>
+      <Panel header='SOS Alert' bsStyle='info'>
         <form>
           <Button className='btn btn-danger'
                   disabled={!this.state.signedIn && this.state.alertActive}
                   onClick={this.handleActivateClick}>
-            Activate SOS!
+            Activate
           </Button>
         </form>
         <form>
           <Button className='btn btn-warning'
                   disabled={!this.state.alertActive}
                   onClick={this.handleUpdateClick}>
-            Update
+            Update GeoCoords
           </Button>
         </form>
         <form>
           <Button className='btn btn-success'
                   disabled={!this.state.alertActive}
                   onClick={this.handleCancelClick}>
-            Cancel
+            Deactivate
           </Button>
         </form>
       </Panel>
