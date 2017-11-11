@@ -1,2 +1,2 @@
-apiUrl:  '//devise-token-auth-demo.herokuapp.com'
+apiUrl:  'https://rm-preview.herokuapp.com'
 distDir: 'dist-production'
