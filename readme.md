@@ -454,7 +454,7 @@ Create an account using email for confirmation.
   });
   ~~~
 
-* You can also pass any arbitrary attrubute / values to be assigned to the user at account creation:
+* You can also pass any arbitrary attribute / values to be assigned to the user at account creation:
 
   ~~~javascript
   $.auth.emailSignUp({
