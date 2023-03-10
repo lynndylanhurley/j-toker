@@ -1102,6 +1102,11 @@ delegates@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
 
+deparam@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/deparam/-/deparam-1.0.5.tgz#74011bbabd26b40f860c3e3cc2cd61bed4eb43f2"
+  integrity sha512-HYEAvtq+xdB457ls9VxrJ2gvhme+McIOvQt39RWHhUcqDua6pF7wzhdmd2JoUe1TC4RiYsd7+Izjo4wm/IKfJg==
+
 depd@1.1.1, depd@~1.1.0, depd@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.1.tgz#5783b4e1c459f06fa5ca27f991f3d06e7a310359"
@@ -2465,17 +2470,14 @@ istanbul@~0.4.5:
     which "^1.1.1"
     wordwrap "^1.0.0"
 
-jquery-deparam@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/jquery-deparam/-/jquery-deparam-0.1.0.tgz#eaa60c1699fab7637d1acb8d2a08c72d095a0b96"
-
 jquery.cookie@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/jquery.cookie/-/jquery.cookie-1.4.1.tgz#d63dce209eab691fe63316db08ca9e47e0f9385b"
 
-jquery@1.11.2:
-  version "1.11.2"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-1.11.2.tgz#30ab26857211c37caa83da0f6903155fe49bb72d"
+jquery@>1.11.2:
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.4.tgz#ba065c188142100be4833699852bf7c24dc0252f"
+  integrity sha512-v28EW9DWDFpzcD9O5iyJXg3R3+q+mET5JhnjJzQUZMHOv67bpSIHq81GEYpPNZHG+XXHsfSme3nxp/hndKEcsQ==
 
 js-base64@^2.1.8:
   version "2.3.2"

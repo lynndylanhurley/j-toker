@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "jquery": ">1.11.2",
-    "jquery-deparam": "^0.1.0",
+    "deparam": "^1.0.5",
     "jquery.cookie": "^1.4.1",
     "pubsub-js": "^1.5.2"
   },
