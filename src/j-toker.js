@@ -10,7 +10,7 @@
     // AMD. Register as an anonymous module.
     define([
       'jquery',
-      'jquery-deparam',
+      'deparam',
       'pubsub-js',
       'jquery.cookie'
     ], factory);
@@ -18,7 +18,7 @@
     // Node/CommonJS
     module.exports = factory(
       require('jquery'),
-      require('jquery-deparam'),
+      require('deparam'),
       require('pubsub-js'),
       require('jquery.cookie')
     );
@@ -224,7 +224,7 @@
       }
 
       if (!deparam) {
-        errors.push('Dependency not met: jquery-deparam.');
+        errors.push('Dependency not met: deparam.');
       }
 
       if (!PubSub) {

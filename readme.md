@@ -95,7 +95,7 @@ Oh wait you're using [Angular][angular]? Use [ng-token-auth][ng-token-auth] (Ang
 2. Ensure that the following dependencies are included:
    * [jquery][jquery]: AJAX requests
    * [jquery-cookie][jquery-cookie]: Persist data through browser sessions
-   * [jquery-deparam][jquery-deparam]: Querystring param deconstruction.
+   * [deparam][deparam]: Querystring param deconstruction.
    * [PubSubJS][pubsub-js]: (optional) Event publish / subscribe.
 
    These dependencies were pulled down automatically if you used [bower] or [npm] to install jToker.
@@ -115,7 +115,7 @@ Oh wait you're using [Angular][angular]? Use [ng-token-auth][ng-token-auth] (Ang
      <!-- dependencies - these should come BEFORE jToker -->
      <script src='/js/jquery/dist/jquery.js'></script>
      <script src='/js/jquery.cookie/jquery.cookie.js'></script>
-     <script src='/js/jquery-deparam/jquery-deparam.js'></script>
+     <script src='/js/deparam/src/deparam.js'></script>
      <script src='/js/pubsub-js/src/pubsub.js'></script>
 
      <!-- this should come AFTER the preceeding files -->
@@ -1370,7 +1370,7 @@ WTFPL © Lynn Dylan Hurley
 [so-post]: http://stackoverflow.com/questions/18605294/is-devises-token-authenticatable-secure
 [jquery]: https://jquery.com/
 [jquery-cookie]: https://github.com/carhartl/jquery-cookie
-[jquery-deparam]: https://www.npmjs.com/package/jquery-deparam
+[deparam]: https://www.npmjs.com/package/deparam
 [pubsub-js]: https://github.com/mroderick/PubSubJS
 [bower]: http://bower.io/
 [npm]: https://www.npmjs.com/
