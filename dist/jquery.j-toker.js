@@ -22,7 +22,10 @@
     factory(window.jQuery, window.deparam, window.PubSub);
   }
 }(function ($, deparam, PubSub) {
-  var root = Function('return this')(); // jshint ignore:line
+  // remove Function() because eval function is not allowed at chrome extension
+  // var root = Function('return this')(); // jshint ignore:line
+
+  var root = $
 
   // singleton baby
   if (root.auth) {
@@ -30,7 +33,7 @@
   }
 
   // use for IE detection
-  var nav = root.navigator;
+  var nav = window.navigator;
 
   // cookie/localStorage value keys
   var INITIAL_CONFIG_KEY  = 'default',
@@ -113,11 +116,11 @@
       initialCredentials:    null,
 
       passwordResetSuccessUrl: function() {
-        return root.location.href;
+        return window.location.href;
       },
 
       confirmationSuccessUrl:  function() {
-        return root.location.href;
+        return window.location.href;
       },
 
       tokenFormat: {
@@ -181,8 +184,8 @@
     // remove event listeners
     $(document).unbind('ajaxComplete', this.updateAuthCredentials);
 
-    if (root.removeEventListener) {
-      root.removeEventListener('message', this.handlePostMessage);
+    if (window.removeEventListener) {
+      window.removeEventListener('message', this.handlePostMessage);
     }
 
     // remove global ajax "interceptors"
@@ -211,7 +214,7 @@
         throw 'jToker: jQuery not found. This module depends on jQuery.';
       }
 
-      if (!root.localStorage && !$.cookie) {
+      if (!window.localStorage && !$.cookie) {
         errors.push(
           'This browser does not support localStorage. You must install '+
             'jquery-cookie to use jToker with this browser.'
@@ -251,8 +254,8 @@
       key = sessionKeys[key];
 
       // kill all local storage keys
-      if (root.localStorage) {
-        root.localStorage.removeItem(key);
+      if (window.localStorage) {
+        window.localStorage.removeItem(key);
       }
 
       if ($.cookie) {
@@ -334,8 +337,8 @@
     }
 
     // IE8 won't have this feature
-    if (root.addEventListener) {
-      root.addEventListener("message", this.handlePostMessage, false);
+    if (window.addEventListener) {
+      window.addEventListener("message", this.handlePostMessage, false);
     }
 
     // pull creds from search bar if available
@@ -532,7 +535,7 @@
     // strip all values from both actual and anchor search params
     var newSearch   = $.param(this.stripKeys(this.getSearchQs(), keys)),
         newAnchorQs = $.param(this.stripKeys(this.getAnchorQs(), keys)),
-        newAnchor   = root.location.hash.split('?')[0];
+        newAnchor   = window.location.hash.split('?')[0];
 
     if (newSearch) {
       newSearch = "?" + newSearch;
@@ -547,10 +550,10 @@
     }
 
     // reconstruct location with stripped auth keys
-    var newLocation = root.location.protocol +
+    var newLocation = window.location.protocol +
         '//'+
-        root.location.host+
-        root.location.pathname+
+        window.location.host+
+        window.location.pathname+
         newSearch+
         newAnchor;
 
@@ -811,7 +814,7 @@
 
 
   Auth.prototype.openAuthWindow = function(url) {
-    if (this.getConfig().forceHardRedirect || root.isIE()) {
+    if (this.getConfig().forceHardRedirect || window.isIE()) {
       // redirect to external auth provider. credentials should be
       // provided in location search hash upon return
       this.setLocation(url);
@@ -827,7 +830,7 @@
 
   Auth.prototype.buildOAuthUrl = function(configName, params, providerPath) {
     var oAuthUrl = this.getConfig().apiUrl + providerPath +
-        '?auth_origin_url='+encodeURIComponent(root.location.href) +
+        '?auth_origin_url='+encodeURIComponent(window.location.href) +
         '&config_name='+encodeURIComponent(configName || this.getCurrentConfigName()) +
         "&omniauth_window_type=newWindow";
 
@@ -1066,7 +1069,7 @@
 
     switch (this.getConfig(config).storage) {
       case 'localStorage':
-        root.localStorage.setItem(key, val);
+        window.localStorage.setItem(key, val);
         break;
 
       default:
@@ -1085,7 +1088,7 @@
 
     switch (this.getConfig().storage) {
       case 'localStorage':
-        val = root.localStorage.getItem(key);
+        val = window.localStorage.getItem(key);
         break;
 
       default:
@@ -1120,8 +1123,8 @@
       configName = $.cookie(SAVED_CONFIG_KEY);
     }
 
-    if (root.localStorage && !configName) {
-      configName = root.localStorage.getItem(SAVED_CONFIG_KEY);
+    if (window.localStorage && !configName) {
+      configName = window.localStorage.getItem(SAVED_CONFIG_KEY);
     }
 
     configName = configName || this.defaultConfigKey || INITIAL_CONFIG_KEY;
@@ -1140,7 +1143,7 @@
         break;
 
       default:
-        root.localStorage.removeItem(key);
+        window.localStorage.removeItem(key);
         break;
     }
   };
@@ -1215,18 +1218,18 @@
 
   // stub for mock overrides
   Auth.prototype.getRawSearch = function() {
-    return root.location.search;
+    return window.location.search;
   };
 
 
   // stub for mock overrides
   Auth.prototype.getRawAnchor = function() {
-    return root.location.hash;
+    return window.location.hash;
   };
 
 
   Auth.prototype.setRawAnchor = function(a) {
-    root.location.hash = a;
+    window.location.hash = a;
   };
 
 
@@ -1238,7 +1241,7 @@
 
   // stub for mock overrides
   Auth.prototype.setRawSearch = function(s) {
-    root.location.search = s;
+    window.location.search = s;
   };
 
 
@@ -1257,13 +1260,13 @@
 
   // stub for mock overrides
   Auth.prototype.setLocation = function(url) {
-    root.location.replace(url);
+    window.location.replace(url);
   };
 
 
   // stub for mock overrides
   Auth.prototype.createPopup = function(url) {
-    return root.open(url);
+    return window.open(url);
   };
 
 
@@ -1323,7 +1326,7 @@
 
 
   // check if IE < 10
-  root.isOldIE = function() {
+  window.isOldIE = function() {
     var oldIE = false,
         ua    = nav.userAgent.toLowerCase();
 
@@ -1339,8 +1342,8 @@
 
 
   // check if using IE
-  root.isIE = function() {
-    var ieLTE10 = root.isOldIE(),
+  window.isIE = function() {
+    var ieLTE10 = window.isOldIE(),
         ie11    = !!nav.userAgent.match(/Trident.*rv\:11\./);
 
     return (ieLTE10 || ie11);
